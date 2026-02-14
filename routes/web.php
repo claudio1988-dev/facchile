@@ -28,6 +28,8 @@ Route::get('/contacto', function () {
     return Inertia::render('support/Contact');
 })->name('contact');
 
+Route::get('/producto/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
+
 Route::get('/info/{slug}', function ($slug) {
     return Inertia::render('support/Informational', ['slug' => $slug]);
 })->name('info');
@@ -37,3 +39,9 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/settings.php';
+require __DIR__.'/admin.php';
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/customer/verifications', [App\Http\Controllers\CustomerVerificationController::class, 'index'])->name('customer.verifications');
+    Route::post('/customer/verifications', [App\Http\Controllers\CustomerVerificationController::class, 'store'])->name('customer.verifications.store');
+});

@@ -4,20 +4,31 @@ import { Button } from '@/components/ui/button';
 export default function HeroSection() {
     return (
         <section className="relative h-screen min-h-[700px] w-full overflow-hidden bg-slate-900">
-            {/* Background Image */}
+            {/* Background Video */}
             <div className="absolute inset-0">
                 <video 
                     autoPlay 
                     loop 
                     muted 
                     playsInline 
-                    className="h-full w-full object-cover opacity-40 grayscale-[0.2]"
+                    className="h-full w-full object-cover opacity-60 grayscale-[0.1]"
                 >
                     <source src="/videofondo1.mp4" type="video/mp4" />
                     Tu navegador no soporta videos HTML5.
                 </video>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-950/40" />
             </div>
+
+            {/* Overlay Image - Gente Pescando */}
+            <div className="absolute inset-0">
+                <img 
+                    src="/images/gentepescando.jpeg" 
+                    alt="Gente pescando" 
+                    className="h-full w-full object-cover opacity-20 mix-blend-overlay"
+                />
+            </div>
+
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/30 to-transparent" />
 
             {/* Content */}
             <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center text-white sm:px-6 lg:px-8">

@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Package, Layers, Tag, ShoppingCart } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -21,6 +21,34 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+];
+
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Panel Admin',
+        href: '/adminfacchile',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Productos',
+        href: '/adminfacchile/products',
+        icon: Package,
+    },
+    {
+        title: 'Categorías',
+        href: '/adminfacchile/categories',
+        icon: Layers,
+    },
+    {
+        title: 'Marcas',
+        href: '/adminfacchile/brands',
+        icon: Tag,
+    },
+    {
+        title: 'Pedidos',
+        href: '/adminfacchile/orders',
+        icon: ShoppingCart,
     },
 ];
 
@@ -54,6 +82,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
+                <NavMain items={adminNavItems} />
             </SidebarContent>
 
             <SidebarFooter>
