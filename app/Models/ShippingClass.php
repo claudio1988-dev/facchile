@@ -8,13 +8,15 @@ class ShippingClass extends Model
 {
     protected $fillable = [
         'name',
-        'slug',
+        'code',
         'description',
-        'requires_special_handling',
+        'allows_home_delivery',
+        'requires_special_carrier',
     ];
 
     protected $casts = [
-        'requires_special_handling' => 'boolean',
+        'allows_home_delivery' => 'boolean',
+        'requires_special_carrier' => 'boolean',
     ];
 
     public function products()

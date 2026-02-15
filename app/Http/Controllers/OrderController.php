@@ -142,12 +142,11 @@ class OrderController extends Controller
             DB::commit();
 
             // 8. Logic for Redirect based on Payment Method
-            $redirectUrl = route('order.success', ['order' => $order->order_number]);
+            $redirectUrl = route('checkout.success', ['order' => $order->order_number]);
             
             if ($validated['payment_method'] === 'webpay') {
-                // Here we would call the Webpay service and get the token/url
-                // For now, we continue to success as a mock
-                // $redirectUrl = $webpayService->init($order);
+                // Redirect to our Webpay Controller to initiate transaction
+                $redirectUrl = route('webpay.start', ['order' => $order->id]);
             }
 
             return response()->json([

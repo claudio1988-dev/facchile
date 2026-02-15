@@ -304,7 +304,7 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                                     <Checkbox 
                                                         id={`brand-${brand.id}`} 
                                                         className="rounded-none border-slate-300 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
-                                                        checked={filters.brand?.split(',').includes(brand.name)}
+                                                        checked={filters.brand?.split(',').includes(brand.name) ?? false}
                                                         onCheckedChange={(checked) => handleBrandChange(brand.name, checked === true)}
                                                     />
                                                     <label 
@@ -386,9 +386,10 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                         }>
                                             <Link href={`/producto/${product.slug}`} className="block w-full h-full">
                                                 <img
-                                                    src="/images/gentepescando.jpeg"
+                                                    src={product.main_image_url || '/images/no-image.jpg'}
                                                     alt={product.name}
                                                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal"
+                                                    onError={(e) => { e.currentTarget.src = '/images/no-image.jpg'; }}
                                                 />
                                             </Link>
                                             

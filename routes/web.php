@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\WebpayController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -43,6 +44,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/customer/verifications', [App\Http\Controllers\CustomerVerificationController::class, 'store'])->name('customer.verifications.store');
     Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [App\Http\Controllers\OrderController::class, 'store'])->name('checkout.process');
+    // Webpay routes added here
+    Route::get('/webpay/pay/{order}', [WebpayController::class, 'start'])->name('webpay.start');
+    Route::any('/webpay/return', [WebpayController::class, 'callback'])->name('webpay.return'); // Transbank does POST, sometimes GET
 });
 
 Route::get('/checkout/success/{order}', [App\Http\Controllers\OrderController::class, 'success'])->name('checkout.success')->middleware(['auth']);

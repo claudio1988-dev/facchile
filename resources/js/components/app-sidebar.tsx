@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Package, Layers, Tag, ShoppingCart } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Folder, LayoutGrid, Package, Layers, Tag, ShoppingCart, Users } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -13,7 +13,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import type { NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -50,6 +50,11 @@ const adminNavItems: NavItem[] = [
         href: '/adminfacchile/orders',
         icon: ShoppingCart,
     },
+    {
+        title: 'Clientes',
+        href: '/adminfacchile/customers',
+        icon: Users,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -66,6 +71,8 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -82,7 +89,9 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
-                <NavMain items={adminNavItems} />
+                {auth.user.role === 'admin' && (
+                    <NavMain items={adminNavItems} />
+                )}
             </SidebarContent>
 
             <SidebarFooter>

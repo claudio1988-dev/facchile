@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from '@/components/ui/sheet';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/useCartStore';
@@ -29,6 +29,9 @@ export default function CartSheet({ children }: { children: React.ReactNode }) {
                         <ShoppingCart className="h-5 w-5 text-brand-primary" />
                         Tu Carrito ({itemsCount})
                     </SheetTitle>
+                    <SheetDescription className="sr-only">
+                        Revisa los productos seleccionados antes de proceder al pago.
+                    </SheetDescription>
                 </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto py-6 px-1 custom-scrollbar">
@@ -51,7 +54,7 @@ export default function CartSheet({ children }: { children: React.ReactNode }) {
                                 <div key={item.id} className="flex gap-4">
                                     <div className="h-20 w-20 flex-none overflow-hidden rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
                                         <img
-                                            src={item.image || '/images/imagenesdemo/1.avif'}
+                                            src={item.image || '/images/no-image.jpg'}
                                             alt={item.name}
                                             className="h-full w-full object-cover"
                                         />

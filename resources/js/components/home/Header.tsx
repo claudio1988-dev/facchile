@@ -232,7 +232,7 @@ export default function Header() {
                                     <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
-                                    <DropdownMenuItem asChild><Link href="/profile">Perfil</Link></DropdownMenuItem>
+                                    <DropdownMenuItem asChild><Link href="/settings/profile">Perfil</Link></DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild><Link href="/logout" method="post" as="button" className="w-full text-left text-red-600">Cerrar Sesión</Link></DropdownMenuItem>
                                 </DropdownMenuContent>

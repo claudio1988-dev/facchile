@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('adminfacchile')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'user.admin'])
     ->name('admin.')
     ->group(function () {
         // Dashboard
