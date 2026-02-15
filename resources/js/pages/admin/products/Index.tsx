@@ -19,7 +19,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
 import { useState } from 'react';
 import type { BreadcrumbItem } from '@/types';
 
@@ -271,6 +271,11 @@ export default function Index({ products, filters, categories, brands }: Props) 
                                             <TableCell>{product.created_at}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">
+                                                    <Link href={`/adminfacchile/products/${product.id}`}>
+                                                        <Button variant="outline" size="icon">
+                                                            <Eye className="size-4" />
+                                                        </Button>
+                                                    </Link>
                                                     <Link
                                                         href={`/adminfacchile/products/${product.id}/edit`}
                                                     >

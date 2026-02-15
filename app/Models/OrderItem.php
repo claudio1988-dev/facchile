@@ -8,6 +8,7 @@ class OrderItem extends Model
 {
     protected $fillable = [
         'order_id',
+        'product_id',
         'product_variant_id',
         'kit_id',
         'product_name',
@@ -33,6 +34,11 @@ class OrderItem extends Model
     public function productVariant()
     {
         return $this->belongsTo(ProductVariant::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     public function kit()

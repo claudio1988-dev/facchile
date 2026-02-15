@@ -11,9 +11,9 @@ class ProductController extends Controller
     /**
      * Display the specified product.
      */
-    public function show(string $id): Response
+    public function show(string $slug): Response
     {
-        $product = Product::findOrFail($id);
+        $product = Product::where('slug', $slug)->firstOrFail();
         
         // Load relationships
         $product->load(['category', 'brand', 'shippingClass']);

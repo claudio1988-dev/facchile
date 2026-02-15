@@ -78,25 +78,17 @@ export default function Category({ categorySlug: rawSlug }: CategoryProps) {
             <Header />
 
             {/* Category Hero */}
-            <div className="relative h-[300px] w-full mt-20 overflow-hidden">
+            <div className="relative h-[100px] w-full mt-24 overflow-hidden">
                 <img 
                     src={category.image} 
                     alt={category.title} 
                     className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/90 via-brand-secondary/40 to-transparent" />
-                <div className="absolute inset-0 flex items-center">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-                        <div className="max-w-2xl text-white">
-                            <Badge className="mb-4 bg-brand-primary border-none text-white hover:bg-brand-primary">Módulo Especializado</Badge>
-                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 drop-shadow-lg">
-                                {category.title}
-                            </h1>
-                            <p className="text-lg text-slate-100 max-w-lg drop-shadow">
-                                {category.description}
-                            </p>
-                        </div>
-                    </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-secondary to-transparent" />
+                <div className="relative z-10 mx-auto max-w-7xl px-4 h-full flex flex-col justify-end pb-3 sm:px-6 lg:px-8 text-white">
+                    <h1 className="text-xl font-black tracking-tight drop-shadow-lg">
+                        {category.title}
+                    </h1>
                 </div>
             </div>
 

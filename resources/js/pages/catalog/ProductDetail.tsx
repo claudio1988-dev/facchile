@@ -15,6 +15,7 @@ import {
     CheckCircle2,
     AlertCircle
 } from 'lucide-react';
+import { useCartStore } from '@/store/useCartStore';
 
 interface Product {
     id: number;
@@ -64,7 +65,7 @@ export default function ProductDetail({ product }: Props) {
             <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
                 <Header />
 
-                <main className="pt-20">
+                <main className="pt-24">
                     {/* Breadcrumb */}
                     <div className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-800">
                         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -73,7 +74,7 @@ export default function ProductDetail({ product }: Props) {
                                     Inicio
                                 </Link>
                                 <span className="text-slate-400">/</span>
-                                {product.category && (
+                                {product.category && product.category.slug && (
                                     <>
                                         <Link 
                                             href={`/categoria/${product.category.slug}`}
@@ -99,162 +100,177 @@ export default function ProductDetail({ product }: Props) {
                             Volver al catálogo
                         </Link>
 
-                        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                            {/* Product Image */}
-                            <div className="relative">
-                                <div className="aspect-square overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
-                                    {product.main_image_url ? (
-                                        <img
-                                            src={product.main_image_url}
-                                            alt={product.name}
-                                            className="h-full w-full object-cover object-center"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full w-full items-center justify-center">
-                                            <span className="text-slate-400 dark:text-slate-600">Sin imagen</span>
+                        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+                            {/* Product Media (Gallery/Image) */}
+                            <div className="lg:col-span-5 xl:col-span-6">
+                                <div className="sticky top-32">
+                                    <div className="relative aspect-square max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-8">
+                                        {product.main_image_url ? (
+                                            <img
+                                                src={product.main_image_url || '/images/imagenesdemo/1.avif'}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "/images/imagenesdemo/1.avif";
+                                                }}
+                                                alt={product.name}
+                                                className="max-h-full max-w-full object-contain drop-shadow-md"
+                                            />
+                                        ) : (
+                                            <img
+                                                src="/images/imagenesdemo/1.avif"
+                                                alt={product.name}
+                                                className="max-h-full max-w-full object-contain grayscale opacity-30"
+                                            />
+                                        )}
+                                        
+                                        {/* Badges Overlay */}
+                                        <div className="absolute top-4 left-4 flex flex-col gap-2">
+                                            {!product.is_active && (
+                                                <Badge variant="secondary" className="px-3 py-1 bg-white/80 backdrop-blur dark:bg-slate-800/80">No Disponible</Badge>
+                                            )}
+                                            {product.is_restricted && (
+                                                <Badge variant="destructive" className="px-3 py-1 shadow-lg ring-2 ring-white dark:ring-slate-900">
+                                                    Restringido 18+
+                                                </Badge>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-
-                                {/* Badges */}
-                                <div className="absolute top-4 left-4 flex flex-col gap-2">
-                                    {!product.is_active && (
-                                        <Badge variant="secondary">No Disponible</Badge>
-                                    )}
-                                    {product.is_restricted && (
-                                        <Badge variant="destructive">Producto Restringido</Badge>
-                                    )}
+                                    </div>
+                                    
+                                    {/* Small Gallery Mockup (Future Implementation) */}
+                                    <div className="mt-4 flex gap-4 overflow-x-auto pb-2">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="h-20 w-20 flex-shrink-0 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 cursor-pointer hover:border-brand-primary transition-colors overflow-hidden">
+                                                 <img
+                                                    src={product.main_image_url || '/images/imagenesdemo/1.avif'}
+                                                    alt={`${product.name} thumb ${i}`}
+                                                    className="h-full w-full object-cover opacity-60"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Product Info */}
-                            <div className="flex flex-col">
-                                {/* Brand */}
-                                {product.brand && (
-                                    <p className="text-sm font-medium text-brand-primary mb-2">
-                                        {product.brand.name}
-                                    </p>
-                                )}
+                            {/* Product Purchase & Info Panel */}
+                            <div className="lg:col-span-7 xl:col-span-6">
+                                <div className="lg:sticky lg:top-32 flex flex-col h-full">
+                                    {/* Brand & Stats */}
+                                    <div className="flex items-center justify-between mb-4">
+                                        {product.brand && (
+                                            <Badge variant="outline" className="text-xs font-bold border-brand-primary/20 bg-brand-primary/5 text-brand-primary px-3 py-1">
+                                                {product.brand.name}
+                                            </Badge>
+                                        )}
+                                        <div className="flex items-center gap-1 text-slate-400">
+                                             <Share2 className="h-4 w-4 cursor-pointer hover:text-brand-primary" />
+                                             <Heart className="h-4 w-4 cursor-pointer hover:text-red-500" />
+                                        </div>
+                                    </div>
 
-                                {/* Title */}
-                                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-                                    {product.name}
-                                </h1>
+                                    {/* Product Main Title */}
+                                    <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2 leading-tight">
+                                        {product.name}
+                                    </h1>
+                                    
+                                    {/* Short description / Hook */}
+                                    {product.short_description && (
+                                        <p className="text-lg text-slate-500 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                            {product.short_description}
+                                        </p>
+                                    )}
 
-                                {/* Short Description */}
-                                {product.short_description && (
-                                    <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
-                                        {product.short_description}
-                                    </p>
-                                )}
-
-                                {/* Price */}
-                                <div className="mb-6">
-                                    <p className="text-4xl font-bold text-brand-primary">
-                                        {formatPrice(product.base_price)}
-                                    </p>
-                                </div>
-
-                                {/* Age Verification Warning */}
-                                {product.age_verification_required && (
-                                    <Card className="mb-6 border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
-                                        <CardContent className="flex items-start gap-3 p-4">
-                                            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
-                                            <div>
-                                                <p className="font-semibold text-amber-900 dark:text-amber-200">
-                                                    Verificación de Edad Requerida
-                                                </p>
-                                                <p className="text-sm text-amber-800 dark:text-amber-300">
-                                                    Este producto requiere verificación de edad al momento de la compra.
+                                    {/* Price Card */}
+                                    <div className="mb-8 p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-black text-brand-primary">
+                                                {formatPrice(product.base_price)}
+                                            </span>
+                                            <span className="text-sm text-slate-400 font-medium">IVA incluido</span>
+                                        </div>
+                                        
+                                        {/* Restricted Banner */}
+                                        {product.age_verification_required && (
+                                            <div className="mt-4 flex items-start gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg border border-amber-100 dark:border-amber-900/50">
+                                                <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                                                <p className="text-xs font-bold uppercase tracking-tight">
+                                                    Venta solo para mayores de 18 años
                                                 </p>
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                )}
+                                        )}
 
-                                {/* Actions */}
-                                <div className="flex gap-3 mb-8">
-                                    <Button 
-                                        size="lg" 
-                                        className="flex-1 bg-action-buy hover:bg-action-hover"
-                                        disabled={!product.is_active}
-                                    >
-                                        <ShoppingCart className="mr-2 h-5 w-5" />
-                                        Agregar al Carrito
-                                    </Button>
-                                    <Button size="lg" variant="outline">
-                                        <Heart className="h-5 w-5" />
-                                    </Button>
-                                    <Button size="lg" variant="outline">
-                                        <Share2 className="h-5 w-5" />
-                                    </Button>
+                                        {/* Purchase Button */}
+                                        <div className="mt-8">
+                                            <Button 
+                                                size="lg" 
+                                                className="w-full bg-action-buy hover:bg-action-hover h-14 text-lg font-bold shadow-xl shadow-brand-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                                                disabled={!product.is_active}
+                                                onClick={() => useCartStore.getState().addToCart(product)}
+                                            >
+                                                <ShoppingCart className="mr-3 h-6 w-6" />
+                                                Agregar al Carrito
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    {/* Trust Badges Panel */}
+                                    <div className="grid grid-cols-1 gap-4 mb-8">
+                                        <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                                            <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                                                <Truck className="h-5 w-5 text-green-600 dark:text-green-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-900 dark:text-white">Envío a Todo Chile</p>
+                                                <p className="text-xs text-slate-500">Despacho seguro en 24/48hrs</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                                            <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                                <Shield className="h-5 w-5 text-blue-600 dark:text-blue-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-900 dark:text-white">Compra Protegida</p>
+                                                <p className="text-xs text-slate-500">Garantía oficial Facchile</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Extra Info */}
+                                    {product.shipping_class && (
+                                        <div className="mt-auto text-xs text-slate-400">
+                                             Clasificación: <span className="font-bold text-slate-500 underline">{product.shipping_class.name}</span>
+                                        </div>
+                                    )}
                                 </div>
-
-                                {/* Features */}
-                                <div className="space-y-3 border-t dark:border-slate-800 pt-6">
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <Truck className="h-5 w-5 text-green-600" />
-                                        <span className="text-slate-700 dark:text-slate-300">
-                                            Envío a todo Chile
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <Shield className="h-5 w-5 text-green-600" />
-                                        <span className="text-slate-700 dark:text-slate-300">
-                                            Compra 100% segura
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                                        <span className="text-slate-700 dark:text-slate-300">
-                                            Garantía del fabricante
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Shipping Class */}
-                                {product.shipping_class && (
-                                    <div className="mt-6 rounded-lg bg-slate-50 dark:bg-slate-900 p-4">
-                                        <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
-                                            Clase de Envío
-                                        </p>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                                            {product.shipping_class.name}
-                                        </p>
-                                    </div>
-                                )}
                             </div>
                         </div>
 
                         {/* Description */}
                         {product.description && (
                             <div className="mt-12 border-t dark:border-slate-800 pt-12">
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
                                     Descripción del Producto
                                 </h2>
-                                <div className="prose prose-slate dark:prose-invert max-w-none">
-                                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                                        {product.description}
-                                    </p>
-                                </div>
+                                <div 
+                                    className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed"
+                                    dangerouslySetInnerHTML={{ __html: product.description }}
+                                />
                             </div>
                         )}
 
                         {/* Category Info */}
-                        {product.category && (
-                            <div className="mt-12 border-t dark:border-slate-800 pt-12">
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
-                                    Más productos de {product.category.name}
-                                </h2>
-                                <Link 
-                                    href={`/categoria/${product.category.slug}`}
-                                    className="inline-flex items-center gap-2 text-brand-primary hover:text-action-hover font-medium"
-                                >
-                                    Ver todos los productos de {product.category.name}
-                                    <ArrowLeft className="h-4 w-4 rotate-180" />
-                                </Link>
-                            </div>
-                        )}
+                                {product.category && product.category.slug && (
+                                    <div className="mt-12 border-t dark:border-slate-800 pt-12">
+                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+                                            Más productos de {product.category.name}
+                                        </h2>
+                                        <Link 
+                                            href={`/categoria/${product.category.slug}`}
+                                            className="inline-flex items-center gap-2 text-brand-primary hover:text-action-hover font-medium"
+                                        >
+                                            Ver todos los productos de {product.category.name}
+                                            <ArrowLeft className="h-4 w-4 rotate-180" />
+                                        </Link>
+                                    </div>
+                                )}
                     </div>
                 </main>
 

@@ -20,13 +20,13 @@ export default function WhatsAppFloating() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end pointer-events-none">
             {/* Chat Modal */}
             <div
                 className={cn(
-                    "mb-4 w-[350px] overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300 ease-in-out dark:bg-[#1C1C1A]",
+                    "mb-4 w-[350px] overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300 ease-in-out dark:bg-[#1C1C1A] pointer-events-auto",
                     isOpen 
-                        ? "translate-y-0 opacity-100 scale-100Pointer" 
+                        ? "translate-y-0 opacity-100 scale-100" 
                         : "translate-y-10 opacity-0 scale-95 pointer-events-none"
                 )}
             >
@@ -96,7 +96,7 @@ export default function WhatsAppFloating() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "flex h-16 w-16 items-center justify-center rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 relative",
+                    "flex h-16 w-16 items-center justify-center rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 relative pointer-events-auto",
                     isOpen 
                         ? "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200" 
                         : "bg-[#25D366] text-white"

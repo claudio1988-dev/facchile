@@ -12,6 +12,7 @@ interface Category {
     slug: string;
     description: string | null;
     products_count: number;
+    parent_name: string | null;
     created_at: string;
 }
 
@@ -60,7 +61,16 @@ export default function Index({ categories }: Props) {
                             <TableBody>
                                 {categories.map((category) => (
                                     <TableRow key={category.id}>
-                                        <TableCell className="font-medium">{category.name}</TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">{category.name}</span>
+                                                {category.parent_name && (
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Padre: {category.parent_name}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </TableCell>
                                         <TableCell>{category.slug}</TableCell>
                                         <TableCell>{category.products_count}</TableCell>
                                         <TableCell>{category.created_at}</TableCell>

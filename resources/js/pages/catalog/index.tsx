@@ -1,6 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
-import { Search, Filter, SlidersHorizontal, ChevronRight, LayoutGrid, List, ShoppingCart } from 'lucide-react';
-import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Search, Filter, LayoutGrid, List, ShoppingCart, ChevronDown, Check, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
@@ -9,7 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import {
     Breadcrumb,
@@ -19,376 +25,455 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useCartStore } from '@/store/useCartStore';
 
-// Mock Data
-const categories = [
-    { name: 'Rifles de Aire', count: 42, slug: 'rifles' },
-    { name: 'Pesca Deportiva', count: 128, slug: 'pesca' },
-    { name: 'Camping', count: 85, slug: 'camping' },
-    { name: 'Cuchillería', count: 64, slug: 'cuchilleria' },
-    { name: 'Ropa Outdoor', count: 210, slug: 'ropa' },
-];
+// ... imports ...
 
-const brands = ['Gamo', 'Shimano', 'Doite', 'Lippi', 'Victorinox', 'Rapala', 'Hatsan'];
-
-const products = [
-    {
-        id: 1,
-        name: 'Rifle Nitro Piston Gamo Swarm Fox',
-        category: 'Rifles de Aire',
-        brand: 'Gamo',
-        price: 289990,
-        image: '/images/imagenesdemo/1.avif',
-        is_restricted: true,
-        stock: 5
-    },
-    {
-        id: 2,
-        name: 'Reel Shimano Nasci FB',
-        category: 'Pesca Deportiva',
-        brand: 'Shimano',
-        price: 124990,
-        image: '/images/imagenesdemo/5.png',
-        is_restricted: false,
-        stock: 2
-    },
-    {
-        id: 3,
-        name: 'Carpa Doite Himalaya 2 Personas',
-        category: 'Camping',
-        brand: 'Doite',
-        price: 159990,
-        image: '/images/imagenesdemo/3.jpg',
-        is_restricted: false,
-        stock: 12
-    },
-    {
-        id: 4,
-        name: 'Cuchillo Victorinox Ranger Grip 79',
-        category: 'Cuchillería',
-        brand: 'Victorinox',
-        price: 84990,
-        image: '/images/imagenesdemo/5.png',
-        is_restricted: false,
-        stock: 25
-    },
-    {
-        id: 5,
-        name: 'Parka Lippi Expedition 8000',
-        category: 'Ropa Outdoor',
-        brand: 'Lippi',
-        price: 329990,
-        image: '/images/imagenesdemo/1.avif',
-        is_restricted: false,
-        stock: 8
-    },
-    {
-        id: 6,
-        name: 'Rifle Aire Comprimido Hatsan AirTact',
-        category: 'Rifles de Aire',
-        brand: 'Hatsan',
-        price: 145000,
-        image: '/images/imagenesdemo/2.jpg',
-        is_restricted: true,
-        stock: 15
-    }
-];
-
-interface CatalogProps {
-    onlyOffers?: boolean;
+interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    products_count: number;
+    children?: Category[];
 }
 
-export default function Catalog({ onlyOffers = false }: CatalogProps) {
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+interface Brand {
+    id: number;
+    name: string;
+    products_count: number;
+}
 
-    const displayProducts = onlyOffers 
-        ? products.filter(p => p.price < 200000) // Mock filter for offers
-        : products;
+interface Product {
+    id: number;
+    name: string;
+    slug: string;
+    base_price: number;
+    main_image_url: string | null;
+    is_restricted: boolean;
+    category: Category | null;
+    brand: Brand | null;
+}
+
+interface PaginatedProducts {
+    data: Product[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+}
+
+interface Props {
+    paginatedProducts: PaginatedProducts;
+    categories: Category[];
+    brands: Brand[];
+    filters: {
+        search?: string;
+        category?: string;
+        brand?: string;
+        restricted?: boolean;
+        sort?: string;
+    };
+    onlyOffers?: boolean;
+    currentCategory?: Category | null;
+}
+
+// Recursive Category Item Component
+const CategoryItem = ({ category, selectedSlugs, onToggle }: { category: Category, selectedSlugs: string[], onToggle: (slug: string, checked: boolean) => void }) => {
+    const isSelected = selectedSlugs.includes(category.slug);
+    // Check if any child is selected to auto-expand or highlights
+    const hasSelectedChild = category.children?.some(child => selectedSlugs.includes(child.slug) || child.children?.some(grand => selectedSlugs.includes(grand.slug)));
+    const [isExpanded, setIsExpanded] = useState(hasSelectedChild);
+
+    useEffect(() => {
+        if (hasSelectedChild) setIsExpanded(true);
+    }, [hasSelectedChild]);
+
+    // Use total recursive count if available, otherwise direct count
+    const count = (category as any).total_products_count ?? category.products_count;
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0a]">
-            <Head title={onlyOffers ? "Ofertas Especiales | Facchile Outdoor" : "Catálogo | Facchile Outdoor"} />
-            
-            <Header />
-
-            {/* Catalog Hero */}
-            <div className="relative h-[300px] w-full mt-20 overflow-hidden bg-brand-secondary">
-                <div className="absolute inset-0 opacity-40">
-                    <img 
-                        src="/images/imagenesdemo/1.avif" 
-                        className="h-full w-full object-cover"
-                        alt="Background"
+        <div className="ml-1">
+             <div className="flex items-center justify-between group py-1">
+                <div className="flex items-center gap-2">
+                    {category.children && category.children.length > 0 && (
+                        <button 
+                            type="button"
+                            onClick={() => setIsExpanded(!isExpanded)} 
+                            className="p-0.5 text-slate-400 hover:text-slate-600 focus:outline-none"
+                        >
+                            {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                        </button>
+                    )}
+                    
+                    <Checkbox 
+                        id={`cat-${category.slug}`} 
+                        className="rounded-none w-3.5 h-3.5 border-slate-300 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
+                        checked={isSelected}
+                        onCheckedChange={(checked) => onToggle(category.slug, checked === true)}
                     />
+                    <label 
+                        htmlFor={`cat-${category.slug}`}
+                        className={cn(
+                            "text-sm transition-colors cursor-pointer select-none",
+                            isSelected ? "font-bold text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400 group-hover:text-black dark:group-hover:text-white"
+                        )}
+                    >
+                        {category.name}
+                    </label>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-secondary to-transparent" />
-                <div className="relative z-10 mx-auto max-w-7xl px-4 h-full flex flex-col justify-end pb-8 sm:px-6 lg:px-8">
-                    <Badge className="w-fit mb-4 bg-action-buy hover:bg-action-buy/90 border-none px-3 py-1">
-                        {onlyOffers ? 'Precios Imbatibles' : 'Equipamiento Premium'}
-                    </Badge>
-                    <h1 className="text-4xl font-black text-white sm:text-5xl tracking-tight drop-shadow-lg">
-                        {onlyOffers ? 'Ofertas de Temporada' : 'Explorar Catálogo'}
-                    </h1>
-                </div>
+                {count > 0 && (
+                    <span className="text-[10px] text-slate-400">({count})</span>
+                )}
             </div>
+            
+            {/* Render Children */}
+            {isExpanded && category.children && (
+                <div className="ml-4 border-l border-slate-100 pl-2 space-y-1 mt-1">
+                    {category.children.map(child => (
+                        <CategoryItem 
+                            key={child.id} 
+                            category={child} 
+                            selectedSlugs={selectedSlugs} 
+                            onToggle={onToggle} 
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
-            <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-                {/* Breadcrumb Section */}
-                <div className="mb-8">
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href="/">Inicio</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>{onlyOffers ? 'Ofertas' : 'Catálogo'}</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
+// ... existing code ...
+
+// Update Catalog default export to filter brands with 0 products or weird names if needed
+// Or better do it in Controller.
+
+
+export default function Catalog({ paginatedProducts, categories, brands, filters, onlyOffers = false, currentCategory }: Props) {
+
+    const addToCart = useCartStore((state) => state.addToCart);
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [search, setSearch] = useState(filters.search || '');
+
+    // Debounced search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (search !== (filters.search || '')) {
+                updateFilters({ search: search });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    const updateFilters = (newFilters: Partial<typeof filters>) => {
+        router.get('/catalogo', { ...filters, ...newFilters }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handleCategoryChange = (slug: string, checked: boolean) => {
+        const current = filters.category ? filters.category.split(',') : [];
+        let updated: string[];
+        
+        if (checked) {
+            updated = [...current, slug];
+        } else {
+            updated = current.filter(c => c !== slug);
+        }
+        
+        updateFilters({ category: updated.length > 0 ? updated.join(',') : undefined });
+    };
+
+    const handleBrandChange = (name: string, checked: boolean) => {
+        const current = filters.brand ? filters.brand.split(',') : [];
+        let updated: string[];
+
+        if (checked) {
+            updated = [...current, name];
+        } else {
+            updated = current.filter(b => b !== name);
+        }
+
+        updateFilters({ brand: updated.length > 0 ? updated.join(',') : undefined });
+    };
+
+    return (
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+            {/* Adjusted Spacer for fixed header: TopBar (~32px) + Header (~80px) + Nav (~50px) = ~162px */}
+            <div className="pt-[142px] md:pt-[152px] lg:pt-[162px]"> {/* Spacer for fixed header */}
+                <Head title={onlyOffers ? "Ofertas Especiales | Facchile Outdoor" : "Catálogo | Facchile Outdoor"} />
+                
+                <Header />
+
+                {/* Breadcrumbs Section */}
+                <div className="bg-[#f4f4f4] py-3 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                         <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/" className="text-xs text-slate-500 uppercase">Inicio</BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage className="text-xs font-bold text-slate-900 uppercase dark:text-white">
+                                        {onlyOffers ? 'Ofertas' : 'Productos'}
+                                    </BreadcrumbPage>
+                                </BreadcrumbItem>
+                             </BreadcrumbList>
+                         </Breadcrumb>
+                    </div>
                 </div>
 
-                <div className="flex gap-8">
-                    {/* Sidebar Filters */}
-                    <aside className="hidden lg:block w-64 flex-none">
-                        <div className="sticky top-24 space-y-8">
-                            {/* Categories */}
-                            <section>
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-text-main dark:text-white mb-4">
-                                    Categorías
-                                </h3>
-                                <div className="space-y-2">
-                                    {categories.map((cat) => (
-                                        <label key={cat.slug} className="flex items-center justify-between group cursor-pointer">
-                                            <div className="flex items-center gap-2">
-                                                <Checkbox id={cat.slug} />
-                                                <span className="text-sm text-text-muted group-hover:text-brand-primary dark:text-slate-400 transition-colors">
-                                                    {cat.name}
-                                                </span>
-                                            </div>
-                                            <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500">
-                                                {cat.count}
-                                            </span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </section>
+                {/* Main Content Area */}
+                <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                    
+                    {/* Header Title Section */}
+                    <div className="text-center mb-12">
+                        <h1 className="text-4xl font-black uppercase text-slate-900 dark:text-white tracking-tight mb-2">
+                             {onlyOffers ? 'Ofertas' : (currentCategory ? currentCategory.name : 'Productos')}
+                        </h1>
+                        <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">
+                            ({paginatedProducts.total} Productos)
+                        </p>
+                    </div>
 
-                            <Separator />
-
-                            {/* Price range */}
-                            <section>
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-text-main dark:text-white mb-4">
-                                    Rango de Precio
-                                </h3>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Input placeholder="Min" className="h-8 text-xs" />
-                                    <Input placeholder="Max" className="h-8 text-xs" />
-                                </div>
-                                <Button size="sm" className="w-full mt-3 h-8 text-xs bg-brand-primary">
-                                    Aplicar Filtro
+                    {/* Toolbar & Layout */}
+                    <div className="flex flex-col lg:flex-row gap-12">
+                        
+                        {/* Sidebar Filters */}
+                        <aside className="w-full lg:w-64 flex-none space-y-8">
+                            
+                            {/* Toolbar (Mobile only) */}
+                            <div className="lg:hidden flex justify-between items-center mb-6">
+                                <Button variant="outline" className="flex gap-2">
+                                    <Filter className="w-4 h-4" /> Filtros
                                 </Button>
-                            </section>
+                                <Select 
+                                    value={filters.sort || 'popular'} 
+                                    onValueChange={(value) => updateFilters({ sort: value })}
+                                >
+                                    <SelectTrigger className="w-[160px]">
+                                        <SelectValue placeholder="Ordenar" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="popular">Más Populares</SelectItem>
+                                        <SelectItem value="newest">Más Recientes</SelectItem>
+                                        <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
+                                        <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                            <Separator />
-
-                            {/* Categories */}
-                            <section>
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-text-main dark:text-white mb-4">
-                                    Categorías
-                                </h3>
-                                <div className="space-y-2">
-                                    {categories.map((category) => (
-                                        <div key={category.slug} className="flex items-center justify-between">
-                                            <Checkbox 
-                                                id={`category-${category.slug}`} 
-                                                className="border-slate-300 data-[state=checked]:bg-highlight data-[state=checked]:border-highlight"
-                                            />
-                                            <label 
-                                                htmlFor={`category-${category.slug}`}
-                                                className="flex-1 text-sm text-slate-600 dark:text-slate-400 cursor-pointer hover:text-brand-primary"
-                                            >
-                                                {category.name}
-                                            </label>
-                                            <Badge variant="secondary" className="bg-slate-100 text-[10px] text-slate-500 font-bold dark:bg-slate-800">
-                                                {category.count}
-                                            </Badge>
-                                        </div>
-                                    ))}
+                            {/* Filters Content */}
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-sm font-bold uppercase text-slate-900 dark:text-white">Filtros</h3>
+                                    <Filter className="w-4 h-4 text-slate-400" />
                                 </div>
-                            </section>
+                                <Separator className="mb-6" />
 
-                            <Separator />
-
-                            {/* Brands */}
-                            <section>
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-text-main dark:text-white mb-4">
-                                    Marcas
-                                </h3>
-                                <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                                    {brands.map((brand) => (
-                                        <div key={brand} className="flex items-center gap-2 group cursor-pointer">
-                                            <Checkbox 
-                                                id={`brand-${brand}`} 
-                                                className="border-slate-300 data-[state=checked]:bg-highlight data-[state=checked]:border-highlight"
+                                {/* Categories */}
+                                <div className="mb-8">
+                                    <h4 className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-4 tracking-wider">Categorías</h4>
+                                    <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                        {categories.map((cat) => (
+                                            <CategoryItem 
+                                                key={cat.id} 
+                                                category={cat}
+                                                selectedSlugs={filters.category?.split(',') || []}
+                                                onToggle={handleCategoryChange}
                                             />
-                                            <label 
-                                                htmlFor={`brand-${brand}`}
-                                                className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer hover:text-brand-primary"
-                                            >
-                                                {brand}
-                                            </label>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-
-                            <Separator />
-
-                            {/* Options */}
-                            <section>
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <Checkbox id="restricted" />
-                                    <span className="text-sm text-text-muted dark:text-slate-400">Ver solo restringidos</span>
-                                </label>
-                                <label className="flex items-center gap-2 mt-2 cursor-pointer group">
-                                    <Checkbox id="stock" />
-                                    <span className="text-sm text-text-muted dark:text-slate-400">Con stock disponible</span>
-                                </label>
-                            </section>
-                        </div>
-                    </aside>
-
-                    {/* Main Content Area */}
-                    <div className="flex-1">
-                        {/* Toolbar */}
-                        <div className="flex items-center justify-between mb-6 bg-white dark:bg-[#1C1C1A] p-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <div className="flex items-center gap-4">
-                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                     Mostrando {displayProducts.length} productos
-                                 </p>
-                                 <div className="hidden sm:flex items-center gap-1 border rounded-lg p-1 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                                     <Button 
-                                         variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
-                                         size="icon" 
-                                         className="h-8 w-8"
-                                         onClick={() => setViewMode('grid')}
-                                     >
-                                         <LayoutGrid className="h-4 w-4" />
-                                     </Button>
-                                     <Button 
-                                         variant={viewMode === 'list' ? 'secondary' : 'ghost'} 
-                                         size="icon" 
-                                         className="h-8 w-8"
-                                         onClick={() => setViewMode('list')}
-                                     >
-                                         <List className="h-4 w-4" />
-                                     </Button>
-                                 </div>
-                                 <Select defaultValue="popular">
-                                     <SelectTrigger className="w-[180px] h-9 text-xs">
-                                         <SelectValue placeholder="Ordenar por" />
-                                     </SelectTrigger>
-                                     <SelectContent>
-                                         <SelectItem value="popular">Más Populares</SelectItem>
-                                         <SelectItem value="newest">Más Recientes</SelectItem>
-                                         <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
-                                         <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
-                                     </SelectContent>
-                                 </Select>
-                                 
-                                 <Button variant="outline" size="sm" className="lg:hidden h-9">
-                                     <SlidersHorizontal className="h-4 w-4 mr-2" />
-                                     Filtros
-                                 </Button>
-                             </div>
-                         </div>
- 
-                         {/* Product Grid */}
-                         <div className={viewMode === 'grid' ? 
-                             "grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-x-8" : 
-                             "flex flex-col gap-4"
-                         }>
-                             {displayProducts.map((product) => (
-                                <div key={product.id} className={viewMode === 'grid' ? 
-                                    "group relative flex flex-col rounded-2xl bg-white dark:bg-[#1C1C1A] overflow-hidden border border-border transition-all hover:shadow-xl hover:-translate-y-1" : 
-                                    "group relative flex items-center gap-6 p-4 rounded-2xl bg-white dark:bg-[#1C1C1A] border border-border transition-all hover:shadow-lg"
-                                }>
-                                    {/* Image */}
-                                    <div className={viewMode === 'grid' ? 
-                                        "aspect-square w-full overflow-hidden bg-white relative" : 
-                                        "h-32 w-32 flex-none overflow-hidden rounded-xl bg-white relative"
-                                    }>
-                                        <Link href={`/producto/${product.id}`} className="block h-full w-full">
-                                            <img
-                                                src={product.image}
-                                                alt={product.name}
-                                                className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                                            />
-                                        </Link>
-                                        {product.is_restricted && (
-                                            <Badge className="absolute top-4 right-4 bg-brand-primary font-bold uppercase text-[9px] tracking-widest z-20 text-white border-none">
-                                                Restringido
-                                            </Badge>
-                                        )}
+                                        ))}
                                     </div>
+                                </div>
 
-                                    {/* Content */}
-                                    <div className={viewMode === 'grid' ? "p-5 flex flex-col flex-1" : "flex-1 flex justify-between items-center pr-4"}>
-                                        <div className={viewMode === 'grid' ? "" : "max-w-md"}>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-[10px] font-bold uppercase tracking-tight text-highlight bg-highlight/10 px-2 py-0.5 rounded">
-                                                    {product.brand}
-                                                </span>
-                                                <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                                                    {product.category}
-                                                </span>
+                                {/* Brands */}
+                                <div className="mb-8">
+                                    <h4 className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-4 tracking-wider">Marcas</h4>
+                                    <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                                        {brands.map((brand) => (
+                                            <div key={brand.id} className="flex items-center justify-between group">
+                                                <div className="flex items-center gap-3">
+                                                    <Checkbox 
+                                                        id={`brand-${brand.id}`} 
+                                                        className="rounded-none border-slate-300 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
+                                                        checked={filters.brand?.split(',').includes(brand.name)}
+                                                        onCheckedChange={(checked) => handleBrandChange(brand.name, checked === true)}
+                                                    />
+                                                    <label 
+                                                        htmlFor={`brand-${brand.id}`}
+                                                        className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-black dark:group-hover:text-white transition-colors cursor-pointer"
+                                                    >
+                                                        {brand.name}
+                                                    </label>
+                                                </div>
+                                                <span className="text-xs text-slate-400">({brand.products_count})</span>
                                             </div>
-                                            <h3 className="text-base font-semibold text-text-main dark:text-slate-200 mb-2 relative z-10">
-                                                <Link href={`/producto/${product.id}`} className="hover:text-brand-primary transition-colors">
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Price Range (Placeholder for now) */}
+                                <div>
+                                    <h4 className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-4 tracking-wider">Precio</h4>
+                                    {/* Include price slider/inputs here if needed later */}
+                                </div>
+                            </div>
+                        </aside>
+
+                        {/* Product Grid Area */}
+                        <div className="flex-1">
+                            {/* Toolbar (Desktop) */}
+                            <div className="hidden lg:flex items-center justify-between mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
+                                <div className="flex items-center gap-2 text-sm text-slate-500">
+                                    <span className="font-medium text-slate-900 dark:text-white">Ver como</span>
+                                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded">
+                                        <button 
+                                            onClick={() => setViewMode('grid')}
+                                            className={cn("p-1.5 rounded transition-all", viewMode === 'grid' ? "bg-white shadow text-black" : "text-slate-400 hover:text-slate-600")}
+                                        >
+                                            <LayoutGrid className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            onClick={() => setViewMode('list')}
+                                            className={cn("p-1.5 rounded transition-all", viewMode === 'list' ? "bg-white shadow text-black" : "text-slate-400 hover:text-slate-600")}
+                                        >
+                                            <List className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <span className="text-sm text-slate-500">Ordenar por</span>
+                                    <Select 
+                                        value={filters.sort || 'popular'} 
+                                        onValueChange={(value) => updateFilters({ sort: value })}
+                                    >
+                                        <SelectTrigger className="w-[200px] border-none bg-transparent hover:bg-slate-50 focus:ring-0 text-slate-900 font-medium text-sm">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="popular">Alfabéticamente, A-Z</SelectItem>
+                                            <SelectItem value="newest">Más Recientes</SelectItem>
+                                            <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
+                                            <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* Products Grid */}
+                            <div className={viewMode === 'grid' ? 
+                                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" : 
+                                "flex flex-col gap-6"
+                            }>
+                                {paginatedProducts.data.map((product) => (
+                                    <div key={product.id} className={viewMode === 'grid' ? 
+                                        "group" : 
+                                        "group flex gap-6 bg-white border p-4 rounded-lg"
+                                    }>
+                                        {/* Product Image */}
+                                        <div className={viewMode === 'grid' ? 
+                                            "relative aspect-square bg-[#f6f6f6] dark:bg-slate-800 mb-4 overflow-hidden" :
+                                            "relative w-48 aspect-square bg-[#f6f6f6] dark:bg-slate-800 flex-none"
+                                        }>
+                                            <Link href={`/producto/${product.slug}`} className="block w-full h-full">
+                                                <img
+                                                    src="/images/gentepescando.jpeg"
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal"
+                                                />
+                                            </Link>
+                                            
+                                            {/* Badges */}
+                                            {product.is_restricted && (
+                                                <div className="absolute top-2 right-2">
+                                                    <Badge className="bg-red-600 hover:bg-red-700 text-[10px] uppercase font-bold tracking-wider rounded-sm">
+                                                        Restringido
+                                                    </Badge>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Product Info */}
+                                        <div className={viewMode === 'grid' ? "text-center md:text-left" : "flex-1 flex flex-col justify-center"}>
+                                            {product.brand && (
+                                                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                                    {product.brand.name}
+                                                </p>
+                                            )}
+                                            
+                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 leading-tight min-h-[2.5em]">
+                                                <Link href={`/producto/${product.slug}`} className="hover:text-brand-primary transition-colors">
                                                     {product.name}
                                                 </Link>
                                             </h3>
-                                            <div className="flex items-end justify-between mt-auto">
-                                                <div>
-                                                    <p className="text-xl font-bold text-text-main dark:text-white">
-                                                        ${product.price.toLocaleString('es-CL')}
-                                                    </p>
-                                                    <p className={cn(
-                                                        "text-[10px] mt-1",
-                                                        product.stock < 5 ? "text-orange-500 font-bold" : "text-green-600"
-                                                    )}>
-                                                        {product.stock < 5 ? `¡Solo ${product.stock} unidades!` : 'En stock'}
-                                                    </p>
-                                                </div>
+
+                                            <div className="flex items-center justify-between mt-2">
+                                                <p className="text-lg font-black text-slate-900 dark:text-white">
+                                                    ${parseFloat(product.base_price.toString()).toLocaleString('es-CL')}
+                                                </p>
                                                 
-                                                <Button size="icon" className="h-10 w-10 rounded-full bg-action-buy hover:bg-action-hover z-10 transition-transform group-hover:scale-110">
-                                                    <ShoppingCart className="h-5 w-5" />
-                                                </Button>
+                                                {/* Add to Cart Button (Hover on Desktop, Always on Mobile) */}
+                                                <button 
+                                                    className="lg:hidden lg:group-hover:flex items-center justify-center w-8 h-8 bg-brand-primary text-white rounded-full hover:bg-brand-secondary transition-all shadow-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        addToCart(product);
+                                                    }}
+                                                    title="Agregar al carrito"
+                                                >
+                                                    <ShoppingCart className="w-4 h-4" />
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
 
-                        {/* Pagination */}
-                        <div className="mt-12 flex justify-center">
-                            <nav className="flex items-center gap-1">
-                                <Button variant="outline" size="sm" disabled>Anterior</Button>
-                                <Button variant="secondary" size="sm" className="w-10">1</Button>
-                                <Button variant="ghost" size="sm" className="w-10">2</Button>
-                                <Button variant="ghost" size="sm" className="w-10">3</Button>
-                                <span className="px-2 text-slate-400">...</span>
-                                <Button variant="ghost" size="sm" className="w-10">10</Button>
-                                <Button variant="outline" size="sm">Siguiente</Button>
-                            </nav>
+                            {/* Pagination */}
+                            {paginatedProducts.links.length > 3 && (
+                                <div className="mt-16 flex justify-center">
+                                    <nav className="flex items-center gap-1">
+                                        {paginatedProducts.links.map((link, i) => (
+                                            link.url ? (
+                                                <Link 
+                                                    key={i} 
+                                                    href={link.url}
+                                                    preserveScroll
+                                                    preserveState
+                                                >
+                                                    <Button 
+                                                        variant={link.active ? "default" : "outline"}
+                                                        size="sm"
+                                                        className={cn(
+                                                            "h-8 w-8 p-0 lg:h-10 lg:w-10",
+                                                            link.active ? "bg-slate-900 text-white border-slate-900" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                        )}
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
+                                                </Link>
+                                            ) : (
+                                                <span key={i} className="px-2 text-slate-300" dangerouslySetInnerHTML={{ __html: link.label }} />
+                                            )
+                                        ))}
+                                    </nav>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-            </main>
+                </main>
 
-            <Footer />
-            <WhatsAppFloating />
+                <Footer />
+                <WhatsAppFloating />
+            </div>
         </div>
     );
 }

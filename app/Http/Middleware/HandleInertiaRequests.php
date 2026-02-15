@@ -42,6 +42,41 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'categories' => fn () => \App\Models\Category::whereNull('parent_id')
+                    ->with(['children.products', 'children.children']) 
+                    ->orderBy('name')
+                    ->get()
+                    ->map(function ($category) {
+                        return [
+                            'id' => $category->id,
+                            'name' => $category->name,
+                            'slug' => $category->slug,
+                            'image_url' => $category->image_url, 
+                            'children' => $category->children->map(function ($child) {
+                                return [
+                                    'id' => $child->id,
+                                    'name' => $child->name,
+                                    'slug' => $child->slug,
+                                    'image_url' => $child->image_url,
+                                    'children' => $child->children->map(function ($grandChild) {
+                                        return [
+                                            'id' => $grandChild->id,
+                                            'name' => $grandChild->name,
+                                            'slug' => $grandChild->slug,
+                                            'href' => "/catalogo?category={$grandChild->slug}",
+                                        ];
+                                    }),
+                                    'products' => $child->products->take(4)->map(function ($product) {
+                                        return [
+                                            'name' => $product->name,
+                                            'href' => "/producto/{$product->slug}",
+                                            'image' => $product->main_image_url, 
+                                        ];
+                                    }),
+                                ];
+                            }),
+                        ];
+                    }),
         ];
     }
 }

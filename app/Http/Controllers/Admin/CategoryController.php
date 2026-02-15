@@ -12,7 +12,7 @@ class CategoryController extends Controller
 {
     public function index(): Response
     {
-        $categories = Category::withCount('products')
+        $categories = Category::with('parent')->withCount('products')
             ->latest()
             ->get()
             ->map(fn ($category) => [
@@ -21,6 +21,8 @@ class CategoryController extends Controller
                 'slug' => $category->slug,
                 'description' => $category->description,
                 'products_count' => $category->products_count,
+                'parent_id' => $category->parent_id,
+                'parent_name' => $category->parent ? $category->parent->name : null,
                 'created_at' => $category->created_at->format('d/m/Y'),
             ]);
 
@@ -31,7 +33,9 @@ class CategoryController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('admin/categories/Create');
+        return Inertia::render('admin/categories/Create', [
+            'parents' => Category::select('id', 'name')->orderBy('name')->get(),
+        ]);
     }
 
     public function store(Request $request): \Illuminate\Http\RedirectResponse
@@ -40,6 +44,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:categories,slug',
             'description' => 'nullable|string',
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         Category::create($validated);
@@ -56,7 +61,12 @@ class CategoryController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'description' => $category->description,
+                'parent_id' => $category->parent_id,
             ],
+            'parents' => Category::where('id', '!=', $category->id)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -66,6 +76,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:categories,slug,'.$category->id,
             'description' => 'nullable|string',
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         $category->update($validated);

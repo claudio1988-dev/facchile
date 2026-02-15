@@ -5,28 +5,28 @@ const categories = [
         id: 1,
         name: 'Rifles y Aire Comprimido',
         slug: 'rifles-aire-comprimido',
-        image: '/images/imagenesdemo/1.avif',
+        image: '/images/gentepescando.jpeg',
         count: '120+ Productos',
     },
     {
         id: 2,
         name: 'Pesca Deportiva',
         slug: 'pesca-deportiva',
-        image: '/images/imagenesdemo/5.png',
+        image: '/images/gentepescando.jpeg',
         count: '350+ Productos',
     },
     {
         id: 3,
         name: 'Camping & Outdoor',
         slug: 'camping-outdoor',
-        image: '/images/imagenesdemo/3.jpg',
+        image: '/images/gentepescando.jpeg',
         count: '200+ Productos',
     },
     {
         id: 4,
         name: 'Caza y Supervivencia',
         slug: 'caza-supervivencia',
-        image: '/images/imagenesdemo/1.avif',
+        image: '/images/gentepescando.jpeg',
         count: '85+ Productos',
     },
 ];
@@ -40,7 +40,7 @@ export default function CategoryShowcase() {
                         Explora Nuestras Categorías
                     </h2>
                     <p className="mt-4 text-lg text-text-muted dark:text-slate-400">
-                        Equipamiento premium para cada tipo de aventura.
+                        Equipamiento de alta calidad para cada tipo de aventura.
                     </p>
                 </div>
 

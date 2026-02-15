@@ -152,6 +152,15 @@ class ProductController extends Controller
             ->with('success', 'Producto actualizado exitosamente.');
     }
 
+    public function show(Product $product): Response
+    {
+        $product->load(['category', 'brand', 'shippingClass', 'restrictions', 'variants']);
+
+        return Inertia::render('admin/products/Show', [
+            'product' => $product,
+        ]);
+    }
+
     public function destroy(Product $product): \Illuminate\Http\RedirectResponse
     {
         $product->delete();

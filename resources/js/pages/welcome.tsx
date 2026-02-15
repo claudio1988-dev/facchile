@@ -14,8 +14,10 @@ import ModeToggle from '@/components/mode-toggle';
 
 export default function Welcome({
     canRegister = true,
+    featuredProducts = [],
 }: {
     canRegister?: boolean;
+    featuredProducts?: any[];
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -32,7 +34,7 @@ export default function Welcome({
                         <TrustIndicators />
                     </div>
                     <CategoryShowcase />
-                    <FeaturedProducts />
+                    <FeaturedProducts products={featuredProducts} />
                     <BrandShowcase />
                     <NewsletterSignup />
                 </main>
