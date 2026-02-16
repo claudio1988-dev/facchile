@@ -26,6 +26,18 @@ Route::get('/contacto', function () {
     return Inertia::render('support/Contact');
 })->name('contact');
 
+Route::get('/tracking', function () {
+    return Inertia::render('support/Informational', ['slug' => 'tracking']);
+})->name('tracking');
+
+Route::get('/despacho', function () {
+    return Inertia::render('support/Informational', ['slug' => 'despacho']);
+})->name('shipping');
+
+Route::get('/garantias', function () {
+    return Inertia::render('support/Informational', ['slug' => 'garantias']);
+})->name('warranty');
+
 Route::get('/producto/{slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
 
 Route::get('/info/{slug}', function ($slug) {
@@ -42,6 +54,13 @@ require __DIR__.'/admin.php';
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/customer/verifications', [App\Http\Controllers\CustomerVerificationController::class, 'index'])->name('customer.verifications');
     Route::post('/customer/verifications', [App\Http\Controllers\CustomerVerificationController::class, 'store'])->name('customer.verifications.store');
+    
+    // Customer Portal
+    Route::get('/customer/orders', [App\Http\Controllers\CustomerController::class, 'orders'])->name('customer.orders');
+    Route::get('/customer/orders/{order}', [App\Http\Controllers\CustomerController::class, 'orderDetail'])->name('customer.orders.detail');
+    Route::get('/customer/addresses', [App\Http\Controllers\CustomerController::class, 'addresses'])->name('customer.addresses');
+    Route::get('/customer/favorites', [App\Http\Controllers\CustomerController::class, 'favorites'])->name('customer.favorites');
+
     Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [App\Http\Controllers\OrderController::class, 'store'])->name('checkout.process');
     // Webpay routes added here

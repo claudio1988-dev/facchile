@@ -16,7 +16,7 @@ class ProductController extends Controller
         $product = Product::where('slug', $slug)->firstOrFail();
         
         // Load relationships
-        $product->load(['category', 'brand', 'shippingClass']);
+        $product->load(['category', 'brand', 'shippingClass', 'variants']);
 
         return Inertia::render('catalog/ProductDetail', [
             'product' => [
@@ -30,6 +30,7 @@ class ProductController extends Controller
                 'is_restricted' => $product->is_restricted,
                 'age_verification_required' => $product->age_verification_required,
                 'main_image_url' => $product->main_image_url,
+                'stock' => $product->variants->sum('stock_quantity'),
                 'category' => $product->category ? [
                     'id' => $product->category->id,
                     'name' => $product->category->name,
@@ -45,6 +46,16 @@ class ProductController extends Controller
                     'name' => $product->shippingClass->name,
                     'code' => $product->shippingClass->code,
                 ] : null,
+                'variants' => $product->variants->map(function ($variant) {
+                    return [
+                        'id' => $variant->id,
+                        'sku' => $variant->sku,
+                        'price' => $variant->price,
+                        'stock_quantity' => $variant->stock_quantity,
+                        'is_active' => $variant->is_active,
+                        'attributes' => $variant->variant_attributes,
+                    ];
+                }),
             ],
         ]);
     }

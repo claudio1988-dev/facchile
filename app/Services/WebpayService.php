@@ -7,25 +7,11 @@ use Transbank\Webpay\WebpayPlus\Transaction;
 
 class WebpayService
 {
-    public function __construct()
-    {
-        if (app()->environment('production')) {
-            WebpayPlus::configureForProduction(
-                config('services.transbank.webpay_plus_cc'),
-                config('services.transbank.webpay_plus_api_key')
-            );
-        } else {
-            WebpayPlus::configureForIntegration(
-                WebpayPlus::DEFAULT_COMMERCE_CODE,
-                WebpayPlus::DEFAULT_API_KEY
-            );
-        }
-    }
-
     public function initTransaction($amount, $buyOrder, $sessionId, $returnUrl)
     {
-        $transaction = new Transaction();
+        $transaction = $this->createTransactionInstance();
         $response = $transaction->create($buyOrder, $sessionId, $amount, $returnUrl);
+        
         return [
             'url' => $response->getUrl(),
             'token' => $response->getToken(),
@@ -34,7 +20,22 @@ class WebpayService
 
     public function commitTransaction($token)
     {
-        $transaction = new Transaction();
+        $transaction = $this->createTransactionInstance();
         return $transaction->commit($token);
+    }
+
+    private function createTransactionInstance(): Transaction
+    {
+        if (app()->environment('production')) {
+            return Transaction::buildForProduction(
+                config('services.transbank.webpay_plus_api_key'),
+                config('services.transbank.webpay_plus_cc')
+            );
+        } else {
+            return Transaction::buildForIntegration(
+                WebpayPlus::INTEGRATION_API_KEY,
+                WebpayPlus::INTEGRATION_COMMERCE_CODE
+            );
+        }
     }
 }

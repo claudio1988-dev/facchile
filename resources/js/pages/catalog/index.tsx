@@ -26,6 +26,7 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useCartStore } from '@/store/useCartStore';
+import { toast } from 'sonner';
 
 // ... imports ...
 
@@ -214,7 +215,7 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
 
                 {/* Breadcrumbs Section */}
                 <div className="bg-[#f4f4f4] py-3 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between">
                          <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
@@ -228,22 +229,21 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                 </BreadcrumbItem>
                              </BreadcrumbList>
                          </Breadcrumb>
+
+                        <div className="text-right flex items-center gap-2">
+                             <h1 className="text-sm font-black uppercase text-slate-900 dark:text-white tracking-tight">
+                                  {onlyOffers ? 'Ofertas' : (currentCategory ? currentCategory.name : 'Productos')}
+                             </h1>
+                             <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">
+                                 ({paginatedProducts.total} Productos)
+                             </span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Main Content Area */}
                 <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                     
-                    {/* Header Title Section */}
-                    <div className="text-center mb-12">
-                        <h1 className="text-4xl font-black uppercase text-slate-900 dark:text-white tracking-tight mb-2">
-                             {onlyOffers ? 'Ofertas' : (currentCategory ? currentCategory.name : 'Productos')}
-                        </h1>
-                        <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">
-                            ({paginatedProducts.total} Productos)
-                        </p>
-                    </div>
-
                     {/* Toolbar & Layout */}
                     <div className="flex flex-col lg:flex-row gap-12">
                         
@@ -386,10 +386,10 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                         }>
                                             <Link href={`/producto/${product.slug}`} className="block w-full h-full">
                                                 <img
-                                                    src={product.main_image_url || '/images/no-image.jpg'}
+                                                    src={product.main_image_url || '/images/gentepescando.jpeg'}
                                                     alt={product.name}
                                                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal"
-                                                    onError={(e) => { e.currentTarget.src = '/images/no-image.jpg'; }}
+                                                    onError={(e) => { e.currentTarget.src = '/images/gentepescando.jpeg'; }}
                                                 />
                                             </Link>
                                             
@@ -428,6 +428,9 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         addToCart(product);
+                                                        import('@inertiajs/react').then(({ router }) => {
+                                                            router.visit('/checkout');
+                                                        });
                                                     }}
                                                     title="Agregar al carrito"
                                                 >

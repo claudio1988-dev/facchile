@@ -12,7 +12,16 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Package, MapPin, User, Truck } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import type { BreadcrumbItem } from '@/types';
 
 interface OrderItem {
@@ -113,7 +122,54 @@ export default function Show({ order }: Props) {
                                 <SelectItem value="cancelled">Cancelado</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Button>Descargar Factura</Button>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="outline">
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Comprobante
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Comprobante de Venta</DialogTitle>
+                                    <DialogDescription>
+                                        Descarga el comprobante de la orden #{order.order_number} en formato PDF.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex items-center space-x-2 py-4">
+                                    <div className="grid flex-1 gap-2">
+                                        <p className="text-sm font-medium">Resumen del pedido</p>
+                                        <div className="rounded-md border p-3 bg-muted/50">
+                                            <div className="flex justify-between text-xs">
+                                                <span>Cliente:</span>
+                                                <span className="font-semibold">{order.customer?.first_name} {order.customer?.last_name}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xs mt-1">
+                                                <span>Items:</span>
+                                                <span>{order.items.length}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xs mt-1">
+                                                <span>Total:</span>
+                                                <span className="font-semibold">${parseFloat(order.total.toString()).toLocaleString('es-CL')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <DialogFooter className="sm:justify-start">
+                                    <a 
+                                        href={`/adminfacchile/orders/${order.id}/receipt`} 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        className="w-full"
+                                    >
+                                        <Button className="w-full">
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Descargar PDF
+                                        </Button>
+                                    </a>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>
 

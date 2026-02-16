@@ -116,4 +116,14 @@ class OrderController extends Controller
 
         return back()->with('success', 'Orden actualizada exitosamente.');
     }
+
+    public function downloadReceipt($id)
+    {
+        $order = \App\Models\Order::with(['customer', 'items.productVariant.product', 'shippingAddress.commune.region', 'carrier'])
+            ->findOrFail($id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.receipt', compact('order'));
+
+        return $pdf->download('comprobante-orden-' . $order->order_number . '.pdf');
+    }
 }

@@ -50,6 +50,11 @@ class Customer extends Model
         return $this->hasOne(CustomerAddress::class)->where('is_default_shipping', true);
     }
 
+    public function shippingAddress()
+    {
+        return $this->defaultShippingAddress();
+    }
+
     public function defaultBillingAddress()
     {
         return $this->hasOne(CustomerAddress::class)->where('is_default_billing', true);

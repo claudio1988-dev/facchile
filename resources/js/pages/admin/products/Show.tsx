@@ -204,6 +204,12 @@ export default function Show({ product }: Props) {
                                         </Badge>
                                     </div>
                                     <div className="flex items-center justify-between">
+                                        <span className="text-sm">Stock Total:</span>
+                                        <Badge variant={product.variants.reduce((acc, v) => acc + v.stock_quantity, 0) > 0 ? 'outline' : 'secondary'}>
+                                            {product.variants.reduce((acc, v) => acc + v.stock_quantity, 0)} unidades
+                                        </Badge>
+                                    </div>
+                                    <div className="flex items-center justify-between">
                                         <span className="text-sm">Restringido:</span>
                                         <Badge variant={product.is_restricted ? 'destructive' : 'outline'}>
                                             {product.is_restricted ? 'Sí' : 'No'}

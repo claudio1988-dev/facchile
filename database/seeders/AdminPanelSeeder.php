@@ -22,6 +22,7 @@ class AdminPanelSeeder extends Seeder
                 'name' => 'Outdoor',
                 'slug' => 'outdoor',
                 'description' => 'Todo para tu aventura al aire libre',
+                'image_url' => '/images/categories/camping_category_1771205416526.png',
                 'children' => [
                     [
                         'name' => 'Equipamiento', 
@@ -84,6 +85,7 @@ class AdminPanelSeeder extends Seeder
                 'name' => 'Cuchillería y Caza',
                 'slug' => 'cuchilleria-y-caza',
                 'description' => 'Cuchillos, navajas y equipamiento de caza',
+                'image_url' => '/images/categories/hunting_survival_1771205278672.png',
                 'children' => [
                     [
                         'name' => 'Cuchillos', 
@@ -110,6 +112,7 @@ class AdminPanelSeeder extends Seeder
                     [
                         'name' => 'Aire Comprimido', 
                         'slug' => 'aire-comprimido',
+                        'image_url' => '/images/categories/rifles_category_1771205378195.png',
                         'children' => [
                             ['name' => 'Rifles PCP', 'slug' => 'rifles-pcp'],
                             ['name' => 'Rifles Nitro Piston', 'slug' => 'rifles-nitro-piston'],
@@ -133,6 +136,7 @@ class AdminPanelSeeder extends Seeder
                 'name' => 'Pesca Deportiva',
                 'slug' => 'pesca-deportiva',
                 'description' => 'Todo para la pesca',
+                'image_url' => '/images/categories/pesca_category_1771205399020.png',
                 'children' => [
                     [
                         'name' => 'Cañas de Pesca', 
@@ -258,7 +262,7 @@ class AdminPanelSeeder extends Seeder
             $children = $node['children'] ?? [];
             unset($node['children']);
             
-            $parent = \App\Models\Category::firstOrCreate(
+            $parent = \App\Models\Category::updateOrCreate(
                 ['slug' => $node['slug']], 
                 $node
             );
@@ -267,7 +271,7 @@ class AdminPanelSeeder extends Seeder
                 $grandChildren = $childNode['children'] ?? []; // Extract Level 3
                 unset($childNode['children']);
 
-                 $subCategory = \App\Models\Category::firstOrCreate(
+                 $subCategory = \App\Models\Category::updateOrCreate(
                     ['slug' => $childNode['slug']],
                     array_merge($childNode, ['parent_id' => $parent->id, 'description' => $childNode['name']])
                 );
@@ -334,7 +338,7 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => true,
                 'age_verification_required' => true,
-                'image' => '/images/products/rifle-gamo.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
             [
                 'name' => 'Caña Shimano FX XT 2.40m',
@@ -348,7 +352,7 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => false,
                 'age_verification_required' => false,
-                'image' => '/images/products/cana-shimano.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
             [
                 'name' => 'Carpa Coleman Sundome 4 Personas',
@@ -362,7 +366,7 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => false,
                 'age_verification_required' => false,
-                'image' => '/images/products/carpa-coleman.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
             [
                 'name' => 'Cuchillo Táctico Supervivencia Doite',
@@ -376,7 +380,7 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => true,
                 'age_verification_required' => true,
-                'image' => '/images/products/cuchillo-doite.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
             [
                 'name' => 'Parka Lippi Expedition 8000',
@@ -390,7 +394,7 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => false,
                 'age_verification_required' => false,
-                'image' => '/images/products/parka-lippi.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
             [
                 'name' => 'Rifle Aire Comprimido Hatsan AirTact',
@@ -404,7 +408,7 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => true,
                 'age_verification_required' => true,
-                'image' => '/images/products/rifle-hatsan.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
             [
                 'name' => 'Cuchillo Victorinox Ranger Grip 79',
@@ -418,12 +422,12 @@ class AdminPanelSeeder extends Seeder
                 'is_active' => true,
                 'is_restricted' => false,
                 'age_verification_required' => false,
-                'image' => '/images/products/victorinox.jpg'
+                'main_image_url' => '/images/imagenesdemo/5.png'
             ],
         ];
 
         foreach ($products as $product) {
-            \App\Models\Product::firstOrCreate(['slug' => $product['slug']], $product);
+            \App\Models\Product::updateOrCreate(['slug' => $product['slug']], $product);
         }
 
         $this->command->info('Admin panel sample data created successfully!');

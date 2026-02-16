@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
+import { toast } from 'sonner';
 
 interface Product {
     id: number;
@@ -42,9 +43,10 @@ export default function FeaturedProducts({ products = [] }: Props) {
                             <div className="aspect-square w-full overflow-hidden rounded-md bg-slate-100 group-hover:opacity-75 relative">
                                 <Link href={`/producto/${product.slug}`}>
                                     <img
-                                        src="/images/gentepescando.jpeg"
+                                        src={product.main_image_url || '/images/gentepescando.jpeg'}
                                         alt={product.name}
                                         className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                                        onError={(e) => { e.currentTarget.src = '/images/gentepescando.jpeg'; }}
                                     />
                                 </Link>
                                 {product.is_restricted && (
@@ -70,15 +72,17 @@ export default function FeaturedProducts({ products = [] }: Props) {
                                     </p>
                                 </div>
                             </div>
-                            <div className="mt-4 relative z-50">
+                            <div className="mt-4 relative z-10">
                                 <Button 
                                     className="w-full bg-action-buy hover:bg-action-hover text-white shadow-lg transition-all hover:scale-[1.02]" 
                                     size="sm"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        console.log('🛒 Agregando al carrito (Home DB):', product.name);
                                         addToCart(product);
+                                        import('@inertiajs/react').then(({ router }) => {
+                                            router.visit('/checkout');
+                                        });
                                     }}
                                 >
                                     <ShoppingCart className="mr-2 h-4 w-4" /> Agregar al Carrito

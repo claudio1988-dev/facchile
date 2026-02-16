@@ -55,7 +55,7 @@ class WebpayController extends Controller
         if (!$token) {
             // Usually user aborted
             Log::warning('Webpay Callback: No token_ws received. Likely aborted.');
-            return redirect()->route('catalogo')->with('error', 'Payment aborted by user.');
+            return redirect()->route('catalog')->with('error', 'Payment aborted by user.');
         }
 
         try {

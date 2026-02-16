@@ -107,7 +107,9 @@ class OrderController extends Controller
 
             // 5. Verify Age Restriction if needed
             if ($hasRestrictedItems && !$customer->is_verified) {
-                return response()->json(['message' => 'Age verification required for restricted items.'], 403);
+                return redirect()->back()->withErrors([
+                    'verification' => 'Se requiere verificación de edad para productos restringidos.'
+                ]);
             }
 
             $shippingCost = 0; 
@@ -142,22 +144,19 @@ class OrderController extends Controller
             DB::commit();
 
             // 8. Logic for Redirect based on Payment Method
-            $redirectUrl = route('checkout.success', ['order' => $order->order_number]);
-            
             if ($validated['payment_method'] === 'webpay') {
                 // Redirect to our Webpay Controller to initiate transaction
-                $redirectUrl = route('webpay.start', ['order' => $order->id]);
+                return Inertia::location(route('webpay.start', ['order' => $order->id]));
             }
 
-            return response()->json([
-                'success' => true,
-                'order_number' => $order->order_number,
-                'redirect_url' => $redirectUrl, 
-            ]);
+            // For bank transfer, redirect to success page
+            return Inertia::location(route('checkout.success', ['order' => $order->order_number]));
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'An error occurred: ' . $e->getMessage()], 500);
+            return redirect()->back()->withErrors([
+                'checkout' => 'Ocurrió un error al procesar tu pedido. Por favor, intenta nuevamente.'
+            ]);
         }
     }
 

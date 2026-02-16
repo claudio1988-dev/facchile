@@ -13,7 +13,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Trash } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ArrowLeft, Trash, Edit as EditIcon } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
 import { useState } from 'react';
 
@@ -112,15 +113,49 @@ export default function Edit({ product, categories, brands, shippingClasses, res
         is_active: true
     });
 
+    const [editingVariantId, setEditingVariantId] = useState<number | null>(null);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         put(`/adminfacchile/products/${product.id}`);
     };
 
+    const resetVariantForm = () => {
+        setNewVariant({
+            name: '',
+            sku: '',
+            price: '',
+            stock_quantity: '',
+            is_active: true
+        });
+        setEditingVariantId(null);
+    };
+
     const handleCreateVariant = (e: React.FormEvent) => {
         e.preventDefault();
         router.post(`/adminfacchile/products/${product.id}/variants`, newVariant, {
-            onSuccess: () => setNewVariant({ name: '', sku: '', price: '', stock_quantity: '', is_active: true }),
+            onSuccess: () => resetVariantForm(),
+            preserveScroll: true
+        });
+    };
+
+    const handleEditVariant = (variant: Variant) => {
+        setEditingVariantId(variant.id);
+        setNewVariant({
+            name: variant.name,
+            sku: variant.sku || '',
+            price: variant.price,
+            stock_quantity: variant.stock_quantity.toString(),
+            is_active: variant.is_active
+        });
+    };
+
+    const handleUpdateVariant = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingVariantId) return;
+
+        router.put(`/adminfacchile/products/${product.id}/variants/${editingVariantId}`, newVariant, {
+            onSuccess: () => resetVariantForm(),
             preserveScroll: true
         });
     };
@@ -232,13 +267,16 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                     {/* Existing Variants List */}
                                     <div className="space-y-4">
                                         {product.variants.map((variant) => (
-                                            <div key={variant.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                            <div key={variant.id} className={cn("flex items-center justify-between p-4 border rounded-lg transition-colors", editingVariantId === variant.id ? "border-brand-primary bg-brand-primary/5" : "")}>
                                                 <div>
                                                     <p className="font-medium">{variant.name}</p>
                                                     <p className="text-sm text-muted-foreground">SKU: {variant.sku} | Stock: {variant.stock_quantity}</p>
                                                 </div>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="font-bold">${variant.price}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold mr-2">${parseFloat(variant.price).toLocaleString('es-CL')}</span>
+                                                    <Button type="button" variant="outline" size="icon" onClick={() => handleEditVariant(variant)}>
+                                                        <EditIcon className="size-4" />
+                                                    </Button>
                                                     <Button type="button" variant="destructive" size="icon" onClick={() => handleDeleteVariant(variant.id)}>
                                                         <Trash className="size-4" />
                                                     </Button>
@@ -248,7 +286,14 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                     </div>
 
                                     <div className="border-t pt-4 mt-4">
-                                        <h4 className="font-medium mb-3">Agregar Nueva Variante</h4>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="font-medium">{editingVariantId ? 'Editar Variante' : 'Agregar Nueva Variante'}</h4>
+                                            {editingVariantId && (
+                                                <Button type="button" variant="ghost" size="sm" onClick={resetVariantForm}>
+                                                    Cancelar Edición
+                                                </Button>
+                                            )}
+                                        </div>
                                         <div className="grid grid-cols-2 gap-4 mb-4">
                                             <div>
                                                 <Label>Nombre (ej. Talla L)</Label>
@@ -276,7 +321,7 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                                 />
                                             </div>
                                             <div>
-                                                <Label>Stock Inicial</Label>
+                                                <Label>Stock {editingVariantId ? 'Actual' : 'Inicial'}</Label>
                                                 <Input 
                                                     type="number"
                                                     value={newVariant.stock_quantity}
@@ -285,8 +330,13 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                                 />
                                             </div>
                                         </div>
-                                        <Button type="button" onClick={handleCreateVariant} disabled={!newVariant.name || !newVariant.price}>
-                                            Agregar Variante
+                                        <Button 
+                                            type="button" 
+                                            onClick={editingVariantId ? handleUpdateVariant : handleCreateVariant} 
+                                            disabled={!newVariant.name || !newVariant.price}
+                                            className={editingVariantId ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}
+                                        >
+                                            {editingVariantId ? 'Actualizar Variante' : 'Agregar Variante'}
                                         </Button>
                                     </div>
                                 </CardContent>

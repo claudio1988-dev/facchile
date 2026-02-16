@@ -32,8 +32,8 @@ export default function Login({
                 <Header />
 
                 {/* Main Content - Two Column Layout */}
-                <main className="pt-20">
-                    <div className="min-h-[calc(100vh-80px)] lg:grid lg:grid-cols-2">
+                <main className="pt-[142px] md:pt-[152px] lg:pt-[162px]">
+                    <div className="min-h-[calc(100vh-142px)] md:min-h-[calc(100vh-152px)] lg:min-h-[calc(100vh-162px)] lg:grid lg:grid-cols-2">
                         {/* Left Column - Hero Image/Content */}
                         <div className="relative hidden lg:flex lg:flex-col lg:justify-center bg-gradient-to-br from-brand-primary via-brand-secondary to-brand-accent overflow-hidden">
                             {/* Background Pattern */}

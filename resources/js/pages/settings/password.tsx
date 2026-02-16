@@ -24,11 +24,6 @@ export default function Password() {
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Configuración de contraseña" />
-
-            <h1 className="sr-only">Configuración de Contraseña</h1>
-
             <SettingsLayout>
                 <div className="space-y-6">
                     <Heading
@@ -143,6 +138,5 @@ export default function Password() {
                     </Form>
                 </div>
             </SettingsLayout>
-        </AppLayout>
     );
 }

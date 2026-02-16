@@ -16,6 +16,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
+import { toast } from 'sonner';
 
 interface Product {
     id: number;
@@ -28,6 +29,7 @@ interface Product {
     is_restricted: boolean;
     age_verification_required: boolean;
     main_image_url: string | null;
+    stock: number;
     category: {
         id: number;
         name: string;
@@ -180,11 +182,24 @@ export default function ProductDetail({ product }: Props) {
 
                                     {/* Price Card */}
                                     <div className="mb-8 p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-black text-brand-primary">
-                                                {formatPrice(product.base_price)}
-                                            </span>
-                                            <span className="text-sm text-slate-400 font-medium">IVA incluido</span>
+                                        <div className="flex items-baseline gap-4 mb-2">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-4xl font-black text-brand-primary">
+                                                    {formatPrice(product.base_price)}
+                                                </span>
+                                                <span className="text-sm text-slate-400 font-medium">IVA incluido</span>
+                                            </div>
+                                            
+                                            {/* Stock Status */}
+                                            {product.stock > 0 ? (
+                                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">
+                                                    En Stock
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="destructive">
+                                                    Agotado
+                                                </Badge>
+                                            )}
                                         </div>
                                         
                                         {/* Restricted Banner */}
@@ -202,8 +217,13 @@ export default function ProductDetail({ product }: Props) {
                                             <Button 
                                                 size="lg" 
                                                 className="w-full bg-action-buy hover:bg-action-hover h-14 text-lg font-bold shadow-xl shadow-brand-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98]"
-                                                disabled={!product.is_active}
-                                                onClick={() => useCartStore.getState().addToCart(product)}
+                                                disabled={!product.is_active || product.stock <= 0}
+                                                onClick={() => {
+                                                    useCartStore.getState().addToCart(product);
+                                                    import('@inertiajs/react').then(({ router }) => {
+                                                        router.visit('/checkout');
+                                                    });
+                                                }}
                                             >
                                                 <ShoppingCart className="mr-3 h-6 w-6" />
                                                 Agregar al Carrito
@@ -230,6 +250,14 @@ export default function ProductDetail({ product }: Props) {
                                                 <p className="text-sm font-bold text-slate-900 dark:text-white">Compra Protegida</p>
                                                 <p className="text-xs text-slate-500">Garantía oficial Facchile</p>
                                             </div>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Paga seguro con:</p>
+                                            <img 
+                                                src="/images/logowebpay-plus.png" 
+                                                alt="Webpay Plus" 
+                                                className="h-12 w-auto grayscale opacity-70 dark:brightness-0 dark:invert"
+                                            />
                                         </div>
                                     </div>
 

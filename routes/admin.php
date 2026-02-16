@@ -24,6 +24,7 @@ Route::prefix('adminfacchile')
         Route::resource('brands', BrandController::class);
 
         // Orders
+        Route::get('orders/{id}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
         Route::resource('orders', OrderController::class);
 
         // Customers

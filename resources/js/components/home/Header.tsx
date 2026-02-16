@@ -48,10 +48,30 @@ interface SharedProps extends SharedData {
 }
 
 export default function Header() {
-    const { auth, categories = [] } = usePage<SharedProps>().props;
+    const { auth, categories = [], filters } = usePage<SharedProps & { filters?: { search?: string } }>().props;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const cartItems = useCartStore((state) => state.items);
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+    // Update search term if URL changes (e.g. back button)
+    useEffect(() => {
+        setSearchTerm(filters?.search || '');
+    }, [filters?.search]);
+
+    const handleSearch = () => {
+        if (!searchTerm.trim()) return;
+        
+        // Use window.location for full page reload or Inertia router for SPA navigation
+        // Using Inertia router is better for SPA feel
+         import('@inertiajs/react').then(({ router }) => {
+            router.get('/catalogo', { search: searchTerm }, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            });
+        });
+    };
 
     interface SubCategory {
         name: string;
@@ -129,7 +149,6 @@ export default function Header() {
             createItem('CUCHILLERÍA Y CAZA', 'cuchilleria-y-caza'),
             createItem('PESCA', 'pesca-deportiva'), // Mapped to pesca-deportiva based on user context
             createItem('ROPA & ACCESORIOS', 'ropa-y-accesorios', 'ROPA'),
-            { name: 'BLOG', href: '#', type: 'simple' },
             { name: 'OFERTAS', href: '/catalogo?offers=true', type: 'simple', featured: true },
         ];
     }, [categories]);
@@ -166,7 +185,7 @@ export default function Header() {
 
     return (
         <header 
-            className="fixed top-0 z-50 w-full bg-white dark:bg-[#0a0a0a] shadow-sm transition-all duration-300"
+            className="fixed top-0 z-40 w-full bg-white dark:bg-[#0a0a0a] shadow-sm transition-all duration-300"
             onMouseLeave={handleMouseLeave}
         >
             {/* 1. Top Bar */}
@@ -200,8 +219,16 @@ export default function Header() {
                             <Input 
                                 placeholder="Buscar el cuchillo perfecto..." 
                                 className="pl-3 bg-transparent border-none focus-visible:ring-0 h-10 w-full text-xs"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             />
-                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <button 
+                                onClick={handleSearch}
+                                className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-slate-400 hover:text-brand-primary transition-colors"
+                            >
+                                <Search className="h-4 w-4" />
+                            </button>
                         </div>
                     </div>
 
@@ -244,7 +271,7 @@ export default function Header() {
                         )}
 
                         {/* Cart */}
-                        <CartSheet>
+                        <Link href="/checkout">
                             <Button variant="ghost" size="icon" className="relative rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
                                 <ShoppingCart className="h-5 w-5" />
                                 {cartCount > 0 && (
@@ -253,7 +280,7 @@ export default function Header() {
                                     </span>
                                 )}
                             </Button>
-                        </CartSheet>
+                        </Link>
                     </div>
                 </div>
             </div>

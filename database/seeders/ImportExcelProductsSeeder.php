@@ -80,7 +80,7 @@ class ImportExcelProductsSeeder extends Seeder
             }
             
             // Create Product
-            Product::create([
+            $product = Product::create([
                 'name' => substr($data['name'], 0, 255),
                 'slug' => $slug,
                 'category_id' => $category->id,
@@ -88,11 +88,20 @@ class ImportExcelProductsSeeder extends Seeder
                 'shipping_class_id' => $defaultShipping->id,
                 'description' => substr($data['description'] ?? 'Sin descripción.', 0, 5000), // Limit length just in case
                 'short_description' => mb_convert_encoding(substr(strip_tags($data['description'] ?? ''), 0, 160), 'UTF-8', 'UTF-8'),
-                'base_price' => 0, // Placeholder
+                'base_price' => 14990, // Default price for imported items
                 'is_active' => true,
                 'is_restricted' => false, 
                 'age_verification_required' => false,
-                'main_image_url' => '/images/gentepescando.jpeg', // Default placeholder
+                'main_image_url' => '/images/imagenesdemo/5.png', // Using the demo image requested
+            ]);
+
+            // Create Default Variant for stock management
+            $product->variants()->create([
+                'name' => 'Estándar',
+                'sku' => $product->slug,
+                'price' => $product->base_price,
+                'stock_quantity' => 0,
+                'is_active' => true,
             ]);
         }
         

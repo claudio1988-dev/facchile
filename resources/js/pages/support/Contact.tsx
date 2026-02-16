@@ -12,7 +12,7 @@ export default function Contact() {
             <Head title="Contacto | Facchile Outdoor" />
             <Header />
 
-            <main className="pt-36 pb-24">
+            <main className="pt-[142px] md:pt-[152px] lg:pt-[162px] pb-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Header Section */}
                     <div className="text-center max-w-3xl mx-auto mb-16">

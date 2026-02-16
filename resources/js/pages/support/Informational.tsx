@@ -17,12 +17,35 @@ const INFO_CONTENT: Record<string, { title: string; sections: { h: string; p: st
             { h: 'Seguimiento', p: 'Una vez procesado tu pedido, recibirás un número de seguimiento para monitorear tu paquete en tiempo real.' }
         ]
     },
+    'despacho': {
+        title: 'Zonas de Despacho',
+        sections: [
+            { h: 'Cobertura Nacional', p: 'Realizamos despachos a todo el territorio continental de Chile a través de nuestros partners logísticos.' },
+            { h: 'Plazos de Entrega', p: 'RM: 1-2 días hábiles. Otras regiones: 3-7 días hábiles dependiendo de la localidad.' },
+            { h: 'Costos', p: 'El valor del despacho varía según el peso, volumen y destino de la compra. Puedes simular el costo en tu carrito de compras antes de pagar.' }
+        ]
+    },
     'devoluciones': {
         title: 'Cambios y Devoluciones',
         sections: [
             { h: 'Garantía Legal', p: 'Tienes 6 meses de garantía legal si tu producto presenta fallas de fabricación.' },
             { h: 'Satisfacción Garantizada', p: 'Ofrecemos 10 días para cambios o devoluciones por satisfacción, siempre que el producto esté sellado y en su empaque original.' },
             { h: 'Proceso de Cambio', p: 'Debes presentar tu boleta o factura en nuestra sucursal o enviarnos el producto vía courier previa coordinación.' }
+        ]
+    },
+    'garantias': {
+        title: 'Políticas de Garantía',
+        sections: [
+            { h: 'Garantía Legal (3x3)', p: 'Si el producto falla, tienes 3 meses para exigir el cambio, reparación o devolución del dinero, presentando tu boleta.' },
+            { h: 'Garantía del Fabricante', p: 'Muchos de nuestros productos cuentan con garantía extendida directa del fabricante. Consulta el manual de usuario para más detalles.' },
+            { h: 'Exclusiones', p: 'La garantía no cubre daños por mal uso, intervención no autorizada o desgaste natural del producto.' }
+        ]
+    },
+    'tracking': {
+        title: 'Seguimiento de Pedido',
+        sections: [
+            { h: 'Rastrea tu Compra', p: 'Ingresa tu número de orden y correo electrónico para ver el estado de tu pedido. (Funcionalidad próximamente disponible)' },
+            { h: '¿No tienes tu número?', p: 'Revisa el correo de confirmación que te enviamos al momento de comprar. Si no lo encuentras, contáctanos a soporte@facchile.cl.' }
         ]
     },
     'legal': {
@@ -59,7 +82,7 @@ export default function Informational({ slug }: InformationalProps) {
                                     <h2 className="text-xl font-bold text-text-main dark:text-slate-200 mb-4 tracking-tight">
                                         {section.h}
                                     </h2>
-                                    <p className="text-text-muted dark:text-slate-400 leading-relaxed text-base italic-content-maybe">
+                                    <p className="text-text-muted dark:text-slate-400 leading-relaxed text-base">
                                         {section.p}
                                     </p>
                                     {idx !== content.sections.length - 1 && <Separator className="mt-10" />}
