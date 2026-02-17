@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ShoppingCart, Search, User, Menu, X, Phone, Truck, ShieldCheck, MapPin, ChevronRight, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, User, Menu, X, Phone, Truck, ShieldCheck, MapPin, ChevronRight, ChevronDown, Facebook, Instagram } from 'lucide-react';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
