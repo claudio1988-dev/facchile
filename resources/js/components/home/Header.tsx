@@ -205,23 +205,14 @@ export default function Header() {
             {/* 2. Main Header */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-20 bg-white dark:bg-[#0a0a0a]">
                 <div className="flex h-20 items-center justify-between gap-4">
-                    {/* Left: Mobile Menu & Search Icon */}
-                    <div className="flex items-center flex-1 gap-1">
+                    {/* Left: Mobile Menu */}
+                    <div className="flex items-center flex-1">
                         <div className="lg:hidden">
                             <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                             </Button>
                         </div>
-                        <div className="lg:hidden">
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                                className={cn(isMobileSearchOpen && "text-brand-primary")}
-                            >
-                                <Search className="h-5 w-5" />
-                            </Button>
-                        </div>
+                        
                         <div className="hidden lg:flex w-full max-w-xs relative bg-slate-100 dark:bg-slate-800 rounded-md">
                             <div className="flex items-center px-3 border-r border-slate-300 dark:border-slate-700">
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Todos</span>
@@ -256,7 +247,9 @@ export default function Header() {
 
                     {/* Right: Actions */}
                     <div className="flex items-center justify-end flex-1 gap-2 sm:gap-4">
-                        <ModeToggle />
+                        <div className="hidden sm:block">
+                            <ModeToggle />
+                        </div>
                         
                         {/* User */}
                         {auth.user ? (
@@ -292,30 +285,6 @@ export default function Header() {
                                 )}
                             </Button>
                         </Link>
-                    </div>
-                </div>
-
-                {/* Mobile Search Bar (Expandable) */}
-                <div className={cn(
-                    "lg:hidden overflow-hidden transition-all duration-300 bg-slate-50 dark:bg-slate-900",
-                    isMobileSearchOpen ? "h-14 border-t border-slate-100 dark:border-slate-800" : "h-0"
-                )}>
-                    <div className="mx-auto max-w-7xl px-4 h-full flex items-center gap-2">
-                        <Input 
-                            id="mobile-search-input"
-                            placeholder="Buscar productos..." 
-                            className="flex-1 bg-white dark:bg-slate-800 border-none h-9 text-sm focus-visible:ring-brand-primary"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                        <Button 
-                            size="sm" 
-                            className="bg-brand-primary h-9"
-                            onClick={handleSearch}
-                        >
-                            <Search className="h-4 w-4" />
-                        </Button>
                     </div>
                 </div>
             </div>
@@ -445,30 +414,49 @@ export default function Header() {
 
                         {/* Content */}
                         <div className="flex-1 overflow-y-auto">
+                            {/* Mobile Search Bar - relocated here */}
+                            <div className="p-4 bg-white dark:bg-[#0a0a0a]">
+                                <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                                    <Input 
+                                        placeholder="Buscar productos..." 
+                                        className="bg-transparent border-none focus-visible:ring-0 h-10 text-sm"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && (handleSearch(), setIsMobileMenuOpen(false))}
+                                    />
+                                    <Button size="sm" variant="ghost" className="h-10 w-10 p-0 hover:bg-white/10" onClick={() => (handleSearch(), setIsMobileMenuOpen(false))}>
+                                        <Search className="h-5 w-5 text-slate-500" />
+                                    </Button>
+                                </div>
+                            </div>
+
                             {/* Account Section Quick Access */}
-                            <div className="p-6 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between">
+                            <div className="p-6 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between border-y border-slate-100 dark:border-slate-800">
                                 {auth.user ? (
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-bold">
+                                        <div className="h-10 w-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-bold text-lg">
                                             {auth.user.name.charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white">{auth.user.name}</p>
-                                            <Link href="/dashboard" className="text-xs text-brand-primary font-medium" onClick={() => setIsMobileMenuOpen(false)}>Mi Perfil</Link>
+                                            <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{auth.user.name}</p>
+                                            <Link href="/dashboard" className="text-xs text-brand-primary font-medium" onClick={() => setIsMobileMenuOpen(false)}>Gestionar mi cuenta</Link>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col gap-2 w-full">
                                         <p className="text-xs text-slate-500 mb-2">Inicia sesión para una mejor experiencia</p>
-                                        <Button asChild size="sm" className="bg-brand-primary w-full">
+                                        <Button asChild size="sm" className="bg-brand-primary w-full h-11 font-bold">
                                             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Iniciar Sesión</Link>
                                         </Button>
                                     </div>
                                 )}
+                                <div className="ml-4">
+                                     <ModeToggle />
+                                </div>
                             </div>
 
                             <nav className="p-6">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 text-center">Menú de Navegación</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 text-center">Explorar Categorías</p>
                                 <div className="space-y-2">
                                     {navigationData.map((item) => (
                                         <div key={item.name} className="border-b border-slate-50 dark:border-slate-900 last:border-0">
