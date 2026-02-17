@@ -59,6 +59,7 @@ class CustomerController extends Controller
                 'shipping_cost' => (float) $order->shipping_cost,
                 'created_at' => $order->created_at->format('d/m/Y H:i'),
                 'payment_status' => $order->payment_status,
+                'metadata' => $order->metadata,
                 'items' => $order->items->map(fn($item) => [
                     'id' => $item->id,
                     'product_name' => $item->product_name,

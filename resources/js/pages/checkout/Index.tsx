@@ -404,10 +404,20 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                             <CardDescription>Selecciona cómo deseas pagar tu pedido.</CardDescription>
                                         </CardHeader>
                                         <CardContent className="space-y-4">
+                                            {/* Webpay Option */}
                                             <div 
-                                                className="flex items-center gap-4 p-4 border-2 rounded-xl border-brand-primary bg-brand-primary/5 shadow-md"
+                                                className={cn(
+                                                    "flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all",
+                                                    formData.payment_method === 'webpay' 
+                                                        ? "border-brand-primary bg-brand-primary/5 shadow-md" 
+                                                        : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900"
+                                                )}
+                                                onClick={() => setFormData(prev => ({ ...prev, payment_method: 'webpay' }))}
                                             >
-                                                <div className="p-3 rounded-full bg-brand-primary text-white">
+                                                <div className={cn(
+                                                    "p-3 rounded-full transition-colors",
+                                                    formData.payment_method === 'webpay' ? "bg-brand-primary text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                                                )}>
                                                     <CreditCard className="size-6" />
                                                 </div>
                                                 <div className="flex-1">
@@ -419,10 +429,41 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                             className="h-6 w-auto dark:brightness-0 dark:invert"
                                                         />
                                                     </div>
-                                                    <div className="text-sm text-slate-500">Tarjetas de Débito y Crédito (Transbank)</div>
+                                                    <div className="text-sm text-slate-500 font-medium">Tarjetas de Débito y Crédito (Transbank)</div>
                                                 </div>
-                                                <div className="size-6 rounded-full border-2 flex items-center justify-center border-brand-primary bg-brand-primary">
-                                                    <div className="size-2 bg-white rounded-full" />
+                                                <div className={cn(
+                                                    "size-6 rounded-full border-2 flex items-center justify-center transition-all",
+                                                    formData.payment_method === 'webpay' ? "border-brand-primary bg-brand-primary" : "border-slate-300 dark:border-slate-600"
+                                                )}>
+                                                    {formData.payment_method === 'webpay' && <div className="size-2 bg-white rounded-full" />}
+                                                </div>
+                                            </div>
+
+                                            {/* Bank Transfer Option */}
+                                            <div 
+                                                className={cn(
+                                                    "flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all",
+                                                    formData.payment_method === 'transfer' 
+                                                        ? "border-brand-primary bg-brand-primary/5 shadow-md" 
+                                                        : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900"
+                                                )}
+                                                onClick={() => setFormData(prev => ({ ...prev, payment_method: 'transfer' }))}
+                                            >
+                                                <div className={cn(
+                                                    "p-3 rounded-full transition-colors",
+                                                    formData.payment_method === 'transfer' ? "bg-brand-primary text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                                                )}>
+                                                    <Wallet className="size-6" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="font-black text-slate-900 dark:text-white">Transferencia Bancaria</div>
+                                                    <div className="text-sm text-slate-500 font-medium">Paga directamente desde tu banco</div>
+                                                </div>
+                                                <div className={cn(
+                                                    "size-6 rounded-full border-2 flex items-center justify-center transition-all",
+                                                    formData.payment_method === 'transfer' ? "border-brand-primary bg-brand-primary" : "border-slate-300 dark:border-slate-600"
+                                                )}>
+                                                    {formData.payment_method === 'transfer' && <div className="size-2 bg-white rounded-full" />}
                                                 </div>
                                             </div>
                                         </CardContent>

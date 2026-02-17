@@ -5,7 +5,7 @@ import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Package, Truck, CreditCard, Calendar, Hash, MapPin } from 'lucide-react';
+import { ArrowLeft, Package, Truck, CreditCard, Calendar, Hash, MapPin, Wallet, Info } from 'lucide-react';
 
 interface OrderItem {
     id: number;
@@ -27,6 +27,10 @@ interface Order {
     shipping_cost: number;
     created_at: string;
     payment_status: string;
+    metadata: {
+        payment_method: string;
+        [key: string]: any;
+    };
     items: OrderItem[];
     shipping_address: {
         line1: string;
@@ -193,9 +197,43 @@ export default function OrderDetail({ order }: Props) {
                                                 {paymentStatusMap[order.payment_status]?.label}
                                             </span>
                                         </div>
-                                        <p className="text-slate-500">Transacción procesada vía Webpay Plus</p>
+                                        <p className="text-slate-500">
+                                            {order.metadata?.payment_method === 'transfer' 
+                                                ? 'Transacción vía Transferencia Bancaria' 
+                                                : 'Transacción procesada vía Webpay Plus'}
+                                        </p>
                                     </CardContent>
                                 </Card>
+
+                                {order.metadata?.payment_method === 'transfer' && order.payment_status === 'pending' && (
+                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 dark:bg-blue-900/10 dark:border-blue-800">
+                                        <h3 className="font-bold text-blue-900 dark:text-blue-200 mb-3 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                            <Wallet className="h-4 w-4" /> Datos para Transferencia
+                                        </h3>
+                                        <div className="space-y-3 text-[11px]">
+                                            <div className="grid grid-cols-2 gap-y-2 border-t border-blue-100 dark:border-blue-800 pt-3">
+                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium">Titular</div>
+                                                <div className="text-blue-900 dark:text-blue-100 font-bold">Fabián Esteban Acuña Campos</div>
+                                                
+                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium">RUT</div>
+                                                <div className="text-blue-900 dark:text-blue-100 font-bold">17.196.505-5</div>
+                                                
+                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium">Banco</div>
+                                                <div className="text-blue-900 dark:text-blue-100 font-bold">Mercado Pago</div>
+                                                
+                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium">Cuenta</div>
+                                                <div className="text-blue-900 dark:text-blue-100 font-bold">Vista / 1004087752</div>
+                                                
+                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium">Email</div>
+                                                <div className="text-blue-900 dark:text-blue-100 font-bold">facpesca@gmail.com</div>
+                                            </div>
+                                            <p className="bg-blue-100/50 dark:bg-blue-900/30 p-2 rounded text-blue-800 dark:text-blue-300 flex gap-2">
+                                                <Info className="h-3 w-3 shrink-0 mt-0.5" />
+                                                Envía el comprobante a nuestro email para procesar tu pedido.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
