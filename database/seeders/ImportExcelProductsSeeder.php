@@ -98,7 +98,7 @@ class ImportExcelProductsSeeder extends Seeder
             // Create Default Variant for stock management
             $product->variants()->create([
                 'name' => 'Estándar',
-                'sku' => $product->slug,
+                'sku' => substr($product->slug, 0, 100),
                 'price' => $product->base_price,
                 'stock_quantity' => 0,
                 'is_active' => true,

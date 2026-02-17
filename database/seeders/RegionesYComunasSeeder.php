@@ -53,7 +53,6 @@ class RegionesYComunasSeeder extends Seeder
             return;
         }
         
-        $regiones = [];
         foreach ($regionesData as $region) {
             $regionId = $region['id'];
             $code = $this->regionCodes[$regionId] ?? 'R' . $regionId;
@@ -61,18 +60,19 @@ class RegionesYComunasSeeder extends Seeder
             // Determinar si es zona extrema
             $isExtremeZone = in_array($regionId, [1, 15, 16]); // Arica, Aysén, Magallanes
             
-            $regiones[] = [
-                'id' => $regionId,
-                'code' => $code,
-                'name' => $region['nombre'],
-                'is_extreme_zone' => $isExtremeZone,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            DB::table('regions')->updateOrInsert(
+                ['id' => $regionId], // Match by ID (kept from JSON as they are standard)
+                [
+                    'code' => $code,
+                    'name' => $region['nombre'],
+                    'is_extreme_zone' => $isExtremeZone,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
         }
         
-        DB::table('regions')->insert($regiones);
-        $this->command->info('✅ ' . count($regiones) . ' regiones importadas');
+        $this->command->info('✅ Regiones importadas/actualizadas');
         
         // Leer y procesar comunas
         $this->command->info('🏘️  Importando comunas desde JSON...');
@@ -92,30 +92,31 @@ class RegionesYComunasSeeder extends Seeder
             return;
         }
         
-        $comunas = [];
-        foreach ($comunasData as $index => $comuna) {
+        $count = 0;
+        foreach ($comunasData as $comuna) {
             // Determinar si la comuna está en zona extrema
             $isExtremeZone = in_array($comuna['id_region'], [1, 15, 16]);
             
-            $comunas[] = [
-                'id' => $index + 1,
-                'name' => $comuna['nombre'],
-                'region_id' => $comuna['id_region'],
-                'code' => null, // El código se puede agregar después si es necesario
-                'is_extreme_zone' => $isExtremeZone,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            // Use updateOrInsert to avoid duplicate key errors.
+            // Match by Name and Region ID to find existing records seeded by migrations.
+            // Do NOT force ID from JSON index to avoid conflicts.
+            DB::table('communes')->updateOrInsert(
+                [
+                    'name' => $comuna['nombre'],
+                    'region_id' => $comuna['id_region']
+                ],
+                [
+                    'code' => null, 
+                    'is_extreme_zone' => $isExtremeZone,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+            $count++;
         }
         
-        // Insert in chunks to avoid memory issues
-        foreach (array_chunk($comunas, 100) as $chunk) {
-            DB::table('communes')->insert($chunk);
-        }
-        
-        $this->command->info('✅ ' . count($comunas) . ' comunas importadas');
+        $this->command->info('✅ ' . $count . ' comunas importadas/actualizadas');
         $this->command->newLine();
         $this->command->info('🎉 Importación completada exitosamente!');
-        $this->command->info('📊 Resumen: ' . count($regiones) . ' regiones y ' . count($comunas) . ' comunas');
     }
 }
