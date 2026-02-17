@@ -26,6 +26,14 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useCartStore } from '@/store/useCartStore';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 import { toast } from 'sonner';
 
 // ... imports ...
@@ -244,6 +252,32 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                 {/* Main Content Area */}
                 <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                     
+                    {/* Horizontal Category Scroll (Mobile Only) */}
+                    <div className="lg:hidden mb-8 -mx-4 px-4 overflow-x-auto no-scrollbar flex items-center gap-2 pb-2">
+                        <Button 
+                            variant={!filters.category ? "default" : "outline"} 
+                            size="sm" 
+                            className="rounded-full text-[10px] h-8 px-4 shrink-0 font-bold uppercase tracking-tight"
+                            onClick={() => updateFilters({ category: undefined })}
+                        >
+                            Todo
+                        </Button>
+                        {categories.map((cat) => (
+                            <Button 
+                                key={cat.id}
+                                variant={filters.category?.split(',').includes(cat.slug) ? "default" : "outline"}
+                                size="sm" 
+                                className={cn(
+                                    "rounded-full text-[10px] h-8 px-4 shrink-0 font-bold uppercase tracking-tight transition-all",
+                                    filters.category?.split(',').includes(cat.slug) ? "bg-brand-primary text-white border-brand-primary" : ""
+                                )}
+                                onClick={() => handleCategoryChange(cat.slug, !filters.category?.split(',').includes(cat.slug))}
+                            >
+                                {cat.name}
+                            </Button>
+                        ))}
+                    </div>
+
                     {/* Toolbar & Layout */}
                     <div className="flex flex-col lg:flex-row gap-12">
                         
@@ -251,15 +285,70 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                         <aside className="w-full lg:w-64 flex-none space-y-8">
                             
                             {/* Toolbar (Mobile only) */}
-                            <div className="lg:hidden flex justify-between items-center mb-6">
-                                <Button variant="outline" className="flex gap-2">
-                                    <Filter className="w-4 h-4" /> Filtros
-                                </Button>
+                            <div className="lg:hidden flex justify-between items-center mb-6 gap-3">
+                                <Sheet>
+                                    <SheetTrigger asChild>
+                                        <Button variant="outline" className="flex-1 gap-2 h-11 font-bold">
+                                            <Filter className="w-4 h-4" /> Filtros Avanzados
+                                        </Button>
+                                    </SheetTrigger>
+                                    <SheetContent side="left" className="w-full sm:w-[320px] p-0 bg-white dark:bg-[#0a0a0a]">
+                                        <SheetHeader className="p-6 border-b border-slate-100 dark:border-slate-800">
+                                            <SheetTitle className="text-left font-black uppercase text-slate-900 dark:text-white">Filtros</SheetTitle>
+                                            <SheetDescription className="text-left">Ajusta los parámetros de búsqueda.</SheetDescription>
+                                        </SheetHeader>
+                                        <div className="p-6 overflow-y-auto h-[calc(100vh-140px)] custom-scrollbar">
+                                            <div className="space-y-10">
+                                                {/* Reusing Categories & Brands here would be ideal, but for now just move them */}
+                                                <div className="mb-8">
+                                                    <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest border-l-2 border-brand-primary pl-3">Categorías</h4>
+                                                    <div className="space-y-3">
+                                                        {categories.map((cat) => (
+                                                            <CategoryItem 
+                                                                key={cat.id} 
+                                                                category={cat}
+                                                                selectedSlugs={filters.category?.split(',') || []}
+                                                                onToggle={handleCategoryChange}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="mb-0">
+                                                    <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest border-l-2 border-brand-primary pl-3">Marcas</h4>
+                                                    <div className="space-y-4">
+                                                        {brands.map((brand) => (
+                                                            <div key={brand.id} className="flex items-center justify-between group">
+                                                                <div className="flex items-center gap-3">
+                                                                    <Checkbox 
+                                                                        id={`drawer-brand-${brand.id}`} 
+                                                                        className="rounded-none border-slate-300"
+                                                                        checked={filters.brand?.split(',').includes(brand.name)}
+                                                                        onCheckedChange={(checked) => handleBrandChange(brand.name, checked === true)}
+                                                                    />
+                                                                    <label htmlFor={`drawer-brand-${brand.id}`} className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white cursor-pointer">{brand.name}</label>
+                                                                </div>
+                                                                <span className="text-[10px] font-bold text-slate-400">({brand.products_count})</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-100 dark:border-slate-800">
+                                            <SheetTrigger asChild>
+                                                <Button className="w-full bg-brand-primary h-12 font-bold uppercase tracking-widest text-xs">
+                                                    Ver {paginatedProducts.total} Productos
+                                                </Button>
+                                            </SheetTrigger>
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
+
                                 <Select 
                                     value={filters.sort || 'popular'} 
                                     onValueChange={(value) => updateFilters({ sort: value })}
                                 >
-                                    <SelectTrigger className="w-[160px]">
+                                    <SelectTrigger className="flex-1 h-11 font-bold">
                                         <SelectValue placeholder="Ordenar" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -271,8 +360,8 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                 </Select>
                             </div>
 
-                            {/* Filters Content */}
-                            <div>
+                            {/* Filters Content (Desktop and Hidden on Mobile) */}
+                            <div className="hidden lg:block">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-sm font-bold uppercase text-slate-900 dark:text-white">Filtros</h3>
                                     <Filter className="w-4 h-4 text-slate-400" />
