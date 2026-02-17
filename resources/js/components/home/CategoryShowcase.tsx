@@ -42,47 +42,41 @@ export default function CategoryShowcase() {
                 backgroundAttachment: 'fixed'
             }}
         >
-            {/* Stronger white overlay for a cleaner, brighter look */}
-            <div className="absolute inset-0 bg-white/85 dark:bg-black/80 pointer-events-none" />
+            {/* Maximum white overlay for an ultra-clean, bright look */}
+            <div className="absolute inset-0 bg-white/95 dark:bg-black/90 pointer-events-none" />
             
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="mb-10 sm:mb-16 text-center">
-                    <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white uppercase">
+                <div className="mb-12 text-center">
+                    <h2 className="text-3xl font-bold tracking-tight text-text-main sm:text-4xl dark:text-white">
                         Explora Nuestras Categorías
                     </h2>
-                    <div className="mt-2 h-1 w-20 bg-brand-primary mx-auto rounded-full" />
-                    <p className="mt-4 text-sm sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-                        Equipamiento de alta calidad para cada tipo de aventura. Seleccionamos lo mejor para tu pasión.
+                    <p className="mt-4 text-lg text-text-muted dark:text-slate-400">
+                        Equipamiento de alta calidad para cada tipo de aventura.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {categories.map((category) => (
                         <Link 
                             key={category.id} 
                             href={`/categoria/${category.slug}`}
-                            className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white"
+                            className="group relative overflow-hidden rounded-lg shadow-lg"
                         >
-                            <div className="aspect-[4/5] sm:aspect-[4/4] relative w-full overflow-hidden">
+                            <div className="aspect-h-3 aspect-w-4 relative h-40 sm:h-64 w-full overflow-hidden bg-slate-200">
                                 <img
                                     src={category.image}
                                     alt={category.name}
-                                    className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                                    className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
                                 />
-                                {/* Overlay gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
                             </div>
-                            
-                            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5">
-                                <h3 className="text-sm sm:text-lg font-bold text-white leading-tight group-hover:text-brand-primary transition-colors">
+                            <div className="absolute bottom-0 p-4 sm:p-6 w-full bg-gradient-to-t from-brand-primary/80 to-transparent">
+                                <h3 className="text-base sm:text-xl font-bold text-white leading-tight">
                                     {category.name}
                                 </h3>
-                                <div className="mt-1 flex items-center gap-1.5">
-                                    <span className="h-px w-4 bg-brand-primary" />
-                                    <span className="text-[9px] sm:text-xs text-slate-300 font-medium uppercase tracking-widest">
-                                        {category.count}
-                                    </span>
-                                </div>
+                                <p className="mt-1 text-[10px] sm:text-sm text-highlight font-medium">
+                                    {category.count}
+                                </p>
                             </div>
                         </Link>
                     ))}

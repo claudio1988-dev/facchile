@@ -23,7 +23,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Home | Facchile Outdoor" />
+            <Head title="Home | Facchile SPA" />
             
             <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
                 <Header />

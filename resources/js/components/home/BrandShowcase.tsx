@@ -9,20 +9,24 @@ export default function BrandShowcase() {
     ];
 
     return (
-        <section className="bg-bg-body py-12 dark:bg-[#1C1C1A]">
+        <section className="bg-white py-16 sm:py-24 dark:bg-[#0a0a0a]">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 className="text-center text-lg font-semibold leading-8 text-text-main dark:text-white">
-                    Trabajamos con las mejores marcas del mundo
-                </h2>
-                <div className="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-6">
+                <div className="mb-12 text-center">
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+                        Trabajamos con las mejores marcas
+                    </h2>
+                </div>
+
+                <div className="mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8">
                     {brands.map((brand) => (
-                        <div key={brand.name} className="flex justify-center">
+                        <div 
+                            key={brand.name} 
+                            className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex items-center justify-center aspect-[3/2] group hover:-translate-y-1"
+                        >
                             <img
-                                className="col-span-2 max-h-12 w-full object-contain grayscale transition-all hover:grayscale-0 lg:col-span-1 dark:invert"
+                                className="max-h-12 w-full object-contain grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
                                 src={brand.logo}
                                 alt={brand.name}
-                                width={158}
-                                height={48}
                             />
                         </div>
                     ))}

@@ -111,7 +111,7 @@ export default function Footer() {
                 </div>
                 <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-xs leading-5 text-slate-400">
-                        &copy; 2026 Facchile SpA. Todos los derechos reservados.
+                        &copy; 2026 Facchile SPA. Todos los derechos reservados.
                     </p>
                     <p className="text-xs leading-5 text-slate-500 italic relative z-50 group">
                         Plataforma ecommerce desarrollada por <a href="https://www.claudioaguilera.cl" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-brand-primary transition-all duration-300 font-bold underline decoration-slate-600 hover:decoration-brand-primary pointer-events-auto cursor-pointer inline-block">Claudio Aguilera</a>

@@ -9,10 +9,10 @@ import { Mail, Phone, MapPin, Send, MessageSquare } from 'lucide-react';
 export default function Contact() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0a]">
-            <Head title="Contacto | Facchile Outdoor" />
+            <Head title="Contacto | Facchile SPA" />
             <Header />
 
-            <main className="pt-[142px] md:pt-[152px] lg:pt-[162px] pb-24">
+            <main className="pt-[160px] md:pt-[180px] lg:pt-[200px] pb-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Header Section */}
                     <div className="text-center max-w-3xl mx-auto mb-16">
@@ -64,17 +64,15 @@ export default function Contact() {
                                     <div className="h-10 w-10 bg-brand-primary rounded-xl flex items-center justify-center text-white mb-4">
                                         <Phone className="h-5 w-5" />
                                     </div>
-                                    <h3 className="font-bold text-text-main dark:text-white">Teléfonos</h3>
-                                    <p className="text-sm text-text-muted dark:text-slate-400 mt-1">+56 2 2345 6789</p>
-                                    <p className="text-sm text-text-muted dark:text-slate-400">+56 9 1234 5678</p>
+                                    <h3 className="font-bold text-text-main dark:text-white">Teléfono</h3>
+                                    <p className="text-sm text-text-muted dark:text-slate-400 mt-1">+56 9 7815 5169</p>
                                 </div>
                                 <div className="bg-brand-secondary/5 dark:bg-white/5 p-6 rounded-2xl border border-brand-secondary/10">
                                     <div className="h-10 w-10 bg-brand-primary rounded-xl flex items-center justify-center text-white mb-4">
                                         <Mail className="h-5 w-5" />
                                     </div>
                                     <h3 className="font-bold text-text-main dark:text-white">Email</h3>
-                                    <p className="text-sm text-text-muted dark:text-slate-400 mt-1">ventas@facchile.cl</p>
-                                    <p className="text-sm text-text-muted dark:text-slate-400">soporte@facchile.cl</p>
+                                    <p className="text-sm text-text-muted dark:text-slate-400 mt-1">facchilespa@gmail.com</p>
                                 </div>
                             </div>
 
@@ -83,8 +81,8 @@ export default function Contact() {
                                     <MapPin className="h-5 w-5" />
                                 </div>
                                 <h3 className="font-bold text-text-main dark:text-white">Ubicación</h3>
-                                <p className="text-sm text-text-muted dark:text-slate-400 mt-1">Av. Providencia 1234, Oficina 501</p>
-                                <p className="text-sm text-text-muted dark:text-slate-400">Santiago, Chile</p>
+                                <p className="text-sm text-text-muted dark:text-slate-400 mt-1">San Carlos, Región del Ñuble</p>
+                                <p className="text-sm text-text-muted dark:text-slate-400">Chile</p>
                             </div>
 
                             {/* Simple "Map" Placeholder */}
