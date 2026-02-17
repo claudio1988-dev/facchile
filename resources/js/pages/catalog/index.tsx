@@ -371,7 +371,7 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
 
                             {/* Products Grid */}
                             <div className={viewMode === 'grid' ? 
-                                "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" : 
+                                "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8" : 
                                 "flex flex-col gap-6"
                             }>
                                 {paginatedProducts.data.map((product) => (
@@ -404,27 +404,30 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                         </div>
 
                                         {/* Product Info */}
-                                        <div className={viewMode === 'grid' ? "text-center md:text-left" : "flex-1 flex flex-col justify-center"}>
+                                        <div className={cn(
+                                            "p-2 md:p-0",
+                                            viewMode === 'grid' ? "text-center md:text-left" : "flex-1 flex flex-col justify-center"
+                                        )}>
                                             {product.brand && (
-                                                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                                <p className="text-[9px] md:text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                                                     {product.brand.name}
                                                 </p>
                                             )}
                                             
-                                            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 leading-tight min-h-[2.5em]">
-                                                <Link href={`/producto/${product.slug}`} className="hover:text-brand-primary transition-colors">
+                                            <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-white mb-2 leading-tight min-h-[3em] md:min-h-[2.5em]">
+                                                <Link href={`/producto/${product.slug}`} className="hover:text-brand-primary transition-colors line-clamp-2">
                                                     {product.name}
                                                 </Link>
                                             </h3>
 
-                                            <div className="flex items-center justify-between mt-2">
-                                                <p className="text-lg font-black text-slate-900 dark:text-white">
+                                            <div className="flex items-center justify-between mt-1 md:mt-2">
+                                                <p className="text-sm md:text-lg font-black text-slate-900 dark:text-white">
                                                     ${parseFloat(product.base_price.toString()).toLocaleString('es-CL')}
                                                 </p>
                                                 
-                                                {/* Add to Cart Button (Hover on Desktop, Always on Mobile) */}
+                                                {/* Add to Cart Button */}
                                                 <button 
-                                                    className="lg:hidden lg:group-hover:flex items-center justify-center w-8 h-8 bg-brand-primary text-white rounded-full hover:bg-brand-secondary transition-all shadow-sm"
+                                                    className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 bg-brand-primary text-white rounded-full hover:bg-brand-secondary transition-all shadow-sm"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         addToCart(product);
@@ -434,7 +437,7 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                                     }}
                                                     title="Agregar al carrito"
                                                 >
-                                                    <ShoppingCart className="w-4 h-4" />
+                                                    <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                                 </button>
                                             </div>
                                         </div>

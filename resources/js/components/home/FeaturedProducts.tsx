@@ -37,7 +37,7 @@ export default function FeaturedProducts({ products = [] }: Props) {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+                <div className="grid grid-cols-2 gap-y-6 gap-x-4 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                     {products.map((product) => (
                         <div key={product.id} className="group relative rounded-lg bg-bg-card p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-[#2C2C2A] flex flex-col h-full">
                             <div className="aspect-square w-full overflow-hidden rounded-md bg-slate-100 group-hover:opacity-75 relative">

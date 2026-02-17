@@ -24,21 +24,21 @@ export default function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/30 to-transparent" />
 
             {/* Content */}
-            <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 pt-24 text-center text-white sm:px-6 lg:px-8 mx-auto max-w-7xl">
-                <h1 className="animate-fade-in-up mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-center">
+            <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 pt-20 text-center text-white sm:px-6 lg:px-8 mx-auto max-w-7xl">
+                <h1 className="animate-fade-in-up mb-6 text-3xl font-extrabold tracking-tighter sm:text-5xl lg:text-7xl">
                     <span className="block text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]">Expertos en</span>
-                    <span className="block text-action-buy drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">Caza y Pesca Deportiva</span>
+                    <span className="block text-action-buy drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] leading-[1.1] md:leading-normal">Caza y Pesca Deportiva</span>
                 </h1>
-                <p className="animate-fade-in-up delay-100 mb-8 max-w-2xl text-xl text-slate-200 text-center">
+                <p className="animate-fade-in-up delay-100 mb-10 max-w-2xl text-base md:text-xl text-slate-200 font-medium">
                     Equipamiento especializado en caza, pesca y camping. 
-                    Cumplimiento normativo garantizado y envíos a todo el país.
+                    <span className="block md:inline"> Cumplimiento normativo y envíos a todo Chile.</span>
                 </p>
-                <div className="animate-fade-in-up delay-200 flex flex-col gap-4 sm:flex-row justify-center">
-                    <Button asChild size="lg" className="bg-action-buy text-white hover:bg-action-hover">
+                <div className="animate-fade-in-up delay-200 flex flex-col sm:flex-row gap-3 w-full sm:w-auto px-4 sm:px-0">
+                    <Button asChild size="lg" className="bg-action-buy text-white hover:bg-action-hover h-14 sm:h-auto text-lg font-bold">
                         <Link href="/catalogo">Explorar Catálogo</Link>
                     </Button>
-                    <Button asChild variant="secondary" size="lg" className="bg-white text-slate-900 hover:bg-gray-100">
-                        <Link href="/ofertas">Ver Ofertas</Link>
+                    <Button asChild variant="secondary" size="lg" className="bg-white/10 hover:bg-white text-white hover:text-slate-900 backdrop-blur-sm border border-white/20 h-14 sm:h-auto text-lg font-bold">
+                        <Link href="/catalogo?offers=true">Ver Ofertas</Link>
                     </Button>
                 </div>
                 

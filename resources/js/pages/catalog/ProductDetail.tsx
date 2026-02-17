@@ -106,7 +106,7 @@ export default function ProductDetail({ product }: Props) {
                             {/* Product Media (Gallery/Image) */}
                             <div className="lg:col-span-5 xl:col-span-6">
                                 <div className="sticky top-32">
-                                    <div className="relative aspect-square max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-8">
+                                    <div className="relative aspect-square max-h-[400px] md:max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-4 md:p-8">
                                         {product.main_image_url ? (
                                             <img
                                                 src={product.main_image_url || '/images/imagenesdemo/1.avif'}
@@ -304,6 +304,29 @@ export default function ProductDetail({ product }: Props) {
 
                 <Footer />
                 <WhatsAppFloating />
+
+                {/* Sticky Mobile Purchase Bar */}
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-4 animate-in slide-in-from-bottom duration-300">
+                    <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">Total</span>
+                            <span className="text-lg font-black text-brand-primary leading-none">{formatPrice(product.base_price)}</span>
+                        </div>
+                        <Button 
+                            className="flex-1 bg-action-buy hover:bg-action-hover h-12 text-sm font-bold shadow-lg shadow-brand-primary/10"
+                            disabled={!product.is_active || product.stock <= 0}
+                            onClick={() => {
+                                useCartStore.getState().addToCart(product);
+                                import('@inertiajs/react').then(({ router }) => {
+                                    router.visit('/checkout');
+                                });
+                            }}
+                        >
+                            <ShoppingCart className="mr-2 h-5 w-5" />
+                            Lo quiero ahora
+                        </Button>
+                    </div>
+                </div>
             </div>
         </>
     );

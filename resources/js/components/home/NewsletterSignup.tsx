@@ -22,7 +22,7 @@ export default function NewsletterSignup() {
                     <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-slate-100 shadow-sm">
                         Suscríbete para recibir ofertas exclusivas, consejos de expertos y novedades sobre nuevos productos de caza y pesca.
                     </p>
-                    <div className="mt-10 flex max-w-md gap-x-4 mx-auto">
+                    <div className="mt-10 flex flex-col sm:flex-row max-w-md gap-4 sm:gap-x-4 mx-auto px-4 sm:px-0">
                         <label htmlFor="email-address" className="sr-only">
                             Correo electrónico
                         </label>
@@ -32,12 +32,12 @@ export default function NewsletterSignup() {
                             type="email"
                             autoComplete="email"
                             required
-                            className="min-w-0 flex-auto rounded-md border-0 bg-white/10 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-slate-200 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 backdrop-blur-sm"
+                            className="min-w-0 flex-auto rounded-md border-0 bg-white/20 px-3.5 py-3 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-slate-200 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 backdrop-blur-md h-12"
                             placeholder="tucorreo@ejemplo.com"
                         />
                         <Button
                             type="submit"
-                            className="flex-none rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-brand-primary shadow-sm hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                            className="flex-none rounded-md bg-white px-8 py-2.5 text-sm font-bold text-brand-primary shadow-sm hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white h-12"
                         >
                             Suscribirse
                         </Button>

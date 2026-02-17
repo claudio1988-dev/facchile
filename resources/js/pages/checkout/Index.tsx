@@ -165,43 +165,43 @@ export default function Index({ isVerified, customer, regions }: Props) {
             <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
                 <Header />
 
-                <main className="pt-[142px] md:pt-[152px] lg:pt-[162px] pb-16">
+                <main className="pt-[110px] md:pt-[145px] lg:pt-[155px] pb-16">
                     <div className="container py-8 max-w-5xl mx-auto px-4">
                         {/* Stepper Header */}
-                        <div className="flex items-center justify-center mb-12">
-                            <div className="flex items-center w-full max-w-2xl">
+                        <div className="flex items-center justify-center mb-8 md:mb-12">
+                            <div className="flex items-center w-full max-w-2xl px-2">
                                 {/* Step 1 */}
                                 <div className="flex flex-col items-center flex-1 relative">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                                         step === 'cart' ? 'bg-brand-primary border-brand-primary text-white' : 'bg-muted border-muted text-muted-foreground'
                                     } ${['shipping', 'payment'].includes(step) ? 'bg-green-600 border-green-600 text-white' : ''}`}>
-                                        {['shipping', 'payment'].includes(step) ? <CheckCircle2 className="size-6" /> : <ShoppingCart className="size-5" />}
+                                        {['shipping', 'payment'].includes(step) ? <CheckCircle2 className="size-5 md:size-6" /> : <ShoppingCart className="size-4 md:size-5" />}
                                     </div>
-                                    <span className={cn("text-xs font-bold mt-2 uppercase tracking-tighter", step === 'cart' ? 'text-brand-primary' : 'text-slate-400')}>Carrito</span>
+                                    <span className={cn("text-[9px] md:text-xs font-bold mt-2 uppercase tracking-tighter", step === 'cart' ? 'text-brand-primary' : 'text-slate-400')}>Carrito</span>
                                 </div>
                                 
-                                <div className={`h-1 flex-1 ${['shipping', 'payment'].includes(step) ? 'bg-green-600' : 'bg-muted'}`} />
+                                <div className={`h-0.5 md:h-1 flex-1 ${['shipping', 'payment'].includes(step) ? 'bg-green-600' : 'bg-muted'}`} />
 
                                 {/* Step 2 */}
                                 <div className="flex flex-col items-center flex-1 relative">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                                         step === 'shipping' ? 'bg-brand-primary border-brand-primary text-white' : 'bg-muted border-muted text-muted-foreground'
                                     } ${step === 'payment' ? 'bg-green-600 border-green-600 text-white' : ''}`}>
-                                        {step === 'payment' ? <CheckCircle2 className="size-6" /> : <MapPin className="size-5" />}
+                                        {step === 'payment' ? <CheckCircle2 className="size-5 md:size-6" /> : <MapPin className="size-4 md:size-5" />}
                                     </div>
-                                    <span className={cn("text-xs font-bold mt-2 uppercase tracking-tighter", step === 'shipping' ? 'text-brand-primary' : (step === 'payment' ? 'text-green-600' : 'text-slate-400'))}>Envío</span>
+                                    <span className={cn("text-[9px] md:text-xs font-bold mt-2 uppercase tracking-tighter", step === 'shipping' ? 'text-brand-primary' : (step === 'payment' ? 'text-green-600' : 'text-slate-400'))}>Envío</span>
                                 </div>
 
-                                <div className={`h-1 flex-1 ${step === 'payment' ? 'bg-green-600' : 'bg-muted'}`} />
+                                <div className={`h-0.5 md:h-1 flex-1 ${step === 'payment' ? 'bg-green-600' : 'bg-muted'}`} />
 
                                 {/* Step 3 */}
                                 <div className="flex flex-col items-center flex-1 relative">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                                         step === 'payment' ? 'bg-brand-primary border-brand-primary text-white' : 'bg-muted border-muted text-muted-foreground'
                                     }`}>
-                                        <CreditCard className="size-5" />
+                                        <CreditCard className="size-4 md:size-5" />
                                     </div>
-                                    <span className={cn("text-xs font-bold mt-2 uppercase tracking-tighter", step === 'payment' ? 'text-brand-primary' : 'text-slate-400')}>Pago</span>
+                                    <span className={cn("text-[9px] md:text-xs font-bold mt-2 uppercase tracking-tighter", step === 'payment' ? 'text-brand-primary' : 'text-slate-400')}>Pago</span>
                                 </div>
                             </div>
                         </div>

@@ -44,14 +44,14 @@ export default function CategoryShowcase() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {categories.map((category) => (
                         <Link 
                             key={category.id} 
                             href={`/categoria/${category.slug}`}
                             className="group relative overflow-hidden rounded-lg shadow-lg"
                         >
-                            <div className="aspect-h-3 aspect-w-4 relative h-64 w-full overflow-hidden bg-slate-200">
+                            <div className="aspect-h-3 aspect-w-4 relative h-40 sm:h-64 w-full overflow-hidden bg-slate-200">
                                 <img
                                     src={category.image}
                                     alt={category.name}
@@ -59,11 +59,11 @@ export default function CategoryShowcase() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
                             </div>
-                            <div className="absolute bottom-0 p-6 w-full bg-gradient-to-t from-brand-primary/80 to-transparent">
-                                <h3 className="text-xl font-bold text-white">
+                            <div className="absolute bottom-0 p-4 sm:p-6 w-full bg-gradient-to-t from-brand-primary/80 to-transparent">
+                                <h3 className="text-base sm:text-xl font-bold text-white leading-tight">
                                     {category.name}
                                 </h3>
-                                <p className="mt-1 text-sm text-highlight font-medium">
+                                <p className="mt-1 text-[10px] sm:text-sm text-highlight font-medium">
                                     {category.count}
                                 </p>
                             </div>

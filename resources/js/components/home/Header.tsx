@@ -50,6 +50,7 @@ interface SharedProps extends SharedData {
 export default function Header() {
     const { auth, categories = [], filters } = usePage<SharedProps & { filters?: { search?: string } }>().props;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const cartItems = useCartStore((state) => state.items);
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -189,10 +190,10 @@ export default function Header() {
             onMouseLeave={handleMouseLeave}
         >
             {/* 1. Top Bar */}
-            <div className="bg-brand-secondary text-white py-1.5 px-4 text-xs font-medium tracking-wide">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
-                    <p>Disfruta de envío gratis en compras sobre $150.000</p>
-                    <div className="flex items-center gap-4 sm:gap-6 uppercase text-[10px] sm:text-[11px]">
+            <div className="bg-brand-secondary text-white py-1.5 px-4 text-[10px] sm:text-xs font-medium tracking-wide">
+                <div className="mx-auto max-w-7xl flex flex-row justify-center sm:justify-between items-center gap-2">
+                    <p className="text-center sm:text-left">Envío gratis en compras sobre $150.000</p>
+                    <div className="hidden sm:flex items-center gap-4 uppercase text-[11px]">
                          <Link href="/tracking" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><Truck className="h-3.5 w-3.5" /><span>Sigue tu pedido</span></Link>
                          <Link href="/despacho" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><MapPin className="h-3.5 w-3.5" /><span>Zonas de despacho</span></Link>
                          <Link href="/garantias" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><ShieldCheck className="h-3.5 w-3.5" /><span>Garantías</span></Link>
@@ -204,20 +205,30 @@ export default function Header() {
             {/* 2. Main Header */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-20 bg-white dark:bg-[#0a0a0a]">
                 <div className="flex h-20 items-center justify-between gap-4">
-                    {/* Left: Mobile Menu & Search */}
-                    <div className="flex items-center flex-1 gap-4">
+                    {/* Left: Mobile Menu & Search Icon */}
+                    <div className="flex items-center flex-1 gap-1">
                         <div className="lg:hidden">
                             <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                             </Button>
                         </div>
-                        <div className="hidden lg:flex w-full max-w-xs relative bg-slate-100 rounded-md">
-                            <div className="flex items-center px-3 border-r border-slate-300">
-                                <span className="text-xs font-medium text-slate-600">Todos</span>
+                        <div className="lg:hidden">
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                                className={cn(isMobileSearchOpen && "text-brand-primary")}
+                            >
+                                <Search className="h-5 w-5" />
+                            </Button>
+                        </div>
+                        <div className="hidden lg:flex w-full max-w-xs relative bg-slate-100 dark:bg-slate-800 rounded-md">
+                            <div className="flex items-center px-3 border-r border-slate-300 dark:border-slate-700">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Todos</span>
                                 <ChevronDown className="h-3 w-3 ml-1 text-slate-500" />
                             </div>
                             <Input 
-                                placeholder="Buscar el cuchillo perfecto..." 
+                                placeholder="Buscar productos..." 
                                 className="pl-3 bg-transparent border-none focus-visible:ring-0 h-10 w-full text-xs"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -281,6 +292,30 @@ export default function Header() {
                                 )}
                             </Button>
                         </Link>
+                    </div>
+                </div>
+
+                {/* Mobile Search Bar (Expandable) */}
+                <div className={cn(
+                    "lg:hidden overflow-hidden transition-all duration-300 bg-slate-50 dark:bg-slate-900",
+                    isMobileSearchOpen ? "h-14 border-t border-slate-100 dark:border-slate-800" : "h-0"
+                )}>
+                    <div className="mx-auto max-w-7xl px-4 h-full flex items-center gap-2">
+                        <Input 
+                            id="mobile-search-input"
+                            placeholder="Buscar productos..." 
+                            className="flex-1 bg-white dark:bg-slate-800 border-none h-9 text-sm focus-visible:ring-brand-primary"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                        />
+                        <Button 
+                            size="sm" 
+                            className="bg-brand-primary h-9"
+                            onClick={handleSearch}
+                        >
+                            <Search className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -398,41 +433,89 @@ export default function Header() {
 
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
-                <div className="lg:hidden absolute top-0 left-0 w-full h-screen z-50 bg-white dark:bg-black overflow-y-auto">
-                     <div className="p-4 flex justify-between items-center border-b">
-                        <span className="font-bold">Menú</span>
-                        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
-                            <X className="h-6 w-6" />
-                        </Button>
-                     </div>
-                     <div className="p-4">
-                        <nav className="space-y-4">
-                            {navigationData.map((item) => (
-                                <div key={item.name} className="border-b border-slate-100 pb-2">
-                                    <Link 
-                                        href={item.href} 
-                                        className="text-sm font-bold uppercase block py-2"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        {item.name}
-                                    </Link>
-                                    {item.subcategories && (
-                                        <div className="pl-4 mt-1 space-y-2">
-                                            {item.subcategories.map(sub => (
+                <div className="lg:hidden fixed inset-0 z-[100] bg-white dark:bg-[#0a0a0a] animate-in slide-in-from-left duration-300">
+                     <div className="flex flex-col h-full">
+                        {/* Header */}
+                        <div className="p-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-800">
+                            <img src="/logo.png" alt="Logo" className="h-8 w-auto dark:brightness-0 dark:invert" />
+                            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                                <X className="h-6 w-6" />
+                            </Button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto">
+                            {/* Account Section Quick Access */}
+                            <div className="p-6 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between">
+                                {auth.user ? (
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-bold">
+                                            {auth.user.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-900 dark:text-white">{auth.user.name}</p>
+                                            <Link href="/dashboard" className="text-xs text-brand-primary font-medium" onClick={() => setIsMobileMenuOpen(false)}>Mi Perfil</Link>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2 w-full">
+                                        <p className="text-xs text-slate-500 mb-2">Inicia sesión para una mejor experiencia</p>
+                                        <Button asChild size="sm" className="bg-brand-primary w-full">
+                                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Iniciar Sesión</Link>
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <nav className="p-6">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 text-center">Menú de Navegación</p>
+                                <div className="space-y-2">
+                                    {navigationData.map((item) => (
+                                        <div key={item.name} className="border-b border-slate-50 dark:border-slate-900 last:border-0">
+                                            <div className="flex items-center justify-between py-3">
                                                 <Link 
-                                                    key={sub.name}
-                                                    href={sub.href}
-                                                    className="block text-xs text-slate-600 py-1"
+                                                    href={item.href} 
+                                                    className={cn(
+                                                        "text-sm font-black uppercase tracking-tight",
+                                                        item.featured ? "text-action-buy" : "text-slate-800 dark:text-slate-100"
+                                                    )}
                                                     onClick={() => setIsMobileMenuOpen(false)}
                                                 >
-                                                    {sub.name}
+                                                    {item.name}
                                                 </Link>
-                                            ))}
+                                                {item.subcategories && item.subcategories.length > 0 && (
+                                                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                                                )}
+                                            </div>
+                                            {item.subcategories && (
+                                                <div className="pl-4 pb-2 flex flex-wrap gap-2">
+                                                    {item.subcategories.map(sub => (
+                                                        <Link 
+                                                            key={sub.name}
+                                                            href={sub.href}
+                                                            className="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase text-slate-600 dark:text-slate-400 hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
+                                                            onClick={() => setIsMobileMenuOpen(false)}
+                                                        >
+                                                            {sub.name}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
-                            ))}
-                        </nav>
+                            </nav>
+                        </div>
+
+                        {/* Footer Info */}
+                        <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 text-center">
+                            <div className="flex justify-center gap-6 mb-4">
+                               <Facebook className="h-5 w-5 text-slate-400" />
+                               <Instagram className="h-5 w-5 text-slate-400" />
+                               <Phone className="h-5 w-5 text-slate-400" />
+                            </div>
+                            <p className="text-[10px] text-slate-500">San Carlos, Chile | +56 9 7815 5169</p>
+                        </div>
                      </div>
                 </div>
             )}
