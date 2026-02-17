@@ -8,7 +8,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export default function Dashboard() {
+export default function Dashboard(props: { recentOrders?: any[] }) {
     const { auth } = usePage<SharedData>().props;
 
     const menuItems = [
@@ -82,12 +82,43 @@ export default function Dashboard() {
                                 <CardHeader className="py-4 px-6 border-b border-slate-100 dark:border-slate-800">
                                     <CardTitle className="text-xs font-black uppercase tracking-widest text-slate-400">Actividad Reciente</CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-6">
-                                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                                        <Package className="w-10 h-10 text-slate-200 mb-2" />
-                                        <p className="text-xs text-slate-500">No hay pedidos recientes para mostrar.</p>
-                                        <Link href="/catalogo" className="mt-4 text-xs font-bold text-brand-primary hover:underline">Ir a comprar ahora</Link>
-                                    </div>
+                                <CardContent className="p-0">
+                                    {props.recentOrders && props.recentOrders.length > 0 ? (
+                                        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                                            {props.recentOrders.map((order) => (
+                                                <div key={order.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-900 dark:text-white">#{order.order_number}</p>
+                                                        <p className="text-xs text-slate-500">{order.created_at} • {order.items_count} items</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-sm font-bold text-slate-900 dark:text-white">
+                                                            ${parseFloat(order.total).toLocaleString('es-CL')}
+                                                        </p>
+                                                        <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
+                                                            {order.status}
+                                                        </p>
+                                                    </div>
+                                                    <Button variant="ghost" size="sm" asChild className="ml-2 h-8 w-8 p-0">
+                                                        <Link href={`/customer/orders/${order.id}`}>
+                                                            <Package className="h-4 w-4" />
+                                                        </Link>
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 text-center">
+                                                <Link href="/customer/orders" className="text-xs font-bold text-brand-primary hover:underline">
+                                                    Ver todos mis pedidos
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-8 text-center p-6">
+                                            <Package className="w-10 h-10 text-slate-200 mb-2" />
+                                            <p className="text-xs text-slate-500">No hay pedidos recientes para mostrar.</p>
+                                            <Link href="/catalogo" className="mt-4 text-xs font-bold text-brand-primary hover:underline">Ir a comprar ahora</Link>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </div>

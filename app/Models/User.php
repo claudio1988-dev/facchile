@@ -50,4 +50,9 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'email', 'email');
+    }
 }

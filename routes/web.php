@@ -45,7 +45,29 @@ Route::get('/info/{slug}', function ($slug) {
 })->name('info');
 
 Route::get('dashboard', function () {
-    return Inertia::render('dashboard');
+    $user = auth()->user();
+    $recentOrders = [];
+    
+    // Assuming User has One-to-One with Customer or similar relation
+    // Check if user is linked to a customer profile
+    if ($user->customer) {
+        $recentOrders = $user->customer->orders()
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn($order) => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'total' => $order->total,
+                'created_at' => $order->created_at->format('d/m/Y'),
+                'items_count' => $order->items_count ?? $order->items()->count(),
+            ]);
+    }
+
+    return Inertia::render('dashboard', [
+        'recentOrders' => $recentOrders
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/settings.php';

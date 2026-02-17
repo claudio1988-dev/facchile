@@ -24,4 +24,39 @@ class DashboardTest extends TestCase
         $response = $this->get(route('dashboard'));
         $response->assertOk();
     }
+
+    public function test_dashboard_displays_recent_orders()
+    {
+        $user = User::factory()->create();
+        $customer = \App\Models\Customer::create([
+            'email' => $user->email,
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'rut' => '11111111-1',
+            'is_verified' => true
+        ]);
+        
+        // Create 5 orders
+        for ($i = 0; $i < 5; $i++) {
+            \App\Models\Order::create([
+                'order_number' => "ORD-{$i}",
+                'customer_id' => $customer->id,
+                'status' => 'pending',
+                'total' => 1000,
+                'subtotal' => 1000,
+                'tax' => 190,
+                'shipping_cost' => 0,
+                'payment_status' => 'pending',
+                'age_verification_completed' => true
+            ]);
+        }
+        
+        $this->actingAs($user);
+        $response = $this->get(route('dashboard'));
+        
+        $response->assertInertia(fn ($page) => $page
+            ->component('dashboard')
+            ->has('recentOrders', 5)
+        );
+    }
 }
