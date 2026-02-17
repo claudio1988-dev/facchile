@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,20 +35,23 @@ interface Props {
 }
 
 export default function Edit({ order, carriers }: Props) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, put, processing, errors, transform } = useForm({
         status: order.status,
         payment_status: order.payment_status,
         carrier_id: order.carrier_id?.toString() || '',
-        tracking_number: order.tracking_number,
+        tracking_number: order.tracking_number || '',
     });
+
+    useEffect(() => {
+        transform((data) => ({
+            ...data,
+            carrier_id: (data.carrier_id && data.carrier_id !== 'unassigned') ? parseInt(data.carrier_id) : null,
+        }));
+    }, [data.carrier_id]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Convert empty carrier string to null for saving
-        put(`/adminfacchile/orders/${order.id}`, {
-            ...data,
-            carrier_id: data.carrier_id ? parseInt(data.carrier_id) : null,
-        });
+        put(`/adminfacchile/orders/${order.id}`);
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -135,7 +139,7 @@ export default function Edit({ order, carriers }: Props) {
                                             <SelectValue placeholder="Selecciona transportista" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">No asignado</SelectItem>
+                                            <SelectItem value="unassigned">No asignado</SelectItem>
                                             {carriers.map((carrier) => (
                                                 <SelectItem key={carrier.id} value={carrier.id.toString()}>
                                                     {carrier.name}

@@ -8,7 +8,7 @@ export default function WhatsAppFloating() {
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState('');
 
-    const phoneNumber = '+56912345678'; // Reemplazar con el número real de Facchile
+    const phoneNumber = '+56978155169'; // WhatsApp real de Facchile Outdoor
     const businessName = 'Facchile Outdoor';
 
     const handleSendMessage = (e: React.FormEvent) => {

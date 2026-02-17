@@ -85,15 +85,15 @@ export default function Footer() {
                                 <ul role="list" className="space-y-6">
                                     <li className="flex items-start gap-3 text-sm text-slate-300">
                                         <MapPin className="h-5 w-5 shrink-0 text-action-buy" />
-                                        <span>Av. Providencia 1234, Oficina 501,<br />Santiago, Chile</span>
+                                        <span>San Carlos, Chile</span>
                                     </li>
                                     <li className="flex items-center gap-3 text-sm text-slate-300">
                                         <Phone className="h-5 w-5 shrink-0 text-action-buy" />
-                                        <span>+56 2 2345 6789</span>
+                                        <span>+56 9 7815 5169</span>
                                     </li>
                                     <li className="flex items-center gap-3 text-sm text-slate-300">
                                         <Mail className="h-5 w-5 shrink-0 text-action-buy" />
-                                        <span>contacto@facchile.cl</span>
+                                        <span>facchilespa@gmail.com</span>
                                     </li>
                                 </ul>
                                 

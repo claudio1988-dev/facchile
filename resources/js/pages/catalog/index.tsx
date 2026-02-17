@@ -208,7 +208,7 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
     return (
         <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
             {/* Adjusted Spacer for fixed header: TopBar (~32px) + Header (~80px) + Nav (~50px) = ~162px */}
-            <div className="pt-[150px] md:pt-[152px] lg:pt-[162px]"> {/* Spacer for fixed header */}
+            <div className="pt-[110px] md:pt-[145px] lg:pt-[155px]"> {/* Spacer for fixed header */}
                 <Head title={onlyOffers ? "Ofertas Especiales | Facchile Outdoor" : "Catálogo | Facchile Outdoor"} />
                 
                 <Header />
