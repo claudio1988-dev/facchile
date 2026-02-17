@@ -28,7 +28,7 @@ export default function Welcome({
             <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
                 <Header />
 
-                <main className="pt-[170px] md:pt-[152px] lg:pt-[162px]">
+                <main className="pt-[150px] md:pt-[152px] lg:pt-[162px]">
                     <HeroSection />
                     <div className="bg-bg-light">
                         <TrustIndicators />
