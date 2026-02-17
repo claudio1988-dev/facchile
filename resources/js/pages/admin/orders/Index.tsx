@@ -34,6 +34,7 @@ interface Order {
     created_at: string;
     items_count: number;
     payment_method: string;
+    payment_status: string;
 }
 
 interface Filters {
@@ -71,6 +72,13 @@ const paymentMethodMap: Record<string, { label: string; color: string }> = {
     transfer: { label: 'Transferencia', color: 'bg-blue-500' },
     transferencia: { label: 'Transferencia', color: 'bg-blue-500' },
     'N/A': { label: 'No especificado', color: 'bg-gray-400' },
+};
+
+const paymentStatusMap: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Pendiente', color: 'bg-yellow-500 text-white' },
+    paid: { label: 'Pagado', color: 'bg-green-500 text-white' },
+    failed: { label: 'Fallido', color: 'bg-red-500 text-white' },
+    refunded: { label: 'Reembolsado', color: 'bg-gray-500 text-white' },
 };
 
 export default function Index({ orders, filters }: Props) {
@@ -148,8 +156,9 @@ export default function Index({ orders, filters }: Props) {
                                     <TableHead>Nº Orden</TableHead>
                                     <TableHead>Cliente</TableHead>
                                     <TableHead>Fecha</TableHead>
-                                    <TableHead>Estado</TableHead>
+                                    <TableHead>Estado Pedido</TableHead>
                                     <TableHead>Medio Pago</TableHead>
+                                    <TableHead>Estado Pago</TableHead>
                                     <TableHead>Total</TableHead>
                                     <TableHead className="text-right">Acciones</TableHead>
                                 </TableRow>
@@ -175,6 +184,11 @@ export default function Index({ orders, filters }: Props) {
                                             <TableCell>
                                                 <Badge variant="outline" className={cn("border-2 font-bold", paymentMethodMap[(order.payment_method || 'N/A').toLowerCase()]?.color.replace('bg-', 'text-').replace('500', '600') || 'text-gray-500')}>
                                                     {paymentMethodMap[(order.payment_method || 'N/A').toLowerCase()]?.label || order.payment_method}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge className={paymentStatusMap[order.payment_status]?.color || 'bg-gray-500'}>
+                                                    {paymentStatusMap[order.payment_status]?.label || order.payment_status}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>${parseFloat(order.total.toString()).toLocaleString('es-CL')}</TableCell>

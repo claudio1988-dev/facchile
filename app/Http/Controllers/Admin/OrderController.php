@@ -33,6 +33,7 @@ class OrderController extends Controller
                 'customer' => $order->customer ? $order->customer->first_name . ' ' . $order->customer->last_name : 'Guest',
                 'status' => $order->status,
                 'payment_method' => $order->metadata['payment_method'] ?? 'N/A',
+                'payment_status' => $order->payment_status,
                 'total' => $order->total,
                 'created_at' => $order->created_at->format('d/m/Y H:i'),
                 'items_count' => $order->items_count ?? $order->items()->count(),
