@@ -32,6 +32,7 @@ class OrderController extends Controller
                 'order_number' => $order->order_number,
                 'customer' => $order->customer ? $order->customer->first_name . ' ' . $order->customer->last_name : 'Guest',
                 'status' => $order->status,
+                'payment_method' => $order->metadata['payment_method'] ?? 'N/A',
                 'total' => $order->total,
                 'created_at' => $order->created_at->format('d/m/Y H:i'),
                 'items_count' => $order->items_count ?? $order->items()->count(),
@@ -68,6 +69,7 @@ class OrderController extends Controller
                     'region_name' => $order->shippingAddress->commune->region->name,
                 ]) : null,
                 'carrier' => $order->carrier,
+                'metadata' => $order->metadata,
                 'items' => $order->items->map(fn($item) => [
                     'id' => $item->id,
                     'product_name' => $item->product_name,

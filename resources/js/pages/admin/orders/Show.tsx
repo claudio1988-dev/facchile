@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download, Edit } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download, Edit, CreditCard } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -80,6 +80,20 @@ const statusMap: Record<string, { label: string; color: string }> = {
     shipped: { label: 'Enviado', color: 'bg-indigo-500' },
     delivered: { label: 'Entregado', color: 'bg-green-500' },
     cancelled: { label: 'Cancelado', color: 'bg-red-500' },
+};
+
+const paymentMethodMap: Record<string, { label: string; color: string }> = {
+    webpay: { label: 'WebPay Plus', color: 'bg-purple-500' },
+    transfer: { label: 'Transferencia Bancaria', color: 'bg-blue-500' },
+    transferencia: { label: 'Transferencia Bancaria', color: 'bg-blue-500' },
+    'N/A': { label: 'No especificado', color: 'bg-gray-400' },
+};
+
+const paymentStatusMap: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Pendiente', color: 'bg-yellow-500' },
+    paid: { label: 'Pagado', color: 'bg-green-500' },
+    failed: { label: 'Fallido', color: 'bg-red-500' },
+    refunded: { label: 'Reembolsado', color: 'bg-gray-500' },
 };
 
 export default function Show({ order }: Props) {
@@ -334,6 +348,31 @@ export default function Show({ order }: Props) {
                                 ) : (
                                     <div className="text-sm text-muted-foreground">No asignado</div>
                                 )}
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <CreditCard className="size-5" />
+                                    Pago
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-1">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Método</p>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="font-bold border-2">
+                                            {paymentMethodMap[order.metadata?.payment_method?.toLowerCase()]?.label || order.metadata?.payment_method || 'No especificado'}
+                                        </Badge>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Estado del Pago</p>
+                                    <Badge className={paymentStatusMap[order.payment_status]?.color || 'bg-gray-500'}>
+                                        {paymentStatusMap[order.payment_status]?.label || order.payment_status}
+                                    </Badge>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

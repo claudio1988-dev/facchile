@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/table';
 import { Search, Eye } from 'lucide-react';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Order {
@@ -32,6 +33,7 @@ interface Order {
     total: number;
     created_at: string;
     items_count: number;
+    payment_method: string;
 }
 
 interface Filters {
@@ -62,6 +64,13 @@ const statusMap: Record<string, { label: string; color: string }> = {
     shipped: { label: 'Enviado', color: 'bg-indigo-500' },
     delivered: { label: 'Entregado', color: 'bg-green-500' },
     cancelled: { label: 'Cancelado', color: 'bg-red-500' },
+};
+
+const paymentMethodMap: Record<string, { label: string; color: string }> = {
+    webpay: { label: 'Webpay', color: 'bg-purple-500' },
+    transfer: { label: 'Transferencia', color: 'bg-blue-500' },
+    transferencia: { label: 'Transferencia', color: 'bg-blue-500' },
+    'N/A': { label: 'No especificado', color: 'bg-gray-400' },
 };
 
 export default function Index({ orders, filters }: Props) {
@@ -140,6 +149,7 @@ export default function Index({ orders, filters }: Props) {
                                     <TableHead>Cliente</TableHead>
                                     <TableHead>Fecha</TableHead>
                                     <TableHead>Estado</TableHead>
+                                    <TableHead>Medio Pago</TableHead>
                                     <TableHead>Total</TableHead>
                                     <TableHead className="text-right">Acciones</TableHead>
                                 </TableRow>
@@ -160,6 +170,11 @@ export default function Index({ orders, filters }: Props) {
                                             <TableCell>
                                                 <Badge className={statusMap[order.status]?.color || 'bg-gray-500'}>
                                                     {statusMap[order.status]?.label || order.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline" className={cn("border-2 font-bold", paymentMethodMap[(order.payment_method || 'N/A').toLowerCase()]?.color.replace('bg-', 'text-').replace('500', '600') || 'text-gray-500')}>
+                                                    {paymentMethodMap[(order.payment_method || 'N/A').toLowerCase()]?.label || order.payment_method}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>${parseFloat(order.total.toString()).toLocaleString('es-CL')}</TableCell>
