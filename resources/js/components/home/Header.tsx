@@ -317,8 +317,9 @@ export default function Header() {
             {/* 4. MEGA MENU DROPDOWN PANEL */}
             {activeCategory && currentCategoryData?.type === 'mega' && (
                 <div 
-                    className="absolute left-0 w-full bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-slate-800 shadow-xl z-10 animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="absolute left-0 w-full bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-slate-800 shadow-xl z-30 animate-in fade-in slide-in-from-top-2 duration-200"
                     onMouseEnter={() => handleMouseEnter(activeCategory)}
+                    onMouseLeave={handleMouseLeave}
                 >
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex min-h-[400px]">
                         
@@ -330,15 +331,15 @@ export default function Header() {
                                         <Link 
                                             href={sub.href}
                                             className={cn(
-                                                "flex items-center justify-between px-4 py-2.5 text-xs font-bold uppercase tracking-wide rounded-md transition-colors",
+                                                "flex items-center justify-between px-4 py-3 text-xs font-bold uppercase tracking-wide rounded-lg transition-all",
                                                 activeSubcategory === sub.name 
-                                                    ? "bg-slate-100 text-black dark:bg-slate-800 dark:text-white"
-                                                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900"
+                                                    ? "bg-brand-primary text-white shadow-md transform scale-105"
+                                                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                                             )}
                                             onMouseEnter={() => handleSubCategoryHover(sub.name)}
                                         >
                                             {sub.name}
-                                            <ChevronRight className="h-3 w-3 opacity-50" />
+                                            {activeSubcategory === sub.name && <ChevronRight className="h-4 w-4" />}
                                         </Link>
                                     </li>
                                 ))}
@@ -346,31 +347,40 @@ export default function Header() {
                         </div>
 
                         {/* Content Grid Column */}
-                        <div className="flex-1 p-8 bg-slate-50/50 dark:bg-slate-900/20 overflow-y-auto max-h-[600px]">
+                        <div className="flex-1 p-8 bg-slate-50/30 dark:bg-slate-900/10 overflow-y-auto max-h-[600px]">
                             {currentSubCategoryData ? (
-                                <div>
+                                <div className="animate-in fade-in zoom-in-95 duration-200">
+                                    <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
+                                        <h3 className="text-lg font-black uppercase text-slate-800 dark:text-white flex items-center gap-2">
+                                            {currentSubCategoryData.name}
+                                            <Link href={currentSubCategoryData.href} className="text-[10px] font-bold text-brand-primary hover:underline ml-2">
+                                                VER TODO
+                                            </Link>
+                                        </h3>
+                                    </div>
+
                                     {currentSubCategoryData.items && currentSubCategoryData.items.length > 0 ? (
-                                        <div className="grid grid-cols-4 gap-6">
+                                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                                             {currentSubCategoryData.items.map((item) => (
-                                                <Link key={item.name} href={item.href} className="group block text-center">
-                                                    <div className="aspect-square bg-white dark:bg-slate-800 mb-3 overflow-hidden flex items-center justify-center p-4 border border-slate-100 dark:border-slate-700 transition-shadow group-hover:shadow-md">
+                                                <Link key={item.name} href={item.href} className="group flex flex-col items-center text-center gap-3">
+                                                    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm group-hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
                                                         <img 
                                                             src={item.image || PLACEHOLDER_IMAGE} 
                                                             alt={item.name}
                                                             onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE }}
-                                                            className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-300"
+                                                            className="h-full w-full object-contain p-2 mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 group-hover:scale-110"
                                                         />
                                                     </div>
-                                                    <span className="text-xs font-medium text-slate-600 group-hover:text-brand-primary dark:text-slate-300 line-clamp-2">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300 group-hover:text-brand-primary transition-colors line-clamp-2">
                                                         {item.name}
                                                     </span>
                                                 </Link>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center h-full text-slate-400 py-12">
-                                            <p className="text-sm">Explora nuestra colección de {currentSubCategoryData.name}</p>
-                                            <Button variant="outline" size="sm" className="mt-4" asChild>
+                                        <div className="flex flex-col items-center justify-center h-[300px] text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                                            <p className="text-sm font-medium">Explora nuestra colección de {currentSubCategoryData.name}</p>
+                                            <Button variant="outline" size="sm" className="mt-4 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white transition-colors" asChild>
                                                 <Link href={currentSubCategoryData.href}>Ver Todo</Link>
                                             </Button>
                                         </div>

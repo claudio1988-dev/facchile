@@ -28,6 +28,18 @@ class CheckoutController extends Controller
                 'email' => $user->email,
                 'rut' => $customer->rut ?? '',
                 'birth_date' => $customer->birth_date ?? '',
+                'phone' => $customer->phone ?? '',
+                'addresses' => isset($customer) && $customer ? $customer->addresses()->with(['commune.region'])->get()->map(function($address) {
+                    return [
+                        'id' => $address->id,
+                        'address_line1' => $address->address_line1,
+                        'address_line2' => $address->address_line2,
+                        'region_id' => $address->commune && $address->commune->region ? $address->commune->region->id : null,
+                        'commune_id' => $address->commune_id,
+                        'region_name' => $address->commune && $address->commune->region ? $address->commune->region->name : '',
+                        'commune_name' => $address->commune ? $address->commune->name : '',
+                    ];
+                }) : [],
              ] : null,
              'regions' => \App\Models\Region::with('communes')->get(),
         ]);

@@ -19,15 +19,15 @@ class AdminViewsTest extends TestCase
 
     public function test_admin_dashboard_loads_correctly()
     {
-        $user = User::factory()->create(['email' => 'admin@admin.com']);
-        $response = $this->actingAs($user)->get('/dashboard');
+        $user = User::factory()->create(['role' => 'admin']);
+        $response = $this->actingAs($user)->get('/adminfacchile');
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => $page->component('dashboard'));
+        $response->assertInertia(fn ($page) => $page->component('admin/Dashboard'));
     }
 
     public function test_admin_products_index_loads_correctly()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         
         $brand = Brand::create(['name' => 'Brand 1', 'slug' => 'brand-1']);
         $category = Category::create(['name' => 'Category 1', 'slug' => 'category-1']);
@@ -59,7 +59,7 @@ class AdminViewsTest extends TestCase
 
     public function test_admin_categories_index_loads_correctly()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         Category::create(['name' => 'Category 1', 'slug' => 'category-1']);
 
         $response = $this->actingAs($user)->get('/adminfacchile/categories');
@@ -69,7 +69,7 @@ class AdminViewsTest extends TestCase
 
     public function test_admin_brands_index_loads_correctly()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         Brand::create(['name' => 'Brand 1', 'slug' => 'brand-1']);
 
         $response = $this->actingAs($user)->get('/adminfacchile/brands');
@@ -79,12 +79,12 @@ class AdminViewsTest extends TestCase
 
     public function test_admin_orders_index_loads_correctly()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         $customer = Customer::create([
             'email' => 'customer@test.com',
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'rut' => '12345678-9',
+            'rut' => '12345678-',
             'is_verified' => true
         ]);
         
@@ -107,12 +107,12 @@ class AdminViewsTest extends TestCase
 
     public function test_admin_customers_index_loads_correctly()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         Customer::create([
             'email' => 'customer@test.com',
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'rut' => '12345678-9',
+            'rut' => '12345678- ',
             'is_verified' => true
         ]);
 
@@ -123,12 +123,12 @@ class AdminViewsTest extends TestCase
 
     public function test_admin_customers_show_loads_correctly()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         $customer = Customer::create([
             'email' => 'customer@test.com',
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'rut' => '12345678-9',
+            'rut' => '12345678-',
             'is_verified' => true
         ]);
 
@@ -138,6 +138,64 @@ class AdminViewsTest extends TestCase
             $page->component('admin/customers/Show')
                  ->has('customer')
                  ->has('stats')
+        );
+    }
+
+    public function test_admin_can_create_product()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $category = Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $brand = Brand::create(['name' => 'Brand 1', 'slug' => 'brand-1']);
+        $shippingClass = \App\Models\ShippingClass::create([
+            'name' => 'Std', 'code' => 'STD', 'requires_special_carrier' => false
+        ]);
+
+        $productData = [
+            'name' => 'New Product',
+            'slug' => 'new-product',
+            'category_id' => $category->id,
+            'brand_id' => $brand->id,
+            'shipping_class_id' => $shippingClass->id,
+            'base_price' => 5000,
+            'is_active' => true,
+            'description' => 'Test Description',
+        ];
+
+        $response = $this->actingAs($user)->post('/adminfacchile/products', $productData);
+
+        $response->assertRedirect('/adminfacchile/products');
+        $this->assertDatabaseHas('products', ['slug' => 'new-product']);
+    }
+
+    public function test_admin_orders_edit_loads_correctly()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $customer = Customer::create([
+            'email' => 'customer@test.com',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'rut' => '12345678-',
+            'is_verified' => true
+        ]);
+        
+        $order = Order::create([
+            'order_number' => 'ORD-EDIT-1',
+            'customer_id' => $customer->id,
+            'status' => 'pending',
+            'total' => 1000,
+            'subtotal' => 1000,
+            'tax' => 190,
+            'shipping_cost' => 0,
+            'payment_status' => 'pending',
+            'age_verification_completed' => true
+        ]);
+
+        $response = $this->actingAs($user)->get("/adminfacchile/orders/{$order->id}/edit");
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => 
+            $page->component('admin/orders/Edit')
+                 ->has('order')
+                 ->has('carriers')
         );
     }
 }

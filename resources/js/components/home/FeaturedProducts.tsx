@@ -39,7 +39,7 @@ export default function FeaturedProducts({ products = [] }: Props) {
 
                 <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                     {products.map((product) => (
-                        <div key={product.id} className="group relative rounded-lg bg-bg-card p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-[#2C2C2A]">
+                        <div key={product.id} className="group relative rounded-lg bg-bg-card p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-[#2C2C2A] flex flex-col h-full">
                             <div className="aspect-square w-full overflow-hidden rounded-md bg-slate-100 group-hover:opacity-75 relative">
                                 <Link href={`/producto/${product.slug}`}>
                                     <img
@@ -55,7 +55,7 @@ export default function FeaturedProducts({ products = [] }: Props) {
                                     </span>
                                 )}
                             </div>
-                            <div className="mt-4 flex justify-between">
+                            <div className="mt-4 flex justify-between flex-1">
                                 <div className="flex-1">
                                     <h3 className="text-sm font-medium text-text-main dark:text-slate-200 line-clamp-2">
                                         <Link href={`/producto/${product.slug}`} className="hover:text-brand-primary">
@@ -72,7 +72,7 @@ export default function FeaturedProducts({ products = [] }: Props) {
                                     </p>
                                 </div>
                             </div>
-                            <div className="mt-4 relative z-10">
+                            <div className="mt-4 relative z-10 w-full">
                                 <Button 
                                     className="w-full bg-action-buy hover:bg-action-hover text-white shadow-lg transition-all hover:scale-[1.02]" 
                                     size="sm"

@@ -80,10 +80,61 @@ class CustomerController extends Controller
 
     public function addresses()
     {
-        // For now, return empty or mock data until Address model/table is fully functional for customers
+        $user = auth()->user();
+        $customer = \App\Models\Customer::where('email', $user->email)->first();
+
+        if (!$customer) {
+            return redirect()->route('dashboard');
+        }
+
+        $addresses = \App\Models\CustomerAddress::where('customer_id', $customer->id)
+            ->with(['commune.region'])
+            ->get()
+            ->map(fn($addr) => [
+                'id' => $addr->id,
+                'name' => $addr->address_line1, // Using address_line1 as name for now
+                'address_line1' => $addr->address_line1,
+                'address_line2' => $addr->address_line2,
+                'commune_name' => $addr->commune->name,
+                'region_name' => $addr->commune->region->name,
+                'is_default' => $addr->is_default_shipping,
+            ]);
+
         return Inertia::render('customer/Addresses', [
-            'addresses' => []
+            'addresses' => $addresses,
+            'regions' => \App\Models\Region::with('communes')->get(),
         ]);
+    }
+
+    public function storeAddress(Request $request)
+    {
+        $user = auth()->user();
+        $customer = \App\Models\Customer::where('email', $user->email)->first();
+
+        if (!$customer) {
+            return back()->withErrors(['error' => 'No se encontró el perfil de cliente.']);
+        }
+
+        $validated = $request->validate([
+            'address_line1' => 'required|string|max:500',
+            'address_line2' => 'nullable|string|max:500',
+            'commune_id' => 'required|exists:communes,id',
+            'is_default' => 'boolean',
+        ]);
+
+        if ($validated['is_default'] ?? false) {
+            \App\Models\CustomerAddress::where('customer_id', $customer->id)->update(['is_default_shipping' => false]);
+        }
+
+        \App\Models\CustomerAddress::create([
+            'customer_id' => $customer->id,
+            'commune_id' => $validated['commune_id'],
+            'address_line1' => $validated['address_line1'],
+            'address_line2' => $validated['address_line2'],
+            'is_default_shipping' => $validated['is_default'] ?? false,
+        ]);
+
+        return back();
     }
 
     public function favorites()

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Eye, UserPlus, FileCheck } from 'lucide-react';
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { cn } from '@/lib/utils';
 
 interface Customer {
     id: number;
@@ -132,18 +133,29 @@ export default function Index({ customers, filters }: Props) {
 
                         {/* Pagination links could be added here if needed */}
                         {customers.last_page > 1 && (
-                            <div className="mt-4 flex justify-center gap-2">
-                                {customers.links.map((link, i) => (
-                                    <Button
-                                        key={i}
-                                        variant={link.active ? "default" : "outline"}
-                                        size="sm"
-                                        asChild
-                                        disabled={!link.url}
-                                    >
-                                        <Link href={link.url || '#'} dangerouslySetInnerHTML={{ __html: link.label }} />
-                                    </Button>
-                                ))}
+                            <div className="mt-8 flex justify-center items-center gap-2">
+                                {customers.links.map((link, i) => {
+                                    const isNumeric = !isNaN(Number(link.label));
+                                    return (
+                                        <Button
+                                            key={i}
+                                            variant={link.active ? "default" : "outline"}
+                                            size="sm"
+                                            asChild
+                                            disabled={!link.url}
+                                            className={cn(
+                                                "h-9",
+                                                isNumeric ? "w-9 p-0" : "w-auto px-4"
+                                            )}
+                                        >
+                                            <Link 
+                                                href={link.url || '#'} 
+                                                dangerouslySetInnerHTML={{ __html: link.label }} 
+                                                preserveScroll
+                                            />
+                                        </Button>
+                                    );
+                                })}
                             </div>
                         )}
                     </CardContent>

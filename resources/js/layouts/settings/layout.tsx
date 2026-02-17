@@ -39,21 +39,24 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             <Head title="Configuración | Facchile Outdoor" />
             <Header />
 
-            <div className="pt-[142px] md:pt-[152px] lg:pt-[162px] flex-1">
-                <div className="bg-[#f4f4f4] py-8 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 mb-8">
-                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                         <Heading
-                             title="Configuración"
-                             description="Administra tu perfil y configuración de cuenta"
-                         />
-                     </div>
-                 </div>
+            <div className="pt-[142px] md:pt-[152px] lg:pt-[162px] flex-1 bg-slate-50/50 dark:bg-[#0a0a0a]">
+                <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-brand-primary rounded-full" />
+                            Configuración
+                        </h1>
+                        <p className="text-xs text-slate-500 mt-1">
+                            Administra tu perfil y seguridad de la cuenta
+                        </p>
+                    </div>
+                </div>
 
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-16">
-                    <div className="flex flex-col lg:flex-row lg:space-x-12">
-                        <aside className="w-full max-w-xl lg:w-64 mb-8 lg:mb-0">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="flex flex-col lg:flex-row lg:space-x-8">
+                        <aside className="w-full lg:w-48 mb-6 lg:mb-0">
                             <nav
-                                className="flex flex-col space-y-1"
+                                className="flex flex-col space-y-0.5"
                                 aria-label="Settings"
                             >
                                 {sidebarNavItems.map((item, index) => (
@@ -61,14 +64,14 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                         key={`${toUrl(item.href)}-${index}`}
                                         variant="ghost"
                                         asChild
-                                        className={cn('w-full justify-start text-left', {
-                                            'bg-slate-100 dark:bg-slate-800 font-bold': isCurrentUrl(item.href),
-                                            'hover:bg-slate-50 dark:hover:bg-slate-900': !isCurrentUrl(item.href),
+                                        className={cn('w-full justify-start text-xs h-9 px-3', {
+                                            'bg-brand-primary/10 text-brand-primary font-bold': isCurrentUrl(item.href),
+                                            'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800': !isCurrentUrl(item.href),
                                         })}
                                     >
                                         <Link href={item.href}>
                                             {item.icon && (
-                                                <item.icon className="h-4 w-4 mr-2" />
+                                                <item.icon className="h-3.5 w-3.5 mr-2" />
                                             )}
                                             {item.title}
                                         </Link>
@@ -77,10 +80,12 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             </nav>
                         </aside>
 
-                        <div className="flex-1 md:max-w-2xl">
-                            <section className="max-w-xl space-y-12 bg-white dark:bg-black p-6 rounded-lg border border-slate-200 dark:border-slate-800">
-                                {children}
-                            </section>
+                        <div className="flex-1 max-w-4xl">
+                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                                <div className="p-6 md:p-8">
+                                    {children}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

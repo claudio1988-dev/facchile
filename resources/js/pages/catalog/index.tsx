@@ -445,9 +445,10 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                             {/* Pagination */}
                             {paginatedProducts.links.length > 3 && (
                                 <div className="mt-16 flex justify-center">
-                                    <nav className="flex items-center gap-1">
-                                        {paginatedProducts.links.map((link, i) => (
-                                            link.url ? (
+                                    <nav className="flex items-center gap-2">
+                                        {paginatedProducts.links.map((link, i) => {
+                                            const isNumeric = !isNaN(Number(link.label));
+                                            return link.url ? (
                                                 <Link 
                                                     key={i} 
                                                     href={link.url}
@@ -458,16 +459,24 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
                                                         variant={link.active ? "default" : "outline"}
                                                         size="sm"
                                                         className={cn(
-                                                            "h-8 w-8 p-0 lg:h-10 lg:w-10",
+                                                            "h-10 px-3",
+                                                            isNumeric ? "w-10 p-0" : "w-auto px-4",
                                                             link.active ? "bg-slate-900 text-white border-slate-900" : "border-slate-200 text-slate-600 hover:bg-slate-50"
                                                         )}
                                                         dangerouslySetInnerHTML={{ __html: link.label }}
                                                     />
                                                 </Link>
                                             ) : (
-                                                <span key={i} className="px-2 text-slate-300" dangerouslySetInnerHTML={{ __html: link.label }} />
-                                            )
-                                        ))}
+                                                <span 
+                                                    key={i} 
+                                                    className={cn(
+                                                        "flex items-center justify-center h-10 px-2 text-slate-300",
+                                                        !isNumeric && "px-4"
+                                                    )} 
+                                                    dangerouslySetInnerHTML={{ __html: link.label }} 
+                                                />
+                                            );
+                                        })}
                                     </nav>
                                 </div>
                             )}

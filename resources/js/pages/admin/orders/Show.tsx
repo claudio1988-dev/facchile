@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download, Edit } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -62,6 +62,10 @@ interface OrderDetail {
     carrier: {
         name: string;
         code: string;
+    } | null;
+    metadata: {
+        tracking_number?: string;
+        [key: string]: any;
     } | null;
     items: OrderItem[];
 }
@@ -122,6 +126,12 @@ export default function Show({ order }: Props) {
                                 <SelectItem value="cancelled">Cancelado</SelectItem>
                             </SelectContent>
                         </Select>
+                        <Link href={`/adminfacchile/orders/${order.id}/edit`}>
+                            <Button variant="outline">
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar
+                            </Button>
+                        </Link>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outline">
@@ -310,8 +320,16 @@ export default function Show({ order }: Props) {
                             </CardHeader>
                             <CardContent>
                                 {order.carrier ? (
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline">{order.carrier.name}</Badge>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline">{order.carrier.name}</Badge>
+                                        </div>
+                                        {order.metadata?.tracking_number && (
+                                            <div className="text-sm">
+                                                <span className="font-medium text-muted-foreground mr-2">Tracking:</span>
+                                                <span className="font-mono">{order.metadata.tracking_number}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="text-sm text-muted-foreground">No asignado</div>

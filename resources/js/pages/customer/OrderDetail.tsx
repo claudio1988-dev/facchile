@@ -4,6 +4,7 @@ import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import { ArrowLeft, Package, Truck, CreditCard, Calendar, Hash, MapPin } from 'lucide-react';
 
 interface OrderItem {
@@ -68,52 +69,56 @@ export default function OrderDetail({ order }: Props) {
             <Head title={`Pedido #${order.order_number} | Facchile Outdoor`} />
             <Header />
 
-            <div className="pt-32 lg:pt-44 pb-16 flex-1">
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-                    {/* Header Action */}
-                    <div className="mb-6">
+            <div className="pt-[142px] md:pt-[152px] lg:pt-[162px] flex-1 bg-slate-50/50 dark:bg-[#0a0a0a]">
+                <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
                         <Link 
                             href="/customer/orders" 
-                            className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-brand-primary transition-colors mb-4"
+                            className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400 hover:text-brand-primary transition-colors mb-2 block"
                         >
-                            <ArrowLeft className="w-4 h-4" />
-                            Volver a mis pedidos
+                            ← Volver a pedidos
                         </Link>
                         
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <div className="flex items-center gap-3 mb-1">
-                                    <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Orden #{order.order_number}</h1>
-                                    <Badge className={statusMap[order.status]?.color || 'bg-slate-500'}>
+                                <div className="flex items-center gap-3">
+                                    <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                        <span className="w-1.5 h-6 bg-brand-primary rounded-full" />
+                                        Orden #{order.order_number}
+                                    </h1>
+                                    <Badge variant="outline" className={cn("text-[10px] h-5 font-bold uppercase py-0", statusMap[order.status]?.color?.replace('bg-', 'text-').replace(' hover:bg-', ''))}>
                                         {statusMap[order.status]?.label || order.status}
                                     </Badge>
                                 </div>
-                                <div className="flex items-center gap-4 text-sm text-slate-500">
+                                <div className="flex items-center gap-4 text-[10px] font-medium text-slate-500 mt-1">
                                     <div className="flex items-center gap-1">
-                                        <Calendar className="w-3.5 h-3.5" />
+                                        <Calendar className="w-3 h-3" />
                                         {order.created_at}
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <CreditCard className="w-3.5 h-3.5" />
+                                        <CreditCard className="w-3 h-3" />
                                         {paymentStatusMap[order.payment_status]?.label || order.payment_status}
                                     </div>
                                 </div>
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                <button className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
-                                    Descargar Boleta
+                                <button className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-50 transition-colors">
+                                    Boleta
                                 </button>
                                 {order.status === 'pending' && (
                                     <Link href={`/webpay/pay/${order.id}`}>
-                                        <button className="bg-brand-primary text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-brand-secondary transition-colors">
-                                            Pagar Ahora
+                                        <button className="bg-brand-primary text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-brand-secondary transition-colors">
+                                            Pagar
                                         </button>
                                     </Link>
                                 )}
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Order Items */}

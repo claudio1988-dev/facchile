@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/customer/orders', [App\Http\Controllers\CustomerController::class, 'orders'])->name('customer.orders');
     Route::get('/customer/orders/{order}', [App\Http\Controllers\CustomerController::class, 'orderDetail'])->name('customer.orders.detail');
     Route::get('/customer/addresses', [App\Http\Controllers\CustomerController::class, 'addresses'])->name('customer.addresses');
+    Route::post('/customer/addresses', [App\Http\Controllers\CustomerController::class, 'storeAddress'])->name('customer.addresses.store');
     Route::get('/customer/favorites', [App\Http\Controllers\CustomerController::class, 'favorites'])->name('customer.favorites');
 
     Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');

@@ -84,6 +84,25 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    public function edit($id)
+    {
+        $order = \App\Models\Order::findOrFail($id);
+        return \Inertia\Inertia::render('admin/orders/Edit', [
+            'order' => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'carrier_id' => $order->carrier_id,
+                'tracking_number' => $order->metadata['tracking_number'] ?? '',
+            ],
+            'carriers' => \App\Models\Carrier::select('id', 'name')->get(),
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
     {
         $order = \App\Models\Order::findOrFail($id);
@@ -91,17 +110,29 @@ class OrderController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
             'payment_status' => 'nullable|in:pending,paid,failed,refunded',
+            'carrier_id' => 'nullable|exists:carriers,id',
+            'tracking_number' => 'nullable|string|max:255',
         ]);
 
-        // Logic check: if cancelling, restore stock?
-        // Ideally use OrderService here, but for simple status update:
         $previousStatus = $order->status;
         
-        $order->update($validated);
+        $order->status = $validated['status'];
+        $order->payment_status = $validated['payment_status'] ?? $order->payment_status;
+        $order->carrier_id = $validated['carrier_id'];
+
+        // Update metadata with tracking number
+        $metadata = $order->metadata ?? [];
+        if (!empty($validated['tracking_number'])) {
+            $metadata['tracking_number'] = $validated['tracking_number'];
+        } else {
+            unset($metadata['tracking_number']);
+        }
+        $order->metadata = $metadata;
+
+        $order->save();
 
         if ($validated['status'] === 'cancelled' && $previousStatus !== 'cancelled') {
              // Use InventoryService to restore stock
-             // For now, manual implementation or call service
              $itemsToRestore = $order->items->map(fn($item) => [
                  'variant_id' => $item->product_variant_id,
                  'quantity' => $item->quantity
@@ -110,11 +141,12 @@ class OrderController extends Controller
              try {
                  (new \App\Services\InventoryService())->restoreStock($itemsToRestore);
              } catch (\Exception $e) {
-                 return back()->with('error', 'Error restaurando stock: ' . $e->getMessage());
+                 return back()->with('error', 'Orden actualizada pero error restaurando stock: ' . $e->getMessage());
              }
         }
 
-        return back()->with('success', 'Orden actualizada exitosamente.');
+        return redirect()->route('admin.orders.show', $order->id)
+            ->with('success', 'Orden actualizada exitosamente.');
     }
 
     public function downloadReceipt($id)
