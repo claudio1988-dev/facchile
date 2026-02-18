@@ -124,6 +124,24 @@ export default function Index({ isVerified, customer, regions }: Props) {
     // Logic to determine if user can checkout
     const canContinue = items.length > 0 && (!restrictedItemsPresent || (restrictedItemsPresent && isVerified));
 
+    const isStepValid = () => {
+        if (step === 'cart') {
+            return canContinue;
+        }
+        if (step === 'shipping') {
+            return (
+                formData.first_name?.trim() !== '' &&
+                formData.last_name?.trim() !== '' &&
+                formData.email?.trim() !== '' &&
+                formData.phone?.trim() !== '' &&
+                formData.address_line1?.trim() !== '' &&
+                formData.region_id !== '' &&
+                formData.commune_id !== ''
+            );
+        }
+        return true;
+    };
+
     // ... (existing handlers)
 
     const handleCheckout = () => {
