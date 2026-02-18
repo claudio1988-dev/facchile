@@ -33,4 +33,8 @@ Route::prefix('adminfacchile')
         // Product Variants
         Route::apiResource('products.variants', \App\Http\Controllers\Admin\ProductVariantController::class)
             ->only(['store', 'update', 'destroy']);
+
+        // Shipping Zones
+        Route::get('shipping-zones', [\App\Http\Controllers\Admin\ShippingZoneController::class, 'index'])->name('shipping.index');
+        Route::patch('shipping-zones', [\App\Http\Controllers\Admin\ShippingZoneController::class, 'update'])->name('shipping.update');
     });

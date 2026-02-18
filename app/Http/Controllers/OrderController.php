@@ -112,7 +112,21 @@ class OrderController extends Controller
                 ]);
             }
 
-            $shippingCost = 0; 
+            // Calculate Total Weight (Simulated as 1.5kg per item if not in DB)
+            $totalWeight = 0;
+            foreach ($validated['items'] as $item) {
+                // Future: fetch weight from product/variant
+                $totalWeight += ($item['quantity'] * 1.5); 
+            }
+
+            $calculator = new \App\Services\ShippingCalculator();
+            $shippingResult = $calculator->calculate(
+                $validated['shipping_address']['region_id'], 
+                $validated['shipping_address']['commune_id'], 
+                $totalWeight
+            );
+            
+            $shippingCost = $shippingResult['cost']; 
             $netTotal = round($subtotal / 1.19);
             $tax = $subtotal - $netTotal;
             $total = $subtotal + $shippingCost;

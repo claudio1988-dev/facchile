@@ -387,17 +387,34 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                         <Input
                                             id="name"
                                             value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
+                                            onChange={(e) => {
+                                                const name = e.target.value;
+                                                const slug = name
+                                                    .toLowerCase()
+                                                    .normalize("NFD")
+                                                    .replace(/[\u0300-\u036f]/g, "")
+                                                    .trim()
+                                                    .replace(/\s+/g, '-')
+                                                    .replace(/[^\w\-]+/g, '')
+                                                    .replace(/\-\-+/g, '-');
+                                                
+                                                setData((prevData) => ({
+                                                    ...prevData,
+                                                    name: name,
+                                                    slug: slug
+                                                }));
+                                            }}
                                         />
                                         {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="slug">Slug (URL) *</Label>
+                                        <Label htmlFor="slug">Slug (Auto-generado) *</Label>
                                         <Input
                                             id="slug"
                                             value={data.slug}
-                                            onChange={(e) => setData('slug', e.target.value)}
+                                            readOnly
+                                            className="bg-slate-100 text-slate-500 cursor-not-allowed"
                                         />
                                         {errors.slug && <p className="text-sm text-destructive">{errors.slug}</p>}
                                     </div>

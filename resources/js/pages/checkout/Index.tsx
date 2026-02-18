@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import axios from 'axios';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
@@ -24,7 +25,7 @@ import {
     Info
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import checkout from '@/routes/checkout';
@@ -68,6 +69,10 @@ export default function Index({ isVerified, customer, regions }: Props) {
     const [step, setStep] = useState<CheckoutStep>('cart');
     const [processing, setProcessing] = useState(false);
     
+    // Shipping Calculation State
+    const [shippingCost, setShippingCost] = useState<number | null>(null);
+    const [loadingShipping, setLoadingShipping] = useState(false);
+
     // Form States
     const [formData, setFormData] = useState({
         first_name: customer?.name.split(' ')[0] || '',
@@ -88,39 +93,38 @@ export default function Index({ isVerified, customer, regions }: Props) {
         return region?.communes || [];
     }, [formData.region_id, regions]);
 
+    // Calculate Shipping Effect
+    useEffect(() => {
+        if (formData.region_id) {
+            setLoadingShipping(true);
+            
+            // Calculate total weight (simulated)
+            const simulatedWeight = items.reduce((acc, item) => acc + (item.quantity * 1.5), 0);
+
+            axios.post('/api/shipping/calculate', {
+                region_id: formData.region_id,
+                commune_id: formData.commune_id || null,
+                weight: simulatedWeight
+            })
+            .then(response => {
+                setShippingCost(response.data.cost);
+            })
+            .catch(error => {
+                console.error("Error calculating shipping:", error);
+                setShippingCost(null);
+            })
+            .finally(() => setLoadingShipping(false));
+        } else {
+            setShippingCost(null);
+        }
+    }, [formData.region_id, formData.commune_id, items]);
+
     // Check if cart has restricted items
     const restrictedItemsPresent = hasRestrictedItems();
     // Logic to determine if user can checkout
     const canContinue = items.length > 0 && (!restrictedItemsPresent || (restrictedItemsPresent && isVerified));
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSelectChange = (name: string, value: string) => {
-        setFormData(prev => {
-            const newState = { ...prev, [name]: value };
-            if (name === 'region_id') newState.commune_id = ''; // Reset commune on region change
-            return newState;
-        });
-    };
-
-    const isStepValid = () => {
-        if (step === 'cart') return canContinue;
-        if (step === 'shipping') {
-            return (
-                formData.first_name && 
-                formData.last_name && 
-                formData.email && 
-                formData.address_line1 && 
-                formData.region_id && 
-                formData.commune_id &&
-                formData.phone
-            );
-        }
-        return true;
-    };
+    // ... (existing handlers)
 
     const handleCheckout = () => {
         setProcessing(true);
@@ -159,6 +163,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
     };
 
     const total = getTotal();
+    const finalTotal = total + (shippingCost || 0);
 
     return (
         <>
@@ -333,39 +338,39 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                 <div className="grid md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <Label htmlFor="first_name" className="text-xs font-bold uppercase text-slate-500">Nombre</Label>
-                                                        <Input name="first_name" value={formData.first_name} onChange={handleInputChange} placeholder="Ej. Juan" required className="border-slate-200 focus:ring-brand-primary" />
+                                                        <Input name="first_name" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} placeholder="Ej. Juan" required className="border-slate-200 focus:ring-brand-primary" />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label htmlFor="last_name" className="text-xs font-bold uppercase text-slate-500">Apellido</Label>
-                                                        <Input name="last_name" value={formData.last_name} onChange={handleInputChange} placeholder="Ej. Pérez" required className="border-slate-200 focus:ring-brand-primary" />
+                                                        <Input name="last_name" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} placeholder="Ej. Pérez" required className="border-slate-200 focus:ring-brand-primary" />
                                                     </div>
                                                 </div>
 
                                                 <div className="grid md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <Label htmlFor="email" className="text-xs font-bold uppercase text-slate-500">Email</Label>
-                                                        <Input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="juan@ejemplo.com" required className="border-slate-200 focus:ring-brand-primary" />
+                                                        <Input type="email" name="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="juan@ejemplo.com" required className="border-slate-200 focus:ring-brand-primary" />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label htmlFor="phone" className="text-xs font-bold uppercase text-slate-500">Teléfono</Label>
-                                                        <Input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+56 9 1234 5678" required className="border-slate-200 focus:ring-brand-primary" />
+                                                        <Input name="phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="+56 9 1234 5678" required className="border-slate-200 focus:ring-brand-primary" />
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-2">
                                                     <Label htmlFor="address_line1" className="text-xs font-bold uppercase text-slate-500">Dirección (Calle y Número)</Label>
-                                                    <Input name="address_line1" value={formData.address_line1} onChange={handleInputChange} placeholder="Av. Siempre Viva 123" required className="border-slate-200 focus:ring-brand-primary" />
+                                                    <Input name="address_line1" value={formData.address_line1} onChange={(e) => setFormData({...formData, address_line1: e.target.value})} placeholder="Av. Siempre Viva 123" required className="border-slate-200 focus:ring-brand-primary" />
                                                 </div>
 
                                                 <div className="space-y-2">
                                                     <Label htmlFor="address_line2" className="text-xs font-bold uppercase text-slate-500">Depto / Casa / Oficina (Opcional)</Label>
-                                                    <Input name="address_line2" value={formData.address_line2} onChange={handleInputChange} placeholder="Depto 42" className="border-slate-200 focus:ring-brand-primary" />
+                                                    <Input name="address_line2" value={formData.address_line2} onChange={(e) => setFormData({...formData, address_line2: e.target.value})} placeholder="Depto 42" className="border-slate-200 focus:ring-brand-primary" />
                                                 </div>
 
                                                 <div className="grid md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <Label className="text-xs font-bold uppercase text-slate-500">Región</Label>
-                                                        <Select value={formData.region_id} onValueChange={(val) => handleSelectChange('region_id', val)}>
+                                                        <Select value={formData.region_id} onValueChange={(val) => setFormData(prev => ({ ...prev, region_id: val, commune_id: '' }))}>
                                                             <SelectTrigger className="border-slate-200 focus:ring-brand-primary">
                                                                 <SelectValue placeholder="Selecciona Región" />
                                                             </SelectTrigger>
@@ -378,7 +383,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label className="text-xs font-bold uppercase text-slate-500">Comuna</Label>
-                                                        <Select value={formData.commune_id} onValueChange={(val) => handleSelectChange('commune_id', val)} disabled={!formData.region_id}>
+                                                        <Select value={formData.commune_id} onValueChange={(val) => setFormData(prev => ({ ...prev, commune_id: val }))} disabled={!formData.region_id}>
                                                             <SelectTrigger className="border-slate-200 focus:ring-brand-primary">
                                                                 <SelectValue placeholder="Selecciona Comuna" />
                                                             </SelectTrigger>
@@ -523,11 +528,19 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-slate-500 font-medium">Envío</span>
-                                                <span className="text-brand-primary font-black uppercase text-[10px]">Por calcular</span>
+                                                {loadingShipping ? (
+                                                     <span className="text-slate-400 font-medium animate-pulse">Calculando...</span>
+                                                ) : (
+                                                    <span className={cn("font-black uppercase text-[10px]", shippingCost !== null ? 'text-slate-900 dark:text-white text-sm' : 'text-slate-400')}>
+                                                        {shippingCost !== null ? `$${shippingCost.toLocaleString('es-CL')}` : 'Por calcular'}
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="border-t dark:border-slate-800 pt-4 flex justify-between items-baseline font-black">
                                                 <span className="text-slate-900 dark:text-white uppercase text-sm">Total a pagar</span>
-                                                <span className="text-2xl text-brand-primary dark:text-brand-secondary">${total.toLocaleString('es-CL')}</span>
+                                                <span className="text-2xl text-brand-primary dark:text-brand-secondary">
+                                                    ${finalTotal.toLocaleString('es-CL')}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -535,7 +548,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                             {step === 'payment' ? (
                                                 <Button 
                                                     className="w-full text-sm font-black uppercase tracking-widest h-14 bg-action-buy hover:bg-brand-secondary text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                                    disabled={processing}
+                                                    disabled={processing || loadingShipping}
                                                     onClick={handleCheckout}
                                                 >
                                                     {processing ? (

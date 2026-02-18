@@ -45,6 +45,10 @@ Route::post('/api/tracking', [App\Http\Controllers\TrackingController::class, 't
     ->name('tracking.lookup')
     ->middleware('throttle:6,1'); // Limit 6 requests per minute
 
+// Shipping calculation
+Route::post('/api/shipping/calculate', [App\Http\Controllers\ShippingController::class, 'calculate'])
+    ->name('shipping.calculate');
+
 Route::get('/info/{slug}', function ($slug) {
     return Inertia::render('support/Informational', ['slug' => $slug]);
 })->name('info');
