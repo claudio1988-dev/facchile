@@ -5,7 +5,7 @@ import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Package, Truck, CreditCard, Calendar, Hash, MapPin, Wallet, Info } from 'lucide-react';
+import { ArrowLeft, Package, Truck, CreditCard, Calendar, Hash, MapPin, Wallet, Info, CheckCircle2, Clock, XCircle, MessageSquare, ArrowRight } from 'lucide-react';
 
 interface OrderItem {
     id: number;
@@ -38,6 +38,37 @@ interface Order {
         commune: string;
         region: string;
     };
+    carrier_name: string | null;
+}
+
+const ORDER_STEPS = [
+    { key: 'pending',    label: 'Recibido',       icon: Clock },
+    { key: 'confirmed',  label: 'Confirmado',      icon: CheckCircle2 },
+    { key: 'processing', label: 'En preparación',  icon: Package },
+    { key: 'shipped',    label: 'Enviado',          icon: Truck },
+    { key: 'delivered',  label: 'Entregado',        icon: CheckCircle2 },
+];
+
+const STATUS_ORDER = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+
+function StatusBadge({ status, label }: { status: string; label: string }) {
+    const styles: Record<string, string> = {
+        pending:    'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+        confirmed:  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+        processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+        shipped:    'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
+        delivered:  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+        cancelled:  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+        paid:       'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+        failed:     'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+        refunded:   'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+    };
+     const defaultLabel = statusMap[status]?.label || status;
+    return (
+        <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold', styles[status] ?? styles.pending)}>
+            {label || defaultLabel}
+        </span>
+    );
 }
 
 interface Props {
@@ -60,6 +91,9 @@ const paymentStatusMap: Record<string, { label: string; color: string }> = {
 };
 
 export default function OrderDetail({ order }: Props) {
+    const currentStepIndex = STATUS_ORDER.indexOf(order.status);
+    const isCancelled = order.status === 'cancelled';
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('es-CL', {
             style: 'currency',
@@ -90,9 +124,7 @@ export default function OrderDetail({ order }: Props) {
                                         <span className="w-1.5 h-6 bg-brand-primary rounded-full" />
                                         Orden #{order.order_number}
                                     </h1>
-                                    <Badge variant="outline" className={cn("text-[10px] h-5 font-bold uppercase py-0", statusMap[order.status]?.color?.replace('bg-', 'text-').replace(' hover:bg-', ''))}>
-                                        {statusMap[order.status]?.label || order.status}
-                                    </Badge>
+                                    <StatusBadge status={order.status} label={statusMap[order.status]?.label} />
                                 </div>
                                 <div className="flex items-center gap-4 text-[10px] font-medium text-slate-500 mt-1">
                                     <div className="flex items-center gap-1">
@@ -101,7 +133,7 @@ export default function OrderDetail({ order }: Props) {
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <CreditCard className="w-3 h-3" />
-                                        {paymentStatusMap[order.payment_status]?.label || order.payment_status}
+                                        <StatusBadge status={order.payment_status} label={paymentStatusMap[order.payment_status]?.label} />
                                     </div>
                                 </div>
                             </div>
@@ -127,6 +159,73 @@ export default function OrderDetail({ order }: Props) {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Order Items */}
                         <div className="md:col-span-2 space-y-6">
+
+                            {/* Progress Stepper */}
+                            {!isCancelled && (
+                                <Card className="border-none shadow-sm overflow-hidden">
+                                     <CardContent className="p-6">
+                                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-6">Estado del Pedido</p>
+                                        <div className="flex items-center gap-0">
+                                            {ORDER_STEPS.map((step, idx) => {
+                                                const Icon = step.icon;
+                                                const isCompleted = idx <= currentStepIndex;
+                                                const isCurrent = idx === currentStepIndex;
+                                                return (
+                                                    <div key={step.key} className="flex items-center flex-1 last:flex-none">
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            <div className={cn(
+                                                                'h-10 w-10 rounded-full flex items-center justify-center transition-all',
+                                                                isCompleted
+                                                                    ? 'bg-brand-primary text-white shadow-md'
+                                                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400',
+                                                                isCurrent && 'ring-4 ring-brand-primary/20 ring-offset-2 dark:ring-offset-slate-900'
+                                                            )}>
+                                                                <Icon className="h-5 w-5" />
+                                                            </div>
+                                                            <span className={cn(
+                                                                'text-[10px] sm:text-xs font-medium text-center leading-tight max-w-[70px]',
+                                                                isCompleted ? 'text-brand-primary font-bold' : 'text-slate-400'
+                                                            )}>
+                                                                {step.label}
+                                                            </span>
+                                                        </div>
+                                                        {idx < ORDER_STEPS.length - 1 && (
+                                                            <div className={cn(
+                                                                'flex-1 h-1 mb-6 mx-2 transition-all rounded-full',
+                                                                idx < currentStepIndex ? 'bg-brand-primary' : 'bg-slate-100 dark:bg-slate-800'
+                                                            )} />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                     </CardContent>
+                                </Card>
+                            )}
+
+                            {isCancelled && (
+                                <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900">
+                                    <XCircle className="h-6 w-6 text-red-500 shrink-0" />
+                                    <div>
+                                        <p className="font-bold text-red-800 dark:text-red-400">Pedido Cancelado</p>
+                                        <p className="text-sm text-red-600/80 dark:text-red-500/70">Este pedido ha sido cancelado. Si tienes dudas, contáctanos.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Seller Message */}
+                            {order.metadata?.seller_message && (
+                                <div className="p-6 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                        <p className="font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider text-sm">Mensaje del Vendedor</p>
+                                    </div>
+                                    <p className="text-blue-800 dark:text-blue-200 leading-relaxed text-sm md:text-base">
+                                        {order.metadata.seller_message}
+                                    </p>
+                                </div>
+                            )}
+
                             <Card className="border-none shadow-sm overflow-hidden">
                                 <CardHeader className="bg-white dark:bg-slate-900 border-b dark:border-slate-800">
                                     <CardTitle className="text-lg font-bold flex items-center gap-2">
@@ -171,10 +270,30 @@ export default function OrderDetail({ order }: Props) {
                                             Envío
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="text-sm space-y-2">
+                                    <CardContent className="text-sm space-y-3">
+                                        {order.carrier_name && (
+                                            <div className="pb-3 border-b border-slate-100 dark:border-slate-800 mb-2">
+                                                <p className="text-xs text-slate-400 uppercase font-bold mb-1">Transportista</p>
+                                                <p className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    {order.carrier_name}
+                                                    {order.metadata?.tracking_code && (
+                                                        <Badge variant="secondary" className="font-mono text-[10px]">
+                                                            {order.metadata.tracking_code}
+                                                        </Badge>
+                                                    )}
+                                                </p>
+                                                {order.metadata?.tracking_number && (
+                                                     <div className="mt-1">
+                                                         <p className="text-[10px] text-slate-400">Tracking Number:</p>
+                                                         <p className="font-mono text-xs font-bold text-brand-primary">{order.metadata.tracking_number}</p>
+                                                     </div>
+                                                )}
+                                            </div>
+                                        )}
                                         <div className="flex gap-2">
                                             <MapPin className="w-4 h-4 text-slate-400 flex-none mt-0.5" />
                                             <div>
+                                                <p className="text-xs text-slate-400 uppercase font-bold mb-1">Dirección de entrega</p>
                                                 <p className="font-bold">{order.shipping_address.line1}</p>
                                                 {order.shipping_address.line2 && <p className="text-slate-500">{order.shipping_address.line2}</p>}
                                                 <p className="text-slate-500">{order.shipping_address.commune}, {order.shipping_address.region}</p>
@@ -281,6 +400,17 @@ export default function OrderDetail({ order }: Props) {
                                     Contactar Soporte
                                 </a>
                             </div>
+
+                            {/* WhatsApp Action */}
+                            <a
+                                href={`https://wa.me/56978155169?text=${encodeURIComponent(`Hola, tengo una consulta sobre mi pedido *${order.order_number}*`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block w-full py-3 rounded-xl bg-[#25D366] hover:bg-[#20b858] text-white text-sm font-bold text-center transition-colors shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
+                            >
+                                <ArrowRight className="h-4 w-4" />
+                                Consultar por WhatsApp
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -46,7 +46,7 @@ class CustomerController extends Controller
             abort(403);
         }
 
-        $order->load(['items.product', 'shippingAddress.commune.region']);
+        $order->load(['items.product', 'shippingAddress.commune.region', 'carrier']);
 
         return Inertia::render('customer/OrderDetail', [
             'order' => [
@@ -60,6 +60,7 @@ class CustomerController extends Controller
                 'created_at' => $order->created_at->format('d/m/Y H:i'),
                 'payment_status' => $order->payment_status,
                 'metadata' => $order->metadata,
+                'carrier_name' => $order->carrier ? $order->carrier->name : null,
                 'items' => $order->items->map(fn($item) => [
                     'id' => $item->id,
                     'product_name' => $item->product_name,
