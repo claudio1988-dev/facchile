@@ -1,7 +1,7 @@
 /**
  * Utility to compress images before upload
  */
-export const compressImage = (file: File, maxWidth = 1000, quality = 0.7): Promise<File> => {
+export const compressImage = (file: File, maxWidth = 800, quality = 0.6): Promise<File> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
