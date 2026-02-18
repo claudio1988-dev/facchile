@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
@@ -18,12 +18,14 @@ import {
     ChevronLeft,
     ChevronRight,
     Maximize2,
-    X as XIcon
+    X as XIcon,
+    Pencil
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'sonner';
+import type { SharedData } from '@/types';
 
 interface Product {
     id: number;
@@ -60,6 +62,8 @@ interface Props {
 }
 
 export default function ProductDetail({ product }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const isAdmin = auth?.user?.role === 'admin';
     // Combine main image and gallery into a single array for easier navigation
     const allImages = [
         ...(product.main_image_url ? [product.main_image_url] : []),
@@ -119,6 +123,24 @@ export default function ProductDetail({ product }: Props) {
                             </div>
                         </div>
                     </div>
+
+                    {/* Admin Edit Button */}
+                    {isAdmin && (
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border-b border-amber-200 dark:border-amber-900">
+                            <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 flex items-center justify-between">
+                                <span className="text-xs text-amber-700 dark:text-amber-400 font-medium flex items-center gap-1">
+                                    <Shield className="h-3 w-3" /> Vista de administrador
+                                </span>
+                                <Link
+                                    href={`/adminfacchile/products/${product.id}/edit`}
+                                    className="inline-flex items-center gap-2 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+                                >
+                                    <Pencil className="h-3 w-3" />
+                                    Editar producto
+                                </Link>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Product Detail */}
                     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
