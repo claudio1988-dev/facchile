@@ -135,7 +135,7 @@ class ProductController extends Controller
                 'restriction_type_ids' => $product->restrictions->pluck('id'),
                 'variants' => $product->variants, // Eager loading should tackle this if 'with' was used, else implicit lazy load
             ],
-            'categories' => Category::select('id', 'name')->get(),
+            'categories' => Category::select('id', 'name', 'parent_id')->orderBy('parent_id')->orderBy('name')->get(),
             'brands' => Brand::select('id', 'name')->get(),
             'shippingClasses' => ShippingClass::select('id', 'name')->get(),
             'restrictionTypes' => RestrictionType::select('id', 'name')->get(),

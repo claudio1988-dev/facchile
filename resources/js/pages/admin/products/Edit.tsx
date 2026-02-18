@@ -14,7 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Trash, Edit as EditIcon, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Trash, Edit as EditIcon, Upload, X, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
 import { useState, useRef } from 'react';
 import { compressImage } from '@/lib/image-compression';
@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 interface Category {
     id: number;
     name: string;
+    parent_id: number | null;
 }
 
 interface Brand {
@@ -74,6 +75,91 @@ interface Props {
     brands: Brand[];
     shippingClasses: ShippingClass[];
     restrictionTypes: RestrictionType[];
+}
+
+// Hierarchical Category Selector Component
+function CategoryTreeSelector({
+    categories,
+    value,
+    onChange,
+}: {
+    categories: Category[];
+    value: number;
+    onChange: (id: number) => void;
+}) {
+    const [open, setOpen] = useState(false);
+
+    const parents = categories.filter((c) => c.parent_id === null);
+    const children = categories.filter((c) => c.parent_id !== null);
+    const standalone = parents.filter((p) => !children.some((c) => c.parent_id === p.id));
+    const withChildren = parents.filter((p) => children.some((c) => c.parent_id === p.id));
+
+    const selectedName = categories.find((c) => c.id === value)?.name ?? 'Selecciona una categoría';
+
+    return (
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen(!open)}
+                className="flex w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50 transition-colors"
+            >
+                <span className={value ? 'text-foreground' : 'text-muted-foreground'}>{selectedName}</span>
+                <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', open && 'rotate-180')} />
+            </button>
+
+            {open && (
+                <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-lg overflow-hidden">
+                    <div className="max-h-72 overflow-y-auto p-1">
+                        {/* Standalone parent categories (no children) */}
+                        {standalone.map((cat) => (
+                            <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => { onChange(cat.id); setOpen(false); }}
+                                className={cn(
+                                    'flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors text-left',
+                                    value === cat.id && 'bg-accent font-medium'
+                                )}
+                            >
+                                {value === cat.id && <Check className="h-3 w-3 shrink-0 text-brand-primary" />}
+                                <span className={value === cat.id ? 'ml-0' : 'ml-5'}>{cat.name}</span>
+                            </button>
+                        ))}
+
+                        {/* Parent categories with their children */}
+                        {withChildren.map((parent) => (
+                            <div key={parent.id}>
+                                {/* Parent header - not selectable */}
+                                <div className="px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider border-t first:border-t-0 mt-1 first:mt-0">
+                                    {parent.name}
+                                </div>
+                                {/* Children */}
+                                {children
+                                    .filter((c) => c.parent_id === parent.id)
+                                    .map((child) => (
+                                        <button
+                                            key={child.id}
+                                            type="button"
+                                            onClick={() => { onChange(child.id); setOpen(false); }}
+                                            className={cn(
+                                                'flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors text-left',
+                                                value === child.id && 'bg-accent font-medium'
+                                            )}
+                                        >
+                                            {value === child.id
+                                                ? <Check className="h-3 w-3 shrink-0 text-brand-primary" />
+                                                : <span className="h-3 w-3 shrink-0" />
+                                            }
+                                            <span>{child.name}</span>
+                                        </button>
+                                    ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -220,11 +306,11 @@ export default function Edit({ product, categories, brands, shippingClasses, res
         setEditingVariantId(null);
     };
 
-    const handleCreateVariant = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleCreateVariant = () => {
         router.post(`/adminfacchile/products/${product.id}/variants`, newVariant, {
             onSuccess: () => resetVariantForm(),
-            preserveScroll: true
+            preserveScroll: true,
+            preserveState: true,
         });
     };
 
@@ -239,13 +325,13 @@ export default function Edit({ product, categories, brands, shippingClasses, res
         });
     };
 
-    const handleUpdateVariant = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleUpdateVariant = () => {
         if (!editingVariantId) return;
 
         router.put(`/adminfacchile/products/${product.id}/variants/${editingVariantId}`, newVariant, {
             onSuccess: () => resetVariantForm(),
-            preserveScroll: true
+            preserveScroll: true,
+            preserveState: true,
         });
     };
 
@@ -578,21 +664,11 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="category_id">Categoría *</Label>
-                                        <Select
-                                            value={data.category_id.toString()}
-                                            onValueChange={(value) => setData('category_id', parseInt(value))}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecciona una categoría" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categories.map((category) => (
-                                                    <SelectItem key={category.id} value={category.id.toString()}>
-                                                        {category.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <CategoryTreeSelector
+                                            categories={categories}
+                                            value={data.category_id}
+                                            onChange={(id) => setData('category_id', id)}
+                                        />
                                         {errors.category_id && <p className="text-sm text-destructive">{errors.category_id}</p>}
                                     </div>
 

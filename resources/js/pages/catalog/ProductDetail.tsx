@@ -102,45 +102,40 @@ export default function ProductDetail({ product }: Props) {
                 <main className="pt-[110px] md:pt-[145px] lg:pt-[155px]">
                     {/* Breadcrumb */}
                     <div className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-800">
-                        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-                            <div className="flex items-center gap-2 text-sm">
-                                <Link href="/" className="text-slate-600 hover:text-brand-primary dark:text-slate-400">
-                                    Inicio
-                                </Link>
-                                <span className="text-slate-400">/</span>
-                                {product.category && product.category.slug && (
-                                    <>
-                                        <Link 
-                                            href={`/categoria/${product.category.slug}`}
-                                            className="text-slate-600 hover:text-brand-primary dark:text-slate-400"
-                                        >
-                                            {product.category.name}
-                                        </Link>
-                                        <span className="text-slate-400">/</span>
-                                    </>
+                        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 text-sm min-w-0 overflow-hidden">
+                                    <Link href="/" className="text-slate-600 hover:text-brand-primary dark:text-slate-400 shrink-0">
+                                        Inicio
+                                    </Link>
+                                    <span className="text-slate-400 shrink-0">/</span>
+                                    {product.category && product.category.slug && (
+                                        <>
+                                            <Link
+                                                href={`/categoria/${product.category.slug}`}
+                                                className="text-slate-600 hover:text-brand-primary dark:text-slate-400 truncate hidden sm:block"
+                                            >
+                                                {product.category.name}
+                                            </Link>
+                                            <span className="text-slate-400 shrink-0 hidden sm:block">/</span>
+                                        </>
+                                    )}
+                                    <span className="text-slate-900 dark:text-white font-medium truncate text-xs sm:text-sm">{product.name}</span>
+                                </div>
+
+                                {/* Admin Edit Button - subtle, inline */}
+                                {isAdmin && (
+                                    <Link
+                                        href={`/adminfacchile/products/${product.id}/edit`}
+                                        className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30 px-2 py-1 rounded-md transition-colors"
+                                    >
+                                        <Pencil className="h-3 w-3" />
+                                        <span className="hidden sm:inline">Editar</span>
+                                    </Link>
                                 )}
-                                <span className="text-slate-900 dark:text-white font-medium">{product.name}</span>
                             </div>
                         </div>
                     </div>
-
-                    {/* Admin Edit Button */}
-                    {isAdmin && (
-                        <div className="bg-amber-50 dark:bg-amber-950/20 border-b border-amber-200 dark:border-amber-900">
-                            <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 flex items-center justify-between">
-                                <span className="text-xs text-amber-700 dark:text-amber-400 font-medium flex items-center gap-1">
-                                    <Shield className="h-3 w-3" /> Vista de administrador
-                                </span>
-                                <Link
-                                    href={`/adminfacchile/products/${product.id}/edit`}
-                                    className="inline-flex items-center gap-2 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-                                >
-                                    <Pencil className="h-3 w-3" />
-                                    Editar producto
-                                </Link>
-                            </div>
-                        </div>
-                    )}
 
                     {/* Product Detail */}
                     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
