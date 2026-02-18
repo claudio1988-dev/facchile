@@ -41,7 +41,9 @@ Route::get('/garantias', function () {
 Route::get('/producto/{slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
 
 // Public order tracking (no auth required)
-Route::post('/api/tracking', [App\Http\Controllers\TrackingController::class, 'track'])->name('tracking.lookup');
+Route::post('/api/tracking', [App\Http\Controllers\TrackingController::class, 'track'])
+    ->name('tracking.lookup')
+    ->middleware('throttle:6,1'); // Limit 6 requests per minute
 
 Route::get('/info/{slug}', function ($slug) {
     return Inertia::render('support/Informational', ['slug' => $slug]);
