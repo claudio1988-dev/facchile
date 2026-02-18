@@ -12,7 +12,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, MessageSquare } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import type { BreadcrumbItem } from '@/types';
 
 interface OrderEdit {
@@ -22,6 +23,7 @@ interface OrderEdit {
     payment_status: string;
     carrier_id: number | null;
     tracking_number: string;
+    seller_message: string;
 }
 
 interface Carrier {
@@ -40,6 +42,7 @@ export default function Edit({ order, carriers }: Props) {
         payment_status: order.payment_status,
         carrier_id: order.carrier_id?.toString() || '',
         tracking_number: order.tracking_number || '',
+        seller_message: order.seller_message || '',
     });
 
     useEffect(() => {
@@ -98,7 +101,8 @@ export default function Edit({ order, carriers }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="pending">Pendiente</SelectItem>
-                                        <SelectItem value="processing">Procesando</SelectItem>
+                                        <SelectItem value="confirmed">Confirmado</SelectItem>
+                                        <SelectItem value="processing">En preparación</SelectItem>
                                         <SelectItem value="shipped">Enviado</SelectItem>
                                         <SelectItem value="delivered">Entregado</SelectItem>
                                         <SelectItem value="cancelled">Cancelado</SelectItem>
@@ -161,6 +165,30 @@ export default function Edit({ order, carriers }: Props) {
                                     />
                                     {errors.tracking_number && <p className="text-sm text-red-500">{errors.tracking_number}</p>}
                                 </div>
+                            </div>
+
+                            {/* Seller Message */}
+                            <div className="space-y-2 pt-2 border-t">
+                                <Label htmlFor="seller_message" className="flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4 text-blue-500" />
+                                    Mensaje para el cliente
+                                </Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Este mensaje será visible para el cliente en el seguimiento de su pedido.
+                                </p>
+                                <Textarea
+                                    id="seller_message"
+                                    placeholder="Ej: Tu pedido está siendo preparado con cuidado. Te notificaremos cuando sea despachado..."
+                                    value={data.seller_message}
+                                    onChange={(e) => setData('seller_message', e.target.value)}
+                                    rows={4}
+                                    maxLength={1000}
+                                    className="resize-none"
+                                />
+                                <p className="text-xs text-muted-foreground text-right">
+                                    {data.seller_message.length}/1000
+                                </p>
+                                {errors.seller_message && <p className="text-sm text-red-500">{errors.seller_message}</p>}
                             </div>
 
                             <div className="flex justify-end pt-4">

@@ -16,6 +16,7 @@ import {
 import type { SharedData } from '@/types';
 import { useCartStore } from '@/store/useCartStore';
 import CartSheet from '@/components/home/CartSheet';
+import OrderTrackingModal from '@/components/home/OrderTrackingModal';
 
 // Using '/images/gentepescando.jpeg' as the universal placeholder image as requested
 const PLACEHOLDER_IMAGE = '/images/gentepescando.jpeg';
@@ -54,6 +55,7 @@ export default function Header() {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const cartItems = useCartStore((state) => state.items);
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    const [isTrackingOpen, setIsTrackingOpen] = useState(false);
 
     // Update search term if URL changes (e.g. back button)
     useEffect(() => {
@@ -185,6 +187,7 @@ export default function Header() {
     const currentSubCategoryData = currentCategoryData?.subcategories?.find(s => s.name === activeSubcategory);
 
     return (
+        <>
         <header 
             className="fixed top-0 z-40 w-full bg-white dark:bg-[#0a0a0a] shadow-sm transition-all duration-300"
             onMouseLeave={handleMouseLeave}
@@ -194,7 +197,7 @@ export default function Header() {
                 <div className="mx-auto max-w-7xl flex flex-row justify-center sm:justify-between items-center gap-2">
                     <p className="text-center sm:text-left">Envío gratis en compras sobre $150.000</p>
                     <div className="hidden sm:flex items-center gap-4 uppercase text-[11px]">
-                         <Link href="/tracking" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><Truck className="h-3.5 w-3.5" /><span>Sigue tu pedido</span></Link>
+                         <button onClick={() => setIsTrackingOpen(true)} className="flex items-center gap-1.5 hover:text-gray-200 transition-colors cursor-pointer"><Truck className="h-3.5 w-3.5" /><span>Sigue tu pedido</span></button>
                          <Link href="/despacho" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><MapPin className="h-3.5 w-3.5" /><span>Zonas de despacho</span></Link>
                          <Link href="/garantias" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><ShieldCheck className="h-3.5 w-3.5" /><span>Garantías</span></Link>
                          <Link href="/contacto" className="flex items-center gap-1.5 hover:text-gray-200 transition-colors"><Phone className="h-3.5 w-3.5" /><span>Contáctanos</span></Link>
@@ -508,5 +511,9 @@ export default function Header() {
                 </div>
             )}
         </header>
+
+        {/* Order Tracking Modal */}
+        <OrderTrackingModal open={isTrackingOpen} onClose={() => setIsTrackingOpen(false)} />
+    </>
     );
 }

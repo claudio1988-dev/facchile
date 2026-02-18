@@ -98,6 +98,7 @@ class OrderController extends Controller
                 'payment_status' => $order->payment_status,
                 'carrier_id' => $order->carrier_id,
                 'tracking_number' => $order->metadata['tracking_number'] ?? '',
+                'seller_message' => $order->metadata['seller_message'] ?? '',
             ],
             'carriers' => \App\Models\Carrier::select('id', 'name')->get(),
         ]);
@@ -111,10 +112,11 @@ class OrderController extends Controller
         $order = \App\Models\Order::findOrFail($id);
         
         $validated = $request->validate([
-            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled',
             'payment_status' => 'nullable|in:pending,paid,failed,refunded',
             'carrier_id' => 'nullable|exists:carriers,id',
             'tracking_number' => 'nullable|string|max:255',
+            'seller_message' => 'nullable|string|max:1000',
         ]);
 
         $previousStatus = $order->status;
@@ -123,12 +125,17 @@ class OrderController extends Controller
         $order->payment_status = $validated['payment_status'] ?? $order->payment_status;
         $order->carrier_id = $validated['carrier_id'];
 
-        // Update metadata with tracking number
+        // Update metadata with tracking number and seller message
         $metadata = $order->metadata ?? [];
         if (!empty($validated['tracking_number'])) {
             $metadata['tracking_number'] = $validated['tracking_number'];
         } else {
             unset($metadata['tracking_number']);
+        }
+        if (!empty($validated['seller_message'])) {
+            $metadata['seller_message'] = $validated['seller_message'];
+        } else {
+            unset($metadata['seller_message']);
         }
         $order->metadata = $metadata;
 

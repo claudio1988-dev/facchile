@@ -76,7 +76,8 @@ interface Props {
 
 const statusMap: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: 'bg-yellow-500' },
-    processing: { label: 'Procesando', color: 'bg-blue-500' },
+    confirmed: { label: 'Confirmado', color: 'bg-blue-400' },
+    processing: { label: 'En preparación', color: 'bg-blue-600' },
     shipped: { label: 'Enviado', color: 'bg-indigo-500' },
     delivered: { label: 'Entregado', color: 'bg-green-500' },
     cancelled: { label: 'Cancelado', color: 'bg-red-500' },
@@ -134,7 +135,8 @@ export default function Show({ order }: Props) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="pending">Pendiente</SelectItem>
-                                <SelectItem value="processing">Procesando</SelectItem>
+                                <SelectItem value="confirmed">Confirmado</SelectItem>
+                                <SelectItem value="processing">En preparación</SelectItem>
                                 <SelectItem value="shipped">Enviado</SelectItem>
                                 <SelectItem value="delivered">Entregado</SelectItem>
                                 <SelectItem value="cancelled">Cancelado</SelectItem>
@@ -246,6 +248,19 @@ export default function Show({ order }: Props) {
                                         ))}
                                     </TableBody>
                                 </Table>
+
+
+
+                                {/* Seller Message Display */}
+                                {order.metadata?.seller_message && (
+                                    <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                                        <h4 className="text-sm font-bold text-blue-900 mb-1 flex items-center gap-2">
+                                            <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                                            Mensaje para el cliente
+                                        </h4>
+                                        <p className="text-sm text-blue-800">{order.metadata.seller_message}</p>
+                                    </div>
+                                )}
 
                                 {/* Totals */}
                                 <div className="mt-6 space-y-2 border-t pt-4">
