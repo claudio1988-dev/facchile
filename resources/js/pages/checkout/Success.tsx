@@ -4,7 +4,7 @@ import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { CheckCircle2, Package, ArrowRight, Printer, Wallet, Info } from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, Printer, Wallet, Info, MessageCircle } from 'lucide-react';
 
 interface OrderItem {
     product_name: string;
@@ -98,6 +98,17 @@ export default function Success({ order }: Props) {
                                                 <div className="text-blue-900 dark:text-blue-100 font-bold">facpesca@gmail.com</div>
                                             </div>
                                         </div>
+
+                                        {/* WhatsApp Button */}
+                                        <a
+                                            href={`https://wa.me/56978155169?text=${encodeURIComponent(`Hola! Acabo de realizar una transferencia para el pedido *#${order.order_number}* por un total de *$${Number(order.total).toLocaleString('es-CL')}*. Adjunto el comprobante. ¡Gracias!`)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-3 w-full mt-4 bg-[#25D366] hover:bg-[#20b858] text-white font-bold py-3 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                                        >
+                                            <MessageCircle className="h-5 w-5" />
+                                            Informar transferencia por WhatsApp
+                                        </a>
                                     </div>
                                 )}
                                 

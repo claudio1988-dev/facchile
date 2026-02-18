@@ -133,8 +133,8 @@ export default function ProductDetail({ product }: Props) {
                         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
                             {/* Product Media (Gallery/Image) */}
                             <div className="lg:col-span-5 xl:col-span-6">
-                                <div className="sticky top-32">
-                                    <div className="relative aspect-square max-h-[400px] md:max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-4 md:p-8 group">
+                                <div className="sticky top-32 flex flex-col items-center">
+                                    <div className="relative aspect-square max-h-[320px] md:max-h-[400px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-3 md:p-6 group">
                                         
                                         {/* Main Image */}
                                         <img
@@ -188,13 +188,13 @@ export default function ProductDetail({ product }: Props) {
                                     
                                     {/* Thumbnails */}
                                     {displayImages.length > 1 && (
-                                        <div className="mt-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar px-1">
+                                        <div className="mt-3 flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
                                             {displayImages.map((img, i) => (
                                                 <div 
                                                     key={i} 
                                                     onClick={() => setCurrentImageIndex(i)}
                                                     className={cn(
-                                                        "h-20 w-20 flex-shrink-0 rounded-xl border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1 relative",
+                                                        "h-16 w-16 flex-shrink-0 rounded-lg border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1 relative",
                                                         currentImageIndex === i ? "border-brand-primary ring-2 ring-brand-primary/10 shadow-lg scale-105" : "border-slate-100 dark:border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-300"
                                                     )}
                                                 >
@@ -227,22 +227,22 @@ export default function ProductDetail({ product }: Props) {
                                     </div>
 
                                     {/* Product Main Title */}
-                                    <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2 leading-tight">
+                                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2 leading-tight">
                                         {product.name}
                                     </h1>
                                     
                                     {/* Short description / Hook */}
                                     {product.short_description && (
-                                        <p className="text-lg text-slate-500 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                        <p className="text-base text-slate-500 dark:text-slate-400 mb-4 font-medium leading-relaxed">
                                             {product.short_description}
                                         </p>
                                     )}
 
                                     {/* Price Card */}
-                                    <div className="mb-8 p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                    <div className="mb-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                                         <div className="flex items-baseline gap-4 mb-2">
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-4xl font-black text-brand-primary">
+                                                <span className="text-3xl font-black text-brand-primary">
                                                     {formatPrice(product.base_price)}
                                                 </span>
                                                 <span className="text-sm text-slate-400 font-medium">IVA incluido</span>
@@ -271,10 +271,10 @@ export default function ProductDetail({ product }: Props) {
                                         )}
 
                                         {/* Purchase Button */}
-                                        <div className="mt-8">
+                                        <div className="mt-5">
                                             <Button 
                                                 size="lg" 
-                                                className="w-full bg-action-buy hover:bg-action-hover h-14 text-lg font-bold shadow-xl shadow-brand-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                                                className="w-full bg-action-buy hover:bg-action-hover h-12 text-base font-bold shadow-xl shadow-brand-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98]"
                                                 disabled={!product.is_active || product.stock <= 0}
                                                 onClick={() => {
                                                     useCartStore.getState().addToCart(product);
@@ -283,14 +283,14 @@ export default function ProductDetail({ product }: Props) {
                                                     });
                                                 }}
                                             >
-                                                <ShoppingCart className="mr-3 h-6 w-6" />
+                                                <ShoppingCart className="mr-2 h-5 w-5" />
                                                 Agregar al Carrito
                                             </Button>
                                         </div>
                                     </div>
 
                                     {/* Trust Badges Panel */}
-                                    <div className="grid grid-cols-1 gap-4 mb-8">
+                                    <div className="grid grid-cols-1 gap-2 mb-5">
                                         <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                                             <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
                                                 <Truck className="h-5 w-5 text-green-600 dark:text-green-500" />
