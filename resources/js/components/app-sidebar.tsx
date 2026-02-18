@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, Layers, Tag, ShoppingCart, Users } from 'lucide-react';
+import { LayoutGrid, Package, Layers, Tag, ShoppingCart, Users, Truck } from 'lucide-react';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -53,6 +53,11 @@ const adminNavItems: NavItem[] = [
         title: 'Clientes',
         href: '/adminfacchile/customers',
         icon: Users,
+    },
+    {
+        title: 'Costos de Envío',
+        href: '/adminfacchile/shipping-zones',
+        icon: Truck,
     },
 ];
 

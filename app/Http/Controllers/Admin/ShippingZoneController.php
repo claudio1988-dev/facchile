@@ -17,7 +17,7 @@ class ShippingZoneController extends Controller
         $regions = Region::with(['communes.shippingZones'])->get();
         $carriers = Carrier::where('is_active', true)->get();
         
-        return Inertia::render('Admin/Shipping/Index', [
+        return Inertia::render('admin/shipping/Index', [
             'regions' => $regions,
             'carriers' => $carriers
         ]);
