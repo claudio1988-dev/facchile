@@ -20,7 +20,8 @@ import {
     ChevronRight,
     ChevronLeft,
     Wallet,
-    CheckCircle2
+    CheckCircle2,
+    Info
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useState, useMemo } from 'react';
@@ -466,6 +467,43 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                     {formData.payment_method === 'transfer' && <div className="size-2 bg-white rounded-full" />}
                                                 </div>
                                             </div>
+
+                                            {/* Bank Transfer Details (Visual Highlight) */}
+                                            {formData.payment_method === 'transfer' && (
+                                                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                                    <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 dark:bg-blue-950/20 dark:border-blue-900 border-dashed">
+                                                        <h4 className="font-bold text-blue-900 dark:text-blue-200 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                                            <CheckCircle2 className="h-4 w-4 text-blue-600" /> Confirmación de Transferencia
+                                                        </h4>
+                                                        <div className="space-y-4 text-sm">
+                                                            <p className="text-blue-800 dark:text-blue-300 bg-white/50 dark:bg-blue-950/40 p-3 rounded-md border border-blue-100 dark:border-blue-900 flex items-start gap-2 text-xs">
+                                                                <Info className="h-4 w-4 mt-0.5 shrink-0 text-blue-500" />
+                                                                Para procesar tu pedido, debes transferir el total a la siguiente cuenta y luego confirmar tu compra.
+                                                            </p>
+                                                            
+                                                            <div className="grid grid-cols-2 gap-y-3 gap-x-4 border-t border-blue-100 dark:border-blue-900 pt-4">
+                                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium uppercase text-[10px] tracking-wider">Titular</div>
+                                                                <div className="text-blue-900 dark:text-blue-100 font-bold text-xs">Fabián Esteban Acuña Campos</div>
+                                                                
+                                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium uppercase text-[10px] tracking-wider">RUT</div>
+                                                                <div className="text-blue-900 dark:text-blue-100 font-bold text-xs">17.196.505-5</div>
+                                                                
+                                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium uppercase text-[10px] tracking-wider">Banco</div>
+                                                                <div className="text-blue-900 dark:text-blue-100 font-bold text-xs">Mercado Pago</div>
+                                                                
+                                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium uppercase text-[10px] tracking-wider">Tipo de Cuenta</div>
+                                                                <div className="text-blue-900 dark:text-blue-100 font-bold text-xs">Cuenta Vista</div>
+                                                                
+                                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium uppercase text-[10px] tracking-wider">Nº de Cuenta</div>
+                                                                <div className="text-blue-900 dark:text-blue-100 font-bold text-xs">1004087752</div>
+                                                                
+                                                                <div className="text-blue-700/60 dark:text-blue-400 font-medium uppercase text-[10px] tracking-wider">Email para comprobante</div>
+                                                                <div className="text-blue-900 dark:text-blue-100 font-bold text-xs">facpesca@gmail.com</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 )}
