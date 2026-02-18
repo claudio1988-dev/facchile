@@ -14,8 +14,13 @@ import {
     Shield, 
     ArrowLeft,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    ChevronLeft,
+    ChevronRight,
+    Maximize2,
+    X as XIcon
 } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'sonner';
@@ -55,7 +60,25 @@ interface Props {
 }
 
 export default function ProductDetail({ product }: Props) {
-    const [activeImage, setActiveImage] = useState<string | null>(product.main_image_url || '/images/imagenesdemo/1.avif');
+    // Combine main image and gallery into a single array for easier navigation
+    const allImages = [
+        ...(product.main_image_url ? [product.main_image_url] : []),
+        ...(product.gallery || [])
+    ];
+    
+    // Fallback if no images
+    const displayImages = allImages.length > 0 ? allImages : ['/images/imagenesdemo/1.avif'];
+
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isZoomOpen, setIsZoomOpen] = useState(false);
+
+    const nextImage = () => {
+        setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
+    };
+
+    const prevImage = () => {
+        setCurrentImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
+    };
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('es-CL', {
@@ -111,23 +134,44 @@ export default function ProductDetail({ product }: Props) {
                             {/* Product Media (Gallery/Image) */}
                             <div className="lg:col-span-5 xl:col-span-6">
                                 <div className="sticky top-32">
-                                    <div className="relative aspect-square max-h-[400px] md:max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-4 md:p-8">
-                                        {activeImage ? (
-                                            <img
-                                                src={activeImage}
-                                                onError={(e) => {
-                                                    e.currentTarget.src = "/images/imagenesdemo/1.avif";
-                                                }}
-                                                alt={product.name}
-                                                className="max-h-full max-w-full object-contain drop-shadow-md animate-in fade-in zoom-in duration-300"
-                                            />
-                                        ) : (
-                                            <img
-                                                src="/images/imagenesdemo/1.avif"
-                                                alt={product.name}
-                                                className="max-h-full max-w-full object-contain grayscale opacity-30"
-                                            />
+                                    <div className="relative aspect-square max-h-[400px] md:max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-4 md:p-8 group">
+                                        
+                                        {/* Main Image */}
+                                        <img
+                                            src={displayImages[currentImageIndex]}
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/images/imagenesdemo/1.avif";
+                                            }}
+                                            alt={product.name}
+                                            className="max-h-full max-w-full object-contain drop-shadow-md animate-in fade-in zoom-in duration-300 cursor-zoom-in"
+                                            onClick={() => setIsZoomOpen(true)}
+                                        />
+
+                                        {/* Navigation Buttons (only if multiple images) */}
+                                        {displayImages.length > 1 && (
+                                            <>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-black/50 shadow-sm hover:bg-white dark:hover:bg-black/70 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0"
+                                                >
+                                                    <ChevronLeft className="h-6 w-6 text-slate-700 dark:text-white" />
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-black/50 shadow-sm hover:bg-white dark:hover:bg-black/70 transition-all opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <ChevronRight className="h-6 w-6 text-slate-700 dark:text-white" />
+                                                </button>
+                                            </>
                                         )}
+
+                                        {/* Zoom Indicator */}
+                                        <button 
+                                            onClick={() => setIsZoomOpen(true)}
+                                            className="absolute bottom-4 right-4 p-2 rounded-full bg-white/80 dark:bg-black/50 shadow-sm hover:bg-white dark:hover:bg-black/70 transition-all opacity-0 group-hover:opacity-100"
+                                        >
+                                            <Maximize2 className="h-5 w-5 text-slate-700 dark:text-white" />
+                                        </button>
                                         
                                         {/* Badges Overlay */}
                                         <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -142,39 +186,21 @@ export default function ProductDetail({ product }: Props) {
                                         </div>
                                     </div>
                                     
-                                    {/* Real Gallery Implementation */}
-                                    {((product.gallery && product.gallery.length > 0) || product.main_image_url) && (
-                                        <div className="mt-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                                            {/* Main Image Thumbnail */}
-                                            {product.main_image_url && (
-                                                <div 
-                                                    onClick={() => setActiveImage(product.main_image_url)}
-                                                    className={cn(
-                                                        "h-20 w-20 flex-shrink-0 rounded-xl border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1",
-                                                        activeImage === product.main_image_url ? "border-brand-primary ring-2 ring-brand-primary/10 shadow-lg" : "border-slate-100 dark:border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-300"
-                                                    )}
-                                                >
-                                                    <img
-                                                        src={product.main_image_url}
-                                                        alt={`${product.name} principal`}
-                                                        className="h-full w-full object-contain"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            {/* Gallery Images */}
-                                            {product.gallery?.map((img, i) => (
+                                    {/* Thumbnails */}
+                                    {displayImages.length > 1 && (
+                                        <div className="mt-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar px-1">
+                                            {displayImages.map((img, i) => (
                                                 <div 
                                                     key={i} 
-                                                    onClick={() => setActiveImage(img)}
+                                                    onClick={() => setCurrentImageIndex(i)}
                                                     className={cn(
-                                                        "h-20 w-20 flex-shrink-0 rounded-xl border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1",
-                                                        activeImage === img ? "border-brand-primary ring-2 ring-brand-primary/10 shadow-lg" : "border-slate-100 dark:border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-300"
+                                                        "h-20 w-20 flex-shrink-0 rounded-xl border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1 relative",
+                                                        currentImageIndex === i ? "border-brand-primary ring-2 ring-brand-primary/10 shadow-lg scale-105" : "border-slate-100 dark:border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-300"
                                                     )}
                                                 >
                                                     <img
                                                         src={img}
-                                                        alt={`${product.name} gallery ${i}`}
+                                                        alt={`${product.name} ${i}`}
                                                         className="h-full w-full object-contain"
                                                     />
                                                 </div>
@@ -359,6 +385,44 @@ export default function ProductDetail({ product }: Props) {
                         </Button>
                     </div>
                 </div>
+
+                {/* Image Zoom Modal */}
+                <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
+                    <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-none flex items-center justify-center overflow-hidden">
+                        <button 
+                            onClick={() => setIsZoomOpen(false)}
+                            className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-white/20 transition-colors"
+                        >
+                            <XIcon className="h-6 w-6" />
+                        </button>
+
+                        <div className="relative w-full h-full flex items-center justify-center">
+                            <img
+                                src={displayImages[currentImageIndex]}
+                                alt={product.name}
+                                className="max-w-full max-h-full object-contain"
+                            />
+
+                            {/* Modal Navigation */}
+                            {displayImages.length > 1 && (
+                                <>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors"
+                                    >
+                                        <ChevronLeft className="h-8 w-8" />
+                                    </button>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors"
+                                    >
+                                        <ChevronRight className="h-8 w-8" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </>
     );
