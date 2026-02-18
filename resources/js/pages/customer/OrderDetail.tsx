@@ -163,41 +163,43 @@ export default function OrderDetail({ order }: Props) {
                             {/* Progress Stepper */}
                             {!isCancelled && (
                                 <Card className="border-none shadow-sm overflow-hidden">
-                                     <CardContent className="p-6">
-                                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-6">Estado del Pedido</p>
-                                        <div className="flex items-center gap-0">
-                                            {ORDER_STEPS.map((step, idx) => {
-                                                const Icon = step.icon;
-                                                const isCompleted = idx <= currentStepIndex;
-                                                const isCurrent = idx === currentStepIndex;
-                                                return (
-                                                    <div key={step.key} className="flex items-center flex-1 last:flex-none">
-                                                        <div className="flex flex-col items-center gap-2">
-                                                            <div className={cn(
-                                                                'h-10 w-10 rounded-full flex items-center justify-center transition-all',
-                                                                isCompleted
-                                                                    ? 'bg-brand-primary text-white shadow-md'
-                                                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400',
-                                                                isCurrent && 'ring-4 ring-brand-primary/20 ring-offset-2 dark:ring-offset-slate-900'
-                                                            )}>
-                                                                <Icon className="h-5 w-5" />
+                                     <CardContent className="p-4 sm:p-6">
+                                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4 sm:mb-6">Estado del Pedido</p>
+                                        <div className="relative">
+                                            <div className="flex items-center gap-0 overflow-x-auto pb-2 scrollbar-hide sm:overflow-visible sm:pb-0">
+                                                {ORDER_STEPS.map((step, idx) => {
+                                                    const Icon = step.icon;
+                                                    const isCompleted = idx <= currentStepIndex;
+                                                    const isCurrent = idx === currentStepIndex;
+                                                    return (
+                                                        <div key={step.key} className="flex items-center flex-1 min-w-[60px] last:flex-none last:min-w-0">
+                                                            <div className="flex flex-col items-center gap-2">
+                                                                <div className={cn(
+                                                                    'h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center transition-all shrink-0',
+                                                                    isCompleted
+                                                                        ? 'bg-brand-primary text-white shadow-md'
+                                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400',
+                                                                    isCurrent && 'ring-2 sm:ring-4 ring-brand-primary/20 ring-offset-2 dark:ring-offset-slate-900'
+                                                                )}>
+                                                                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                                </div>
+                                                                <span className={cn(
+                                                                    'text-[9px] sm:text-xs font-medium text-center leading-tight max-w-[70px]',
+                                                                    isCompleted ? 'text-brand-primary font-bold' : 'text-slate-400'
+                                                                )}>
+                                                                    {step.label}
+                                                                </span>
                                                             </div>
-                                                            <span className={cn(
-                                                                'text-[10px] sm:text-xs font-medium text-center leading-tight max-w-[70px]',
-                                                                isCompleted ? 'text-brand-primary font-bold' : 'text-slate-400'
-                                                            )}>
-                                                                {step.label}
-                                                            </span>
+                                                            {idx < ORDER_STEPS.length - 1 && (
+                                                                <div className={cn(
+                                                                    'flex-1 h-0.5 sm:h-1 mb-6 mx-1 sm:mx-2 transition-all rounded-full min-w-[20px]',
+                                                                    idx < currentStepIndex ? 'bg-brand-primary' : 'bg-slate-100 dark:bg-slate-800'
+                                                                )} />
+                                                            )}
                                                         </div>
-                                                        {idx < ORDER_STEPS.length - 1 && (
-                                                            <div className={cn(
-                                                                'flex-1 h-1 mb-6 mx-2 transition-all rounded-full',
-                                                                idx < currentStepIndex ? 'bg-brand-primary' : 'bg-slate-100 dark:bg-slate-800'
-                                                            )} />
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
                                      </CardContent>
                                 </Card>
