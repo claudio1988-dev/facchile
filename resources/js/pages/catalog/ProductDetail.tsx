@@ -20,7 +20,7 @@ import {
     Maximize2,
     X as XIcon
 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'sonner';
@@ -389,6 +389,12 @@ export default function ProductDetail({ product }: Props) {
                 {/* Image Zoom Modal */}
                 <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
                     <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-none flex items-center justify-center overflow-hidden">
+                        <DialogTitle className="sr-only">
+                            {product.name} - Imagen {currentImageIndex + 1}
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Vista ampliada de la imagen del producto
+                        </DialogDescription>
                         <button 
                             onClick={() => setIsZoomOpen(false)}
                             className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-white/20 transition-colors"
