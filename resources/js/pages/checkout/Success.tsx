@@ -29,7 +29,16 @@ interface Props {
     order: Order;
 }
 
+import { useEffect } from 'react';
+import { useCartStore } from '@/store/useCartStore';
+
 export default function Success({ order }: Props) {
+    const clearCart = useCartStore(state => state.clearCart);
+
+    useEffect(() => {
+        clearCart();
+    }, [clearCart]);
+
     return (
         <>
             <Head title="Compra Exitosa" />
