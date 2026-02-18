@@ -127,7 +127,7 @@ export default function OrderTrackingModal({ open, onClose }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogTitle className="flex items-center gap-2 text-lg font-bold">
                     <Truck className="h-5 w-5 text-brand-primary" />
                     Seguimiento de Pedido
