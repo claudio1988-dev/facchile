@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Trash, Edit as EditIcon, Upload, X, Image as ImageIcon } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
 import { useState, useRef } from 'react';
+import { compressImage } from '@/lib/image-compression';
+import { toast } from 'sonner';
 
 interface Category {
     id: number;
@@ -132,15 +134,20 @@ export default function Edit({ product, categories, brands, shippingClasses, res
         });
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setData('main_image', file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const compressed = await compressImage(file);
+                setData('main_image', compressed);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreview(reader.result as string);
+                };
+                reader.readAsDataURL(compressed);
+            } catch (error) {
+                toast.error('Error al procesar la imagen');
+            }
         }
     };
 
@@ -156,18 +163,33 @@ export default function Edit({ product, categories, brands, shippingClasses, res
         }
     };
 
-    const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleGalleryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
-            setData('gallery_images', [...data.gallery_images, ...files]);
-            
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setGalleryPreviews(prev => [...prev, reader.result as string]);
-                };
-                reader.readAsDataURL(file);
-            });
+            const loadingToast = toast.loading('Procesando imágenes...');
+            try {
+                const compressedFiles = await Promise.all(
+                    files.map(file => compressImage(file))
+                );
+                
+                setData('gallery_images', [...data.gallery_images, ...compressedFiles]);
+                
+                compressedFiles.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setGalleryPreviews(prev => [...prev, reader.result as string]);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                toast.dismiss(loadingToast);
+            } catch (error) {
+                toast.error('Error al procesar galería');
+                toast.dismiss(loadingToast);
+            }
+
+            if (galleryInputRef.current) {
+                galleryInputRef.current.value = '';
+            }
         }
     };
 
