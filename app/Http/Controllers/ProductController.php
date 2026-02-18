@@ -30,7 +30,12 @@ class ProductController extends Controller
                 'is_restricted' => $product->is_restricted,
                 'age_verification_required' => $product->age_verification_required,
                 'main_image_url' => $product->main_image_url,
+                'gallery' => $product->gallery ?? [],
                 'stock' => $product->variants->sum('stock_quantity'),
+                'restriction_types' => $product->restrictions->map(fn($r) => [
+                    'id' => $r->id,
+                    'name' => $r->name,
+                ]),
                 'category' => $product->category ? [
                     'id' => $product->category->id,
                     'name' => $product->category->name,

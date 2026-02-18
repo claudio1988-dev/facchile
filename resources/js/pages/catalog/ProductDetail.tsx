@@ -5,6 +5,7 @@ import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
 import { 
     ShoppingCart, 
     Heart, 
@@ -15,6 +16,7 @@ import {
     CheckCircle2,
     AlertCircle
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'sonner';
 
@@ -29,6 +31,7 @@ interface Product {
     is_restricted: boolean;
     age_verification_required: boolean;
     main_image_url: string | null;
+    gallery: string[] | null;
     stock: number;
     category: {
         id: number;
@@ -52,6 +55,8 @@ interface Props {
 }
 
 export default function ProductDetail({ product }: Props) {
+    const [activeImage, setActiveImage] = useState<string | null>(product.main_image_url || '/images/imagenesdemo/1.avif');
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('es-CL', {
             style: 'currency',
@@ -107,14 +112,14 @@ export default function ProductDetail({ product }: Props) {
                             <div className="lg:col-span-5 xl:col-span-6">
                                 <div className="sticky top-32">
                                     <div className="relative aspect-square max-h-[400px] md:max-h-[500px] overflow-hidden rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center p-4 md:p-8">
-                                        {product.main_image_url ? (
+                                        {activeImage ? (
                                             <img
-                                                src={product.main_image_url || '/images/imagenesdemo/1.avif'}
+                                                src={activeImage}
                                                 onError={(e) => {
                                                     e.currentTarget.src = "/images/imagenesdemo/1.avif";
                                                 }}
                                                 alt={product.name}
-                                                className="max-h-full max-w-full object-contain drop-shadow-md"
+                                                className="max-h-full max-w-full object-contain drop-shadow-md animate-in fade-in zoom-in duration-300"
                                             />
                                         ) : (
                                             <img
@@ -137,18 +142,45 @@ export default function ProductDetail({ product }: Props) {
                                         </div>
                                     </div>
                                     
-                                    {/* Small Gallery Mockup (Future Implementation) */}
-                                    <div className="mt-4 flex gap-4 overflow-x-auto pb-2">
-                                        {[1, 2, 3].map((i) => (
-                                            <div key={i} className="h-20 w-20 flex-shrink-0 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 cursor-pointer hover:border-brand-primary transition-colors overflow-hidden">
-                                                 <img
-                                                    src={product.main_image_url || '/images/imagenesdemo/1.avif'}
-                                                    alt={`${product.name} thumb ${i}`}
-                                                    className="h-full w-full object-cover opacity-60"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
+                                    {/* Real Gallery Implementation */}
+                                    {((product.gallery && product.gallery.length > 0) || product.main_image_url) && (
+                                        <div className="mt-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                                            {/* Main Image Thumbnail */}
+                                            {product.main_image_url && (
+                                                <div 
+                                                    onClick={() => setActiveImage(product.main_image_url)}
+                                                    className={cn(
+                                                        "h-20 w-20 flex-shrink-0 rounded-xl border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1",
+                                                        activeImage === product.main_image_url ? "border-brand-primary ring-2 ring-brand-primary/10 shadow-lg" : "border-slate-100 dark:border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-300"
+                                                    )}
+                                                >
+                                                    <img
+                                                        src={product.main_image_url}
+                                                        alt={`${product.name} principal`}
+                                                        className="h-full w-full object-contain"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* Gallery Images */}
+                                            {product.gallery?.map((img, i) => (
+                                                <div 
+                                                    key={i} 
+                                                    onClick={() => setActiveImage(img)}
+                                                    className={cn(
+                                                        "h-20 w-20 flex-shrink-0 rounded-xl border-2 bg-white dark:bg-slate-900 cursor-pointer transition-all overflow-hidden p-1",
+                                                        activeImage === img ? "border-brand-primary ring-2 ring-brand-primary/10 shadow-lg" : "border-slate-100 dark:border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-300"
+                                                    )}
+                                                >
+                                                    <img
+                                                        src={img}
+                                                        alt={`${product.name} gallery ${i}`}
+                                                        className="h-full w-full object-contain"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
