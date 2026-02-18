@@ -12,8 +12,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Upload, X, Image as ImageIcon } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
+import { useState, useRef } from 'react';
 
 interface Category {
     id: number;
@@ -71,8 +72,15 @@ export default function Create({ categories, brands, shippingClasses, restrictio
         is_restricted: false,
         age_verification_required: false,
         main_image_url: '',
+        main_image: null as File | null,
+        gallery_images: [] as File[],
         restriction_type_ids: [] as number[],
     });
+
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const galleryInputRef = useRef<HTMLInputElement>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -102,6 +110,51 @@ export default function Create({ categories, brands, shippingClasses, restrictio
         } else {
             setData('restriction_type_ids', current.filter((i) => i !== id));
         }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('main_image', file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setData('main_image', null);
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            setData('gallery_images', [...data.gallery_images, ...files]);
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setGalleryPreviews(prev => [...prev, reader.result as string]);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeGalleryImage = (index: number) => {
+        const newImages = [...data.gallery_images];
+        newImages.splice(index, 1);
+        setData('gallery_images', newImages);
+
+        const newPreviews = [...galleryPreviews];
+        newPreviews.splice(index, 1);
+        setGalleryPreviews(newPreviews);
     };
 
     return (
@@ -188,16 +241,125 @@ export default function Create({ categories, brands, shippingClasses, restrictio
                                         />
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="main_image_url">URL de Imagen</Label>
-                                        <Input
-                                            id="main_image_url"
-                                            value={data.main_image_url}
-                                            onChange={(e) =>
-                                                setData('main_image_url', e.target.value)
-                                            }
-                                            placeholder="https://ejemplo.com/imagen.jpg"
+                                    <div className="space-y-4">
+                                        <Label>Imagen Principal *</Label>
+                                        <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg bg-muted/50 transition-colors hover:bg-muted">
+                                            {imagePreview ? (
+                                                <div className="relative w-full aspect-video md:aspect-square max-w-sm overflow-hidden rounded-lg border">
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Vista previa"
+                                                        className="h-full w-full object-contain bg-white"
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg"
+                                                        onClick={removeImage}
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <div 
+                                                    className="flex flex-col items-center justify-center py-8 cursor-pointer w-full"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                >
+                                                    <div className="rounded-full bg-primary/10 p-3 mb-3">
+                                                        <Upload className="h-6 w-6 text-primary" />
+                                                    </div>
+                                                    <p className="text-sm font-medium">Haz clic para subir imagen principal</p>
+                                                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG hasta 5MB</p>
+                                                </div>
+                                            )}
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                            />
+                                        </div>
+                                        {errors.main_image && (
+                                            <p className="text-sm text-destructive">{errors.main_image}</p>
+                                        )}
+                                        
+                                        <div className="space-y-2">
+                                            <Label htmlFor="main_image_url">O ingresa una URL de Imagen</Label>
+                                            <div className="relative">
+                                                <ImageIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <Input
+                                                    id="main_image_url"
+                                                    className="pl-9"
+                                                    placeholder="https://ejemplo.com/imagen.jpg"
+                                                    value={data.main_image_url}
+                                                    onChange={(e) => {
+                                                        setData('main_image_url', e.target.value);
+                                                        if (!data.main_image) {
+                                                            setImagePreview(e.target.value);
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Gallery Section */}
+                                    <div className="space-y-4 pt-4 border-t">
+                                        <div className="flex items-center justify-between">
+                                            <Label>Galería de Imágenes (Opcional)</Label>
+                                            <Button 
+                                                type="button" 
+                                                variant="outline" 
+                                                size="sm"
+                                                onClick={() => galleryInputRef.current?.click()}
+                                            >
+                                                <Upload className="mr-2 h-4 w-4" />
+                                                Añadir Imágenes
+                                            </Button>
+                                        </div>
+                                        
+                                        <input
+                                            type="file"
+                                            ref={galleryInputRef}
+                                            className="hidden"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleGalleryChange}
                                         />
+
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                            {/* Gallery Previews */}
+                                            {galleryPreviews.map((preview, idx) => (
+                                                <div key={idx} className="relative group aspect-square rounded-lg border-2 border-primary/20 overflow-hidden bg-white">
+                                                    <img src={preview} alt={`Galería ${idx}`} className="h-full w-full object-contain" />
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        onClick={() => removeGalleryImage(idx)}
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+
+                                            {/* Empty State */}
+                                            {galleryPreviews.length === 0 && (
+                                                <div 
+                                                    className="col-span-full py-8 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-muted-foreground cursor-pointer hover:bg-muted/50 transition-colors"
+                                                    onClick={() => galleryInputRef.current?.click()}
+                                                >
+                                                    <ImageIcon className="h-8 w-8 mb-2 opacity-20" />
+                                                    <p className="text-sm">No hay imágenes en la galería</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {errors.gallery_images && (
+                                            <p className="text-sm text-destructive">{errors.gallery_images}</p>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>

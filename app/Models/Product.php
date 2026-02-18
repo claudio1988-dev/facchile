@@ -19,6 +19,7 @@ class Product extends Model
         'age_verification_required',
         'base_price',
         'main_image_url',
+        'gallery',
     ];
 
     protected $casts = [
@@ -26,6 +27,7 @@ class Product extends Model
         'is_restricted' => 'boolean',
         'age_verification_required' => 'boolean',
         'base_price' => 'decimal:2',
+        'gallery' => 'array',
     ];
 
     // Relationships

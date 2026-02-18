@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\RestrictionType;
 use App\Models\ShippingClass;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -82,9 +83,26 @@ class ProductController extends Controller
             'is_restricted' => 'boolean',
             'age_verification_required' => 'boolean',
             'main_image_url' => 'nullable|string|max:500',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'restriction_type_ids' => 'nullable|array',
             'restriction_type_ids.*' => 'exists:restriction_types,id',
         ]);
+
+        if ($request->hasFile('main_image')) {
+            $path = $request->file('main_image')->store('products', 'public');
+            $validated['main_image_url'] = Storage::url($path);
+        }
+
+        $gallery = [];
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $path = $image->store('products/gallery', 'public');
+                $gallery[] = Storage::url($path);
+            }
+        }
+        $validated['gallery'] = $gallery;
 
         $product = Product::create($validated);
 
@@ -113,6 +131,7 @@ class ProductController extends Controller
                 'is_restricted' => $product->is_restricted,
                 'age_verification_required' => $product->age_verification_required,
                 'main_image_url' => $product->main_image_url,
+                'gallery' => $product->gallery ?? [],
                 'restriction_type_ids' => $product->restrictions->pluck('id'),
                 'variants' => $product->variants, // Eager loading should tackle this if 'with' was used, else implicit lazy load
             ],
@@ -138,9 +157,44 @@ class ProductController extends Controller
             'is_restricted' => 'boolean',
             'age_verification_required' => 'boolean',
             'main_image_url' => 'nullable|string|max:500',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'existing_gallery' => 'nullable|array',
             'restriction_type_ids' => 'nullable|array',
             'restriction_type_ids.*' => 'exists:restriction_types,id',
         ]);
+
+        if ($request->hasFile('main_image')) {
+            // Delete old image if it was a local file
+            if ($product->main_image_url && str_contains($product->main_image_url, '/storage/products/')) {
+                $oldPath = str_replace('/storage/', '', $product->main_image_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $path = $request->file('main_image')->store('products', 'public');
+            $validated['main_image_url'] = Storage::url($path);
+        }
+
+        // Handle Gallery
+        $currentGallery = $product->gallery ?? [];
+        $newGallery = $request->input('existing_gallery', []);
+        
+        // Delete removed images from storage
+        foreach ($currentGallery as $img) {
+            if (!in_array($img, $newGallery) && str_contains($img, '/storage/products/gallery/')) {
+                $pathToDelete = str_replace('/storage/', '', $img);
+                Storage::disk('public')->delete($pathToDelete);
+            }
+        }
+
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $path = $image->store('products/gallery', 'public');
+                $newGallery[] = Storage::url($path);
+            }
+        }
+        $validated['gallery'] = $newGallery;
 
         $product->update($validated);
 
