@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { ArrowLeft, Trash, Edit as EditIcon, Upload, X, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
 import { useState, useRef } from 'react';
@@ -602,7 +602,7 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                                     <p className="text-sm text-muted-foreground">SKU: {variant.sku} | Stock: {variant.stock_quantity}</p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold mr-2">${parseFloat(variant.price).toLocaleString('es-CL')}</span>
+                                                    <span className="font-bold mr-2">{formatPrice(variant.price)}</span>
                                                     <Button type="button" variant="outline" size="icon" onClick={() => handleEditVariant(variant)}>
                                                         <EditIcon className="size-4" />
                                                     </Button>

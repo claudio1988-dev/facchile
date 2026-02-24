@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { LayoutGrid, List, ShoppingCart, SlidersHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 
 interface CategoryProps {
     categorySlug: string;
@@ -225,7 +225,7 @@ export default function Category({ categorySlug: rawSlug }: CategoryProps) {
                                         <div className="mt-auto flex items-center justify-between">
                                             <div>
                                                 <p className="text-2xl font-black text-brand-primary dark:text-[#7EB55B]">
-                                                    ${product.p.toLocaleString('es-CL')}
+                                                    {formatPrice(product.p)}
                                                 </p>
                                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">IVA incluido</p>
                                             </div>

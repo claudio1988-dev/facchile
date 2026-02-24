@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Search, Filter, LayoutGrid, List, ShoppingCart, ChevronDown, Check, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
@@ -511,7 +511,7 @@ export default function Catalog({ paginatedProducts, categories, brands, filters
 
                                             <div className="flex items-center justify-between mt-1 md:mt-2">
                                                 <p className="text-sm md:text-lg font-black text-slate-900 dark:text-white">
-                                                    ${parseFloat(product.base_price.toString()).toLocaleString('es-CL')}
+                                                    {formatPrice(product.base_price)}
                                                 </p>
                                                 
                                                 {/* Add to Cart Button */}

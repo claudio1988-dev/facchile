@@ -168,4 +168,35 @@ class OrderController extends Controller
 
         return $pdf->download('comprobante-orden-' . $order->order_number . '.pdf');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $order = \App\Models\Order::with('items')->findOrFail($id);
+
+        // Restore stock if order was not already cancelled
+        if ($order->status !== 'cancelled') {
+            $itemsToRestore = $order->items->map(fn($item) => [
+                'variant_id' => $item->product_variant_id,
+                'quantity'   => $item->quantity,
+            ])->filter(fn($i) => $i['variant_id'])->toArray();
+
+            if (!empty($itemsToRestore)) {
+                try {
+                    (new \App\Services\InventoryService())->restoreStock($itemsToRestore);
+                } catch (\Exception $e) {
+                    // Log but proceed with deletion
+                    \Log::warning('Could not restore stock on order delete: ' . $e->getMessage());
+                }
+            }
+        }
+
+        $order->delete();
+
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'Pedido eliminado exitosamente.');
+    }
 }
+

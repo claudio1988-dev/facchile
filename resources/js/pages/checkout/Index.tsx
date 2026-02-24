@@ -27,7 +27,7 @@ import {
 import { useCartStore } from '@/store/useCartStore';
 import { useState, useMemo, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import checkout from '@/routes/checkout';
 
 interface Commune {
@@ -266,7 +266,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                             <div className="flex-1">
                                                                 <div className="flex justify-between">
                                                                     <h4 className="font-bold text-sm leading-tight line-clamp-2">{item.name}</h4>
-                                                                    <p className="font-black text-brand-primary dark:text-white">${Math.round(item.price * item.quantity).toLocaleString('es-CL')}</p>
+                                                                    <p className="font-black text-brand-primary dark:text-white">{formatPrice(item.price * item.quantity)}</p>
                                                                 </div>
                                                                 <div className="flex items-center justify-between mt-2">
                                                                     <div className="flex items-center gap-2 border rounded-full h-8 px-1 bg-white dark:bg-slate-950">
@@ -294,7 +294,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                         {items.length > 0 && (
                                             <CardFooter className="justify-between bg-slate-50 dark:bg-slate-900/50 py-4 border-t border-slate-100 dark:border-slate-800 rounded-b-lg">
                                                 <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Subtotal Carrito</div>
-                                                <div className="text-lg font-black text-brand-primary dark:text-white">${total.toLocaleString('es-CL')}</div>
+                                                <div className="text-lg font-black text-brand-primary dark:text-white">{formatPrice(total)}</div>
                                             </CardFooter>
                                         )}
                                     </Card>
@@ -542,7 +542,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                         <div className="space-y-3">
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-slate-500 font-medium">Subtotal</span>
-                                                <span className="text-slate-900 dark:text-white font-bold">${total.toLocaleString('es-CL')}</span>
+                                                <span className="text-slate-900 dark:text-white font-bold">{formatPrice(total)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-slate-500 font-medium">Envío</span>
@@ -550,14 +550,14 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                      <span className="text-slate-400 font-medium animate-pulse">Calculando...</span>
                                                 ) : (
                                                     <span className={cn("font-black uppercase text-[10px]", shippingCost !== null ? 'text-slate-900 dark:text-white text-sm' : 'text-slate-400')}>
-                                                        {shippingCost !== null ? `$${shippingCost.toLocaleString('es-CL')}` : 'Por calcular'}
+                                                        {shippingCost !== null ? formatPrice(shippingCost) : 'Por calcular'}
                                                     </span>
                                                 )}
                                             </div>
                                             <div className="border-t dark:border-slate-800 pt-4 flex justify-between items-baseline font-black">
                                                 <span className="text-slate-900 dark:text-white uppercase text-sm">Total a pagar</span>
                                                 <span className="text-2xl text-brand-primary dark:text-brand-secondary">
-                                                    ${finalTotal.toLocaleString('es-CL')}
+                                                    {formatPrice(finalTotal)}
                                                 </span>
                                             </div>
                                         </div>

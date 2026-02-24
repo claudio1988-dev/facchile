@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -60,7 +61,7 @@ export default function Dashboard({ stats }: Props) {
     const statCards = [
         {
             title: 'Ingresos Totales',
-            value: `$${parseFloat(stats.total_revenue.toString()).toLocaleString('es-CL')}`,
+            value: formatPrice(stats.total_revenue),
             description: 'Total ventas históricas',
             icon: DollarSign,
             color: 'text-emerald-600',
@@ -154,7 +155,7 @@ export default function Dashboard({ stats }: Props) {
                                                     {order.status}
                                                 </Badge>
                                                 <div className="font-medium">
-                                                    ${parseFloat(order.total).toLocaleString('es-CL')}
+                                                    {formatPrice(order.total)}
                                                 </div>
                                             </div>
                                         </div>
@@ -249,7 +250,7 @@ export default function Dashboard({ stats }: Props) {
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <span className="font-semibold">
-                                            ${parseFloat(product.price.toString()).toLocaleString('es-CL')}
+                                            {formatPrice(product.price)}
                                         </span>
                                         <Badge variant={product.is_active ? 'default' : 'secondary'}>
                                             {product.is_active ? 'Activo' : 'Inactivo'}

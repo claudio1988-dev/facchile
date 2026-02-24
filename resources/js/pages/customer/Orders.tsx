@@ -5,7 +5,7 @@ import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Package, ChevronRight, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 
 interface Order {
     id: number;
@@ -90,7 +90,7 @@ export default function Orders({ orders = [] }: Props) {
                                             </div>
                                             <div className="text-right min-w-[80px]">
                                                 <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block mb-1">Total</span>
-                                                <div className="text-sm font-bold text-brand-primary dark:text-white">${order.total.toLocaleString('es-CL')}</div>
+                                                <div className="text-sm font-bold text-brand-primary dark:text-white">{formatPrice(order.total)}</div>
                                             </div>
                                             <Link 
                                                 href={`/customer/orders/${order.id}`} 

@@ -20,9 +20,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Search, Eye } from 'lucide-react';
+import { Search, Eye, Edit2, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Order {
@@ -95,6 +95,12 @@ export default function Index({ orders, filters }: Props) {
             { ...filters, [key]: value === 'all' ? '' : value },
             { preserveState: true }
         );
+    };
+
+    const handleDelete = (id: number, orderNumber: string) => {
+        if (confirm(`¿Eliminar el pedido ${orderNumber}? Esta acción es irreversible.`)) {
+            router.delete(`/adminfacchile/orders/${id}`);
+        }
     };
 
     return (
@@ -191,14 +197,28 @@ export default function Index({ orders, filters }: Props) {
                                                     {paymentStatusMap[order.payment_status]?.label || order.payment_status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell>${parseFloat(order.total.toString()).toLocaleString('es-CL')}</TableCell>
+                                            <TableCell>{formatPrice(order.total)}</TableCell>
                                             <TableCell className="text-right">
-                                                <Link href={`/adminfacchile/orders/${order.id}`}>
-                                                    <Button variant="outline" size="sm">
-                                                        <Eye className="size-4 mr-2" />
-                                                        Ver Detalles
+                                                <div className="flex justify-end gap-1.5">
+                                                    <Link href={`/adminfacchile/orders/${order.id}`}>
+                                                        <Button variant="outline" size="icon" title="Ver detalle">
+                                                            <Eye className="size-4" />
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={`/adminfacchile/orders/${order.id}/edit`}>
+                                                        <Button variant="outline" size="icon" title="Editar">
+                                                            <Edit2 className="size-4" />
+                                                        </Button>
+                                                    </Link>
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        title="Eliminar"
+                                                        onClick={() => handleDelete(order.id, order.order_number)}
+                                                    >
+                                                        <Trash2 className="size-4" />
                                                     </Button>
-                                                </Link>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))

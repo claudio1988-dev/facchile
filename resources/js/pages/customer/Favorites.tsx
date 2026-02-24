@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
@@ -70,7 +71,7 @@ export default function Favorites({ favorites = [] }: Props) {
                                     <div className="p-3">
                                         <h3 className="font-bold text-[11px] uppercase tracking-tight text-slate-900 dark:text-white line-clamp-2 mb-1 min-h-[32px]">{product.name}</h3>
                                         <div className="text-sm font-black text-brand-primary mb-3">
-                                            ${product.base_price.toLocaleString('es-CL')}
+                                            {formatPrice(product.base_price)}
                                         </div>
                                         <div className="grid grid-cols-1 gap-1.5">
                                             <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold uppercase tracking-tighter" asChild>

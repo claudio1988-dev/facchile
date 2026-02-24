@@ -15,7 +15,7 @@ import {
     ShoppingBag,
     ArrowRight,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 
 interface OrderData {
     found: boolean;
@@ -116,8 +116,7 @@ export default function OrderTrackingModal({ open, onClose }: Props) {
     const currentStepIndex = order ? STATUS_ORDER.indexOf(order.status) : -1;
     const isCancelled = order?.status === 'cancelled';
 
-    const formatPrice = (price: string | number) =>
-        `$${Number(price).toLocaleString('es-CL')}`;
+
 
     const paymentMethodLabel: Record<string, string> = {
         transfer: 'Transferencia Bancaria',

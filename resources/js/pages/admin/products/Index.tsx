@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -249,10 +250,7 @@ export default function Index({ products, filters, categories, brands }: Props) 
                                             <TableCell>{product.category || '-'}</TableCell>
                                             <TableCell>{product.brand || '-'}</TableCell>
                                             <TableCell>
-                                                $
-                                                {parseFloat(
-                                                    product.base_price.toString()
-                                                ).toLocaleString('es-CL')}
+                                                {formatPrice(product.base_price)}
                                             </TableCell>
                                             <TableCell>
                                                 <Badge

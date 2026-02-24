@@ -6,7 +6,7 @@ import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Package, MapPin, User, Heart, LogOut } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 
 export default function Dashboard(props: { recentOrders?: any[] }) {
     const { auth } = usePage<SharedData>().props;
@@ -93,7 +93,7 @@ export default function Dashboard(props: { recentOrders?: any[] }) {
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="text-sm font-bold text-slate-900 dark:text-white">
-                                                            ${parseFloat(order.total).toLocaleString('es-CL')}
+                                                            {formatPrice(order.total)}
                                                         </p>
                                                         <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
                                                             {order.status}

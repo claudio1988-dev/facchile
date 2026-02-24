@@ -1,5 +1,6 @@
 
 import { Head, Link } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -154,7 +155,7 @@ export default function Show({ product }: Props) {
                                                     <p className="text-sm text-muted-foreground">SKU: {variant.sku || '-'} | Stock: {variant.stock_quantity}</p>
                                                 </div>
                                                 <div className="font-bold text-lg">
-                                                    ${parseFloat(variant.price).toLocaleString('es-CL')}
+                                                    {formatPrice(variant.price)}
                                                 </div>
                                             </div>
                                         ))}
@@ -193,7 +194,7 @@ export default function Show({ product }: Props) {
                             <CardContent className="space-y-4">
                                 <div>
                                     <h4 className="font-semibold text-sm text-muted-foreground">Precio Base</h4>
-                                    <p className="text-2xl font-bold">${parseFloat(product.base_price).toLocaleString('es-CL')}</p>
+                                    <p className="text-2xl font-bold">{formatPrice(product.base_price)}</p>
                                 </div>
                                 
                                 <div className="space-y-2 pt-2 border-t">

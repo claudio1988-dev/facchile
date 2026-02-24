@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -156,7 +157,7 @@ export default function Show({ customer, stats }: Props) {
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-muted-foreground">Total Gastado</span>
                                     <span className="font-bold text-lg text-green-600">
-                                        ${stats.total_spent.toLocaleString('es-CL')}
+                                        {formatPrice(stats.total_spent)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center border-t pt-4">
@@ -207,7 +208,7 @@ export default function Show({ customer, stats }: Props) {
                                                         {order.payment_status === 'paid' ? 'Pagado' : 'Pendiente'}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell>${order.total.toLocaleString('es-CL')}</TableCell>
+                                                <TableCell>{formatPrice(order.total)}</TableCell>
                                                 <TableCell>
                                                     <Link href={`/adminfacchile/orders/${order.id}`}>
                                                         <Button variant="ghost" size="sm">

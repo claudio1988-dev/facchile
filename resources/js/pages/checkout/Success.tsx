@@ -5,6 +5,7 @@ import WhatsAppFloating from '@/components/WhatsAppFloating';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { CheckCircle2, Package, ArrowRight, Printer, Wallet, Info, MessageCircle } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 
 interface OrderItem {
     product_name: string;
@@ -66,12 +67,12 @@ export default function Success({ order }: Props) {
                                         {order.items.map((item, idx) => (
                                             <div key={idx} className="flex justify-between text-sm">
                                                 <span className="text-gray-600">{item.quantity}x {item.product_name}</span>
-                                                <span className="font-medium">${Number(item.unit_price).toLocaleString('es-CL')}</span>
+                                                <span className="font-medium">{formatPrice(item.unit_price)}</span>
                                             </div>
                                         ))}
                                         <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
                                             <span>Total Pagado</span>
-                                            <span>${Number(order.total).toLocaleString('es-CL')}</span>
+                                            <span>{formatPrice(order.total)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -110,7 +111,7 @@ export default function Success({ order }: Props) {
 
                                         {/* WhatsApp Button */}
                                         <a
-                                            href={`https://wa.me/56978155169?text=${encodeURIComponent(`Hola! Acabo de realizar una transferencia para el pedido *#${order.order_number}* por un total de *$${Number(order.total).toLocaleString('es-CL')}*. Adjunto el comprobante. ¡Gracias!`)}`}
+                                            href={`https://wa.me/56978155169?text=${encodeURIComponent(`Hola! Acabo de realizar una transferencia para el pedido *#${order.order_number}* por un total de *${formatPrice(order.total)}*. Adjunto el comprobante. ¡Gracias!`)}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-3 w-full mt-4 bg-[#25D366] hover:bg-[#20b858] text-white font-bold py-3 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md"

@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
@@ -68,7 +69,7 @@ export default function FeaturedProducts({ products = [] }: Props) {
                                 </div>
                                 <div className="text-right ml-4">
                                     <p className="text-sm font-bold text-text-main dark:text-white">
-                                        ${parseFloat(product.base_price.toString()).toLocaleString('es-CL')}
+                                        {formatPrice(product.base_price)}
                                     </p>
                                 </div>
                             </div>

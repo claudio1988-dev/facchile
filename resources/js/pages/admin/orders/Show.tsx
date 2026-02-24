@@ -1,5 +1,6 @@
 
 import { Head, Link, router } from '@inertiajs/react';
+import { formatPrice } from '@/lib/utils';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -176,7 +177,7 @@ export default function Show({ order }: Props) {
                                             </div>
                                             <div className="flex justify-between text-xs mt-1">
                                                 <span>Total:</span>
-                                                <span className="font-semibold">${parseFloat(order.total.toString()).toLocaleString('es-CL')}</span>
+                                                <span className="font-semibold">{formatPrice(order.total)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -238,11 +239,11 @@ export default function Show({ order }: Props) {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    ${parseFloat(item.unit_price.toString()).toLocaleString('es-CL')}
+                                                    {formatPrice(item.unit_price)}
                                                 </TableCell>
                                                 <TableCell className="text-center">{item.quantity}</TableCell>
                                                 <TableCell className="text-right font-bold">
-                                                    ${parseFloat(item.subtotal.toString()).toLocaleString('es-CL')}
+                                                    {formatPrice(item.subtotal)}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -266,19 +267,19 @@ export default function Show({ order }: Props) {
                                 <div className="mt-6 space-y-2 border-t pt-4">
                                     <div className="flex justify-between text-sm">
                                         <span>Subtotal</span>
-                                        <span>${parseFloat(order.subtotal.toString()).toLocaleString('es-CL')}</span>
+                                        <span>{formatPrice(order.subtotal)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span>Envío</span>
-                                        <span>${parseFloat(order.shipping_cost.toString()).toLocaleString('es-CL')}</span>
+                                        <span>{formatPrice(order.shipping_cost)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span>Impuesto (19%)</span>
-                                        <span>${parseFloat(order.tax.toString()).toLocaleString('es-CL')}</span>
+                                        <span>{formatPrice(order.tax)}</span>
                                     </div>
                                     <div className="flex justify-between font-bold text-lg pt-2 border-t border-dashed">
                                         <span>Total</span>
-                                        <span>${parseFloat(order.total.toString()).toLocaleString('es-CL')}</span>
+                                        <span>{formatPrice(order.total)}</span>
                                     </div>
                                 </div>
                             </CardContent>
