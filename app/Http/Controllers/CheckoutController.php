@@ -42,6 +42,8 @@ class CheckoutController extends Controller
                 }) : [],
              ] : null,
              'regions' => \App\Models\Region::with('communes')->get(),
+             'carriers' => \App\Models\Carrier::where('is_active', true)->get(['id', 'name', 'code']),
         ]);
     }
 }
+

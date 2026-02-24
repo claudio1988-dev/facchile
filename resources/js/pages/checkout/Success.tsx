@@ -71,9 +71,13 @@ export default function Success({ order }: Props) {
                                             </div>
                                         ))}
                                         <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
-                                            <span>Total Pagado</span>
+                                            <span>Total Productos</span>
                                             <span>{formatPrice(order.total)}</span>
                                         </div>
+                                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+                                            <span>🚚</span>
+                                            El costo del despacho se paga al recibir el pedido.
+                                        </p>
                                     </div>
                                 </div>
 

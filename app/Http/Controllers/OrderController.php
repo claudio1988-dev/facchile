@@ -31,6 +31,7 @@ class OrderController extends Controller
             'shipping_address.region_id' => 'required|exists:regions,id',
             'shipping_address.commune_id' => 'required|exists:communes,id',
             'payment_method' => 'required|string|in:webpay,transfer',
+            'carrier_id' => 'nullable|exists:carriers,id',
         ]);
 
         try {
@@ -112,33 +113,20 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Calculate Total Weight (Simulated as 1.5kg per item if not in DB)
-            $totalWeight = 0;
-            foreach ($validated['items'] as $item) {
-                // Future: fetch weight from product/variant
-                $totalWeight += ($item['quantity'] * 1.5); 
-            }
-
-            $calculator = new \App\Services\ShippingCalculator();
-            $shippingResult = $calculator->calculate(
-                $validated['shipping_address']['region_id'], 
-                $validated['shipping_address']['commune_id'], 
-                $totalWeight
-            );
-            
-            $shippingCost = $shippingResult['cost']; 
+            // Shipping is paid on delivery — no cost added to the order
             $netTotal = round($subtotal / 1.19);
             $tax = $subtotal - $netTotal;
-            $total = $subtotal + $shippingCost;
+            $total = $subtotal;
 
             // 6. Create Order
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(Str::random(10)),
                 'customer_id' => $customer->id,
                 'shipping_address_id' => $address->id,
+                'carrier_id' => $validated['carrier_id'] ?? null,
                 'status' => 'pending',
-                'subtotal' => $subtotal, 
-                'shipping_cost' => $shippingCost,
+                'subtotal' => $subtotal,
+                'shipping_cost' => 0,
                 'tax' => $tax,
                 'total' => $total,
                 'payment_status' => 'pending',
@@ -146,6 +134,8 @@ class OrderController extends Controller
                 'metadata' => [
                     'payment_method' => $validated['payment_method'],
                     'customer_ip' => $request->ip(),
+                    'shipping_mode' => 'paid_on_delivery',
+                    'carrier_id' => $validated['carrier_id'] ?? null,
                 ]
             ]);
 

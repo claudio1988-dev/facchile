@@ -1,5 +1,4 @@
 import { Head, Link, router } from '@inertiajs/react';
-import axios from 'axios';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
 import WhatsAppFloating from '@/components/WhatsAppFloating';
@@ -22,10 +21,11 @@ import {
     ChevronLeft,
     Wallet,
     CheckCircle2,
-    Info
+    Info,
+    Truck
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn, formatPrice } from '@/lib/utils';
 import checkout from '@/routes/checkout';
@@ -60,18 +60,15 @@ interface Props {
         }[];
     } | null;
     regions: Region[];
+    carriers: { id: number; name: string; code: string }[];
 }
 
 type CheckoutStep = 'cart' | 'shipping' | 'payment';
 
-export default function Index({ isVerified, customer, regions }: Props) {
+export default function Index({ isVerified, customer, regions, carriers }: Props) {
     const { items, getTotal, hasRestrictedItems, removeFromCart, updateQuantity, clearCart } = useCartStore();
     const [step, setStep] = useState<CheckoutStep>('cart');
     const [processing, setProcessing] = useState(false);
-    
-    // Shipping Calculation State
-    const [shippingCost, setShippingCost] = useState<number | null>(null);
-    const [loadingShipping, setLoadingShipping] = useState(false);
 
     // Form States
     const [formData, setFormData] = useState({
@@ -84,6 +81,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
         address_line2: '',
         region_id: '',
         commune_id: '',
+        carrier_id: '' as string,
         payment_method: 'webpay' as 'webpay' | 'transfer'
     });
 
@@ -93,31 +91,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
         return region?.communes || [];
     }, [formData.region_id, regions]);
 
-    // Calculate Shipping Effect
-    useEffect(() => {
-        if (formData.region_id) {
-            setLoadingShipping(true);
-            
-            // Calculate total weight (simulated)
-            const simulatedWeight = items.reduce((acc, item) => acc + (item.quantity * 1.5), 0);
-
-            axios.post('/api/shipping/calculate', {
-                region_id: formData.region_id,
-                commune_id: formData.commune_id || null,
-                weight: simulatedWeight
-            })
-            .then(response => {
-                setShippingCost(response.data.cost);
-            })
-            .catch(error => {
-                console.error("Error calculating shipping:", error);
-                setShippingCost(null);
-            })
-            .finally(() => setLoadingShipping(false));
-        } else {
-            setShippingCost(null);
-        }
-    }, [formData.region_id, formData.commune_id, items]);
+    // Calculate Shipping Effect — removed: shipping is paid on delivery
 
     // Check if cart has restricted items
     const restrictedItemsPresent = hasRestrictedItems();
@@ -165,7 +139,8 @@ export default function Index({ isVerified, customer, regions }: Props) {
                 region_id: formData.region_id,
                 commune_id: formData.commune_id
             },
-            payment_method: formData.payment_method
+            payment_method: formData.payment_method,
+            carrier_id: formData.carrier_id || null,
         };
 
         router.post(checkout.process.url(), payload, {
@@ -181,7 +156,6 @@ export default function Index({ isVerified, customer, regions }: Props) {
     };
 
     const total = getTotal();
-    const finalTotal = total + (shippingCost || 0);
 
     return (
         <>
@@ -415,6 +389,42 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                                 </div>
                                             </CardContent>
                                         </Card>
+                                        {/* Carrier preference selector */}
+                                        {carriers.length > 0 && (
+                                            <Card className="border-slate-200 dark:border-slate-800">
+                                                <CardHeader>
+                                                    <CardTitle className="flex items-center gap-2 text-brand-primary">
+                                                        <Truck className="size-5" />
+                                                        Empresa de Despacho Preferida
+                                                    </CardTitle>
+                                                    <CardDescription>
+                                                        Indica tu preferencia. El costo del envío lo pagas al recibir el pedido.
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent className="grid gap-3 sm:grid-cols-2">
+                                                    {carriers.map((carrier) => (
+                                                        <div
+                                                            key={carrier.id}
+                                                            className={cn(
+                                                                "flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all",
+                                                                formData.carrier_id === carrier.id.toString()
+                                                                    ? "border-brand-primary bg-brand-primary/5 shadow-sm"
+                                                                    : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700"
+                                                            )}
+                                                            onClick={() => setFormData(prev => ({ ...prev, carrier_id: carrier.id.toString() }))}
+                                                        >
+                                                            <div className={cn(
+                                                                "size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                                                                formData.carrier_id === carrier.id.toString() ? "border-brand-primary bg-brand-primary" : "border-slate-300"
+                                                            )}>
+                                                                {formData.carrier_id === carrier.id.toString() && <div className="size-2 bg-white rounded-full" />}
+                                                            </div>
+                                                            <span className="text-sm font-bold text-slate-800 dark:text-white">{carrier.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </CardContent>
+                                            </Card>
+                                        )}
                                     </div>
                                 )}
 
@@ -541,23 +551,19 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                     <CardContent className="space-y-6 pt-6">
                                         <div className="space-y-3">
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-slate-500 font-medium">Subtotal</span>
+                                                <span className="text-slate-500 font-medium">Subtotal productos</span>
                                                 <span className="text-slate-900 dark:text-white font-bold">{formatPrice(total)}</span>
                                             </div>
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-sm items-center">
                                                 <span className="text-slate-500 font-medium">Envío</span>
-                                                {loadingShipping ? (
-                                                     <span className="text-slate-400 font-medium animate-pulse">Calculando...</span>
-                                                ) : (
-                                                    <span className={cn("font-black uppercase text-[10px]", shippingCost !== null ? 'text-slate-900 dark:text-white text-sm' : 'text-slate-400')}>
-                                                        {shippingCost !== null ? formatPrice(shippingCost) : 'Por calcular'}
-                                                    </span>
-                                                )}
+                                                <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                                    <Truck className="size-3.5" /> A pagar al recibir
+                                                </span>
                                             </div>
                                             <div className="border-t dark:border-slate-800 pt-4 flex justify-between items-baseline font-black">
                                                 <span className="text-slate-900 dark:text-white uppercase text-sm">Total a pagar</span>
                                                 <span className="text-2xl text-brand-primary dark:text-brand-secondary">
-                                                    {formatPrice(finalTotal)}
+                                                    {formatPrice(total)}
                                                 </span>
                                             </div>
                                         </div>
@@ -566,7 +572,7 @@ export default function Index({ isVerified, customer, regions }: Props) {
                                             {step === 'payment' ? (
                                                 <Button 
                                                     className="w-full text-sm font-black uppercase tracking-widest h-14 bg-action-buy hover:bg-brand-secondary text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                                    disabled={processing || loadingShipping}
+                                                    disabled={processing}
                                                     onClick={handleCheckout}
                                                 >
                                                     {processing ? (
