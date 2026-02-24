@@ -118,10 +118,14 @@ class OrderController extends Controller
             $tax = $subtotal - $netTotal;
             $total = $subtotal;
 
-            // Resolve carrier by code
+            // Resolve carrier by code (safe fallback if table unavailable)
             $carrierRecord = null;
             if (!empty($validated['carrier_id'])) {
-                $carrierRecord = \App\Models\Carrier::where('code', $validated['carrier_id'])->first();
+                try {
+                    $carrierRecord = \App\Models\Carrier::where('code', $validated['carrier_id'])->first();
+                } catch (\Exception $e) {
+                    // carriers table unavailable, proceed without carrier_id
+                }
             }
 
             // 6. Create Order
