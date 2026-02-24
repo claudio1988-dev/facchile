@@ -31,7 +31,7 @@ class OrderController extends Controller
             'shipping_address.region_id' => 'required|exists:regions,id',
             'shipping_address.commune_id' => 'required|exists:communes,id',
             'payment_method' => 'required|string|in:webpay,transfer',
-            'carrier_id' => 'nullable|exists:carriers,id',
+            'carrier_id' => 'nullable|string|max:50',
         ]);
 
         try {
@@ -118,12 +118,18 @@ class OrderController extends Controller
             $tax = $subtotal - $netTotal;
             $total = $subtotal;
 
+            // Resolve carrier by code
+            $carrierRecord = null;
+            if (!empty($validated['carrier_id'])) {
+                $carrierRecord = \App\Models\Carrier::where('code', $validated['carrier_id'])->first();
+            }
+
             // 6. Create Order
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(Str::random(10)),
                 'customer_id' => $customer->id,
                 'shipping_address_id' => $address->id,
-                'carrier_id' => $validated['carrier_id'] ?? null,
+                'carrier_id' => $carrierRecord?->id,
                 'status' => 'pending',
                 'subtotal' => $subtotal,
                 'shipping_cost' => 0,

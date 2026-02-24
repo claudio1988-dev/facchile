@@ -65,10 +65,30 @@ interface Props {
 
 type CheckoutStep = 'cart' | 'shipping' | 'payment';
 
-export default function Index({ isVerified, customer, regions, carriers }: Props) {
+// Chilean carriers — shown even if DB is empty
+const DEFAULT_CARRIERS = [
+    { id: -1, name: 'Chilexpress', code: 'CHILEXPRESS', icon: '📦' },
+    { id: -2, name: 'Correos Chile', code: 'CORREOS_CHILE', icon: '✉️' },
+    { id: -3, name: 'Starken', code: 'STARKEN', icon: '⭐' },
+    { id: -4, name: 'Blue Express', code: 'BLUE_EXPRESS', icon: '🔵' },
+    { id: -5, name: 'Retiro en Tienda', code: 'PICKUP', icon: '🏪' },
+];
+
+const CARRIER_ICONS: Record<string, string> = {
+    CHILEXPRESS: '📦',
+    CORREOS_CHILE: '✉️',
+    STARKEN: '⭐',
+    BLUE_EXPRESS: '🔵',
+    PICKUP: '🏪',
+};
+
+export default function Index({ isVerified, customer, regions, carriers: dbCarriers }: Props) {
     const { items, getTotal, hasRestrictedItems, removeFromCart, updateQuantity, clearCart } = useCartStore();
     const [step, setStep] = useState<CheckoutStep>('cart');
     const [processing, setProcessing] = useState(false);
+
+    // Use DB carriers if available, otherwise show Chilean defaults
+    const carriers = dbCarriers && dbCarriers.length > 0 ? dbCarriers : DEFAULT_CARRIERS;
 
     // Form States
     const [formData, setFormData] = useState({
@@ -390,41 +410,54 @@ export default function Index({ isVerified, customer, regions, carriers }: Props
                                             </CardContent>
                                         </Card>
                                         {/* Carrier preference selector */}
-                                        {carriers.length > 0 && (
-                                            <Card className="border-slate-200 dark:border-slate-800">
-                                                <CardHeader>
-                                                    <CardTitle className="flex items-center gap-2 text-brand-primary">
-                                                        <Truck className="size-5" />
-                                                        Empresa de Despacho Preferida
-                                                    </CardTitle>
-                                                    <CardDescription>
-                                                        Indica tu preferencia. El costo del envío lo pagas al recibir el pedido.
-                                                    </CardDescription>
-                                                </CardHeader>
-                                                <CardContent className="grid gap-3 sm:grid-cols-2">
-                                                    {carriers.map((carrier) => (
+                                        <Card className="border-slate-200 dark:border-slate-800">
+                                            <CardHeader>
+                                                <CardTitle className="flex items-center gap-2 text-brand-primary">
+                                                    <Truck className="size-5" />
+                                                    Empresa de Despacho Preferida
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    Indica tu preferencia. El costo del envío lo pagas al recibir el pedido.
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                                {carriers.map((carrier) => {
+                                                    const icon = CARRIER_ICONS[carrier.code] ?? '🚚';
+                                                    const isSelected = formData.carrier_id === carrier.code;
+                                                    return (
                                                         <div
                                                             key={carrier.id}
                                                             className={cn(
-                                                                "flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all",
-                                                                formData.carrier_id === carrier.id.toString()
-                                                                    ? "border-brand-primary bg-brand-primary/5 shadow-sm"
-                                                                    : "border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700"
+                                                                "flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all select-none",
+                                                                isSelected
+                                                                    ? "border-brand-primary bg-brand-primary/5 shadow-md ring-1 ring-brand-primary"
+                                                                    : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-900"
                                                             )}
-                                                            onClick={() => setFormData(prev => ({ ...prev, carrier_id: carrier.id.toString() }))}
+                                                            onClick={() => setFormData(prev => ({ ...prev, carrier_id: carrier.code }))}
                                                         >
+                                                            <span className="text-2xl shrink-0" role="img">{icon}</span>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className={cn(
+                                                                    "text-sm font-bold leading-tight",
+                                                                    isSelected ? "text-brand-primary" : "text-slate-800 dark:text-white"
+                                                                )}>
+                                                                    {carrier.name}
+                                                                </p>
+                                                                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
+                                                                    Flete a pagar al recibir
+                                                                </p>
+                                                            </div>
                                                             <div className={cn(
                                                                 "size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
-                                                                formData.carrier_id === carrier.id.toString() ? "border-brand-primary bg-brand-primary" : "border-slate-300"
+                                                                isSelected ? "border-brand-primary bg-brand-primary" : "border-slate-300"
                                                             )}>
-                                                                {formData.carrier_id === carrier.id.toString() && <div className="size-2 bg-white rounded-full" />}
+                                                                {isSelected && <div className="size-2 bg-white rounded-full" />}
                                                             </div>
-                                                            <span className="text-sm font-bold text-slate-800 dark:text-white">{carrier.name}</span>
                                                         </div>
-                                                    ))}
-                                                </CardContent>
-                                            </Card>
-                                        )}
+                                                    );
+                                                })}
+                                            </CardContent>
+                                        </Card>
                                     </div>
                                 )}
 
