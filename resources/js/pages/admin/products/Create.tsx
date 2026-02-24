@@ -13,6 +13,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, Upload, X, Image as ImageIcon } from 'lucide-react';
+import CategoryTreeSelect from '@/components/admin/CategoryTreeSelect';
 import type { BreadcrumbItem } from '@/types';
 import { useState, useRef } from 'react';
 import { compressImage } from '@/lib/image-compression';
@@ -21,6 +22,7 @@ import { toast } from 'sonner';
 interface Category {
     id: number;
     name: string;
+    parent_id: number | null;
 }
 
 interface Brand {
@@ -388,32 +390,13 @@ export default function Create({ categories, brands, restrictionTypes }: Props) 
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="category_id">Categoría *</Label>
-                                        <Select
+                                        <Label>Categoría *</Label>
+                                        <CategoryTreeSelect
+                                            categories={categories}
                                             value={data.category_id}
-                                            onValueChange={(value) =>
-                                                setData('category_id', value)
-                                            }
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecciona una categoría" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categories.map((category) => (
-                                                    <SelectItem
-                                                        key={category.id}
-                                                        value={category.id.toString()}
-                                                    >
-                                                        {category.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.category_id && (
-                                            <p className="text-sm text-destructive">
-                                                {errors.category_id}
-                                            </p>
-                                        )}
+                                            onChange={(value) => setData('category_id', value)}
+                                            error={errors.category_id}
+                                        />
                                     </div>
 
                                     <div className="space-y-2">

@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, ExternalLink } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
 
 interface RestrictionType {
@@ -81,12 +81,24 @@ export default function Show({ product }: Props) {
                             </p>
                         </div>
                     </div>
-                    <Link href={`/adminfacchile/products/${product.id}/edit`}>
-                        <Button>
-                            <Edit className="mr-2 size-4" />
-                            Editar Producto
-                        </Button>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <a
+                            href={`/producto/${product.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Button variant="outline" className="gap-2">
+                                <ExternalLink className="size-4" />
+                                Ver en tienda
+                            </Button>
+                        </a>
+                        <Link href={`/adminfacchile/products/${product.id}/edit`}>
+                            <Button className="gap-2">
+                                <Edit className="size-4" />
+                                Editar Producto
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-3">

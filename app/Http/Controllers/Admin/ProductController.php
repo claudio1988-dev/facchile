@@ -61,9 +61,8 @@ class ProductController extends Controller
     public function create(): Response
     {
         return Inertia::render('admin/products/Create', [
-            'categories' => Category::select('id', 'name')->get(),
+            'categories' => Category::select('id', 'name', 'parent_id')->orderBy('parent_id')->orderBy('name')->get(),
             'brands' => Brand::select('id', 'name')->get(),
-            'shippingClasses' => ShippingClass::select('id', 'name')->get(),
             'restrictionTypes' => RestrictionType::select('id', 'name')->get(),
         ]);
     }
@@ -137,7 +136,6 @@ class ProductController extends Controller
             ],
             'categories' => Category::select('id', 'name', 'parent_id')->orderBy('parent_id')->orderBy('name')->get(),
             'brands' => Brand::select('id', 'name')->get(),
-            'shippingClasses' => ShippingClass::select('id', 'name')->get(),
             'restrictionTypes' => RestrictionType::select('id', 'name')->get(),
         ]);
     }

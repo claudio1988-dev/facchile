@@ -14,11 +14,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { cn, formatPrice } from '@/lib/utils';
-import { ArrowLeft, Trash, Edit as EditIcon, Upload, X, Image as ImageIcon, ChevronDown, Check } from 'lucide-react';
+import { ArrowLeft, Trash, Edit as EditIcon, Upload, X, Image as ImageIcon, ChevronDown, Check, ExternalLink } from 'lucide-react';
 import type { BreadcrumbItem } from '@/types';
 import { useState, useRef } from 'react';
 import { compressImage } from '@/lib/image-compression';
 import { toast } from 'sonner';
+import CategoryTreeSelect from '@/components/admin/CategoryTreeSelect';
 
 interface Category {
     id: number;
@@ -350,18 +351,30 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
 
             <div className="space-y-6 p-6">
                 {/* Header */}
-                <div className="flex items-center gap-4">
-                    <Link href="/adminfacchile/products">
-                        <Button variant="outline" size="icon">
-                            <ArrowLeft className="size-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Editar Producto</h1>
-                        <p className="text-muted-foreground">
-                            {product.name}
-                        </p>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Link href="/adminfacchile/products">
+                            <Button variant="outline" size="icon">
+                                <ArrowLeft className="size-4" />
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight">Editar Producto</h1>
+                            <p className="text-muted-foreground">
+                                {product.name}
+                            </p>
+                        </div>
                     </div>
+                    <a
+                        href={`/producto/${product.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <Button variant="outline" className="gap-2">
+                            <ExternalLink className="size-4" />
+                            Ver en tienda
+                        </Button>
+                    </a>
                 </div>
 
                 {/* Main Form */}
@@ -672,13 +685,13 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="category_id">Categoría *</Label>
-                                        <CategoryTreeSelector
+                                        <Label>Categoría *</Label>
+                                        <CategoryTreeSelect
                                             categories={categories}
-                                            value={data.category_id}
-                                            onChange={(id) => setData('category_id', id)}
+                                            value={data.category_id.toString()}
+                                            onChange={(id) => setData('category_id', parseInt(id))}
+                                            error={errors.category_id}
                                         />
-                                        {errors.category_id && <p className="text-sm text-destructive">{errors.category_id}</p>}
                                     </div>
 
                                     <div className="space-y-2">

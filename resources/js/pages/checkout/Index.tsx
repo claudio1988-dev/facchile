@@ -130,7 +130,8 @@ export default function Index({ isVerified, customer, regions, carriers: dbCarri
                 formData.phone?.trim() !== '' &&
                 formData.address_line1?.trim() !== '' &&
                 formData.region_id !== '' &&
-                formData.commune_id !== ''
+                formData.commune_id !== '' &&
+                formData.carrier_id !== ''
             );
         }
         return true;
