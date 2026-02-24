@@ -31,11 +31,6 @@ interface Brand {
     name: string;
 }
 
-interface ShippingClass {
-    id: number;
-    name: string;
-}
-
 interface RestrictionType {
     id: number;
     name: string;
@@ -47,7 +42,6 @@ interface Product {
     slug: string;
     category_id: number;
     brand_id: number | null;
-    shipping_class_id: number;
     description: string | null;
     short_description: string | null;
     base_price: string;
@@ -73,7 +67,6 @@ interface Props {
     product: Product;
     categories: Category[];
     brands: Brand[];
-    shippingClasses: ShippingClass[];
     restrictionTypes: RestrictionType[];
 }
 
@@ -177,14 +170,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Edit({ product, categories, brands, shippingClasses, restrictionTypes }: Props) {
+export default function Edit({ product, categories, brands, restrictionTypes }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         name: product.name,
         slug: product.slug,
         category_id: product.category_id,
         brand_id: product.brand_id,
-        shipping_class_id: product.shipping_class_id,
         description: product.description || '',
         short_description: product.short_description || '',
         base_price: product.base_price,
@@ -708,25 +700,6 @@ export default function Edit({ product, categories, brands, shippingClasses, res
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="shipping_class_id">Clase de Envío *</Label>
-                                        <Select
-                                            value={data.shipping_class_id.toString()}
-                                            onValueChange={(value) => setData('shipping_class_id', parseInt(value))}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecciona clase de envío" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {shippingClasses.map((shippingClass) => (
-                                                    <SelectItem key={shippingClass.id} value={shippingClass.id.toString()}>
-                                                        {shippingClass.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.shipping_class_id && <p className="text-sm text-destructive">{errors.shipping_class_id}</p>}
-                                    </div>
                                 </CardContent>
                             </Card>
 

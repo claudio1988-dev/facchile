@@ -28,7 +28,6 @@ interface Product {
     slug: string;
     category: { id: number; name: string } | null;
     brand: { id: number; name: string } | null;
-    shipping_class: { id: number; name: string } | null;
     description: string | null;
     short_description: string | null;
     base_price: string;
@@ -179,10 +178,6 @@ export default function Show({ product }: Props) {
                                 <div>
                                     <h4 className="font-semibold text-sm text-muted-foreground">Marca</h4>
                                     <p>{product.brand?.name || 'Sin marca'}</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-sm text-muted-foreground">Clase de Envío</h4>
-                                    <p>{product.shipping_class?.name || 'No definido'}</p>
                                 </div>
                             </CardContent>
                         </Card>

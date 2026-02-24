@@ -28,11 +28,6 @@ interface Brand {
     name: string;
 }
 
-interface ShippingClass {
-    id: number;
-    name: string;
-}
-
 interface RestrictionType {
     id: number;
     name: string;
@@ -41,7 +36,6 @@ interface RestrictionType {
 interface Props {
     categories: Category[];
     brands: Brand[];
-    shippingClasses: ShippingClass[];
     restrictionTypes: RestrictionType[];
 }
 
@@ -60,13 +54,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Create({ categories, brands, shippingClasses, restrictionTypes }: Props) {
+export default function Create({ categories, brands, restrictionTypes }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         slug: '',
         category_id: '',
         brand_id: '',
-        shipping_class_id: '',
         description: '',
         short_description: '',
         base_price: '',
@@ -445,36 +438,6 @@ export default function Create({ categories, brands, shippingClasses, restrictio
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="shipping_class_id">
-                                            Clase de Envío *
-                                        </Label>
-                                        <Select
-                                            value={data.shipping_class_id}
-                                            onValueChange={(value) =>
-                                                setData('shipping_class_id', value)
-                                            }
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecciona clase de envío" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {shippingClasses.map((shippingClass) => (
-                                                    <SelectItem
-                                                        key={shippingClass.id}
-                                                        value={shippingClass.id.toString()}
-                                                    >
-                                                        {shippingClass.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.shipping_class_id && (
-                                            <p className="text-sm text-destructive">
-                                                {errors.shipping_class_id}
-                                            </p>
-                                        )}
-                                    </div>
                                 </CardContent>
                             </Card>
 
