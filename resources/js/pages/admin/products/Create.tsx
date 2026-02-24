@@ -98,13 +98,6 @@ export default function Create({ categories, brands, shippingClasses, restrictio
             .replace(/(^-|-$)/g, '');
     };
 
-    const handleNameChange = (value: string) => {
-        setData('name', value);
-        if (!data.slug) {
-            setData('slug', generateSlug(value));
-        }
-    };
-
     const handleRestrictionChange = (id: number, checked: boolean) => {
         const current = data.restriction_type_ids;
         if (checked) {
@@ -217,7 +210,14 @@ export default function Create({ categories, brands, shippingClasses, restrictio
                                         <Input
                                             id="name"
                                             value={data.name}
-                                            onChange={(e) => handleNameChange(e.target.value)}
+                                            onChange={(e) => {
+                                                const name = e.target.value;
+                                                setData((prev) => ({
+                                                    ...prev,
+                                                    name,
+                                                    slug: generateSlug(name),
+                                                }));
+                                            }}
                                             placeholder="Ej: Rifle de Aire Comprimido"
                                         />
                                         {errors.name && (
@@ -226,12 +226,12 @@ export default function Create({ categories, brands, shippingClasses, restrictio
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="slug">Slug (URL) *</Label>
+                                        <Label htmlFor="slug">Slug (Auto-generado)</Label>
                                         <Input
                                             id="slug"
                                             value={data.slug}
-                                            onChange={(e) => setData('slug', e.target.value)}
-                                            placeholder="rifle-aire-comprimido"
+                                            readOnly
+                                            className="bg-slate-100 text-slate-500 cursor-not-allowed"
                                         />
                                         {errors.slug && (
                                             <p className="text-sm text-destructive">{errors.slug}</p>
