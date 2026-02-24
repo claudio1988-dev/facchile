@@ -105,6 +105,26 @@ class OrderController extends Controller
     }
 
     /**
+     * Confirm a bank transfer payment for an order.
+     */
+    public function confirmTransfer($id)
+    {
+        $order = \App\Models\Order::findOrFail($id);
+
+        if ($order->metadata['payment_method'] ?? '' !== 'transfer') {
+            return back()->with('error', 'Este pedido no es por transferencia bancaria.');
+        }
+
+        $order->payment_status = 'paid';
+        if ($order->status === 'pending') {
+            $order->status = 'confirmed';
+        }
+        $order->save();
+
+        return back()->with('success', 'Transferencia confirmada. El pedido ha sido actualizado a Pagado.');
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)

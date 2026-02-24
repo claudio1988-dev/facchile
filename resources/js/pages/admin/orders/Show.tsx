@@ -13,7 +13,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download, Edit, CreditCard } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, User, Truck, FileText, Download, Edit, CreditCard, CheckCircle2, AlertCircle } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -93,6 +93,7 @@ const paymentMethodMap: Record<string, { label: string; color: string }> = {
 
 const paymentStatusMap: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: 'bg-yellow-500' },
+    verifying: { label: 'En verificación', color: 'bg-amber-500' },
     paid: { label: 'Pagado', color: 'bg-green-500' },
     failed: { label: 'Fallido', color: 'bg-red-500' },
     refunded: { label: 'Reembolsado', color: 'bg-gray-500' },
@@ -102,6 +103,12 @@ export default function Show({ order }: Props) {
     const handleStatusChange = (value: string) => {
         if (confirm(`¿Cambiar estado del pedido a ${statusMap[value].label}?`)) {
             router.put(`/adminfacchile/orders/${order.id}`, { status: value });
+        }
+    };
+
+    const handleConfirmTransfer = () => {
+        if (confirm('¿Confirmar la transferencia bancaria? El pedido pasará a estado Pagado y Confirmado.')) {
+            router.post(`/adminfacchile/orders/${order.id}/confirm-transfer`);
         }
     };
 
@@ -385,10 +392,42 @@ export default function Show({ order }: Props) {
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Estado del Pago</p>
-                                    <Badge className={paymentStatusMap[order.payment_status]?.color || 'bg-gray-500'}>
-                                        {paymentStatusMap[order.payment_status]?.label || order.payment_status}
+                                    <Badge className={
+                                        (order.metadata?.payment_method?.toLowerCase() === 'transfer' && order.payment_status === 'pending')
+                                            ? paymentStatusMap.verifying.color
+                                            : (paymentStatusMap[order.payment_status]?.color || 'bg-gray-500')
+                                    }>
+                                        {(order.metadata?.payment_method?.toLowerCase() === 'transfer' && order.payment_status === 'pending')
+                                            ? paymentStatusMap.verifying.label
+                                            : (paymentStatusMap[order.payment_status]?.label || order.payment_status)}
                                     </Badge>
                                 </div>
+
+                                {/* Transfer confirmation */}
+                                {order.metadata?.payment_method === 'transfer' && order.payment_status === 'pending' && (
+                                    <div className="pt-2 border-t">
+                                        <div className="flex items-start gap-2 mb-3 p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                            <AlertCircle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                                            <p className="text-xs text-amber-800 dark:text-amber-300">
+                                                Transferencia pendiente de verificación.
+                                            </p>
+                                        </div>
+                                        <Button
+                                            className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
+                                            onClick={handleConfirmTransfer}
+                                        >
+                                            <CheckCircle2 className="size-4" />
+                                            Confirmar Transferencia
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {order.payment_status === 'paid' && (
+                                    <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                        <CheckCircle2 className="size-4 text-green-600 shrink-0" />
+                                        <p className="text-xs text-green-800 dark:text-green-300 font-semibold">Pago verificado</p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>

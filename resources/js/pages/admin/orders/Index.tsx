@@ -76,6 +76,7 @@ const paymentMethodMap: Record<string, { label: string; color: string }> = {
 
 const paymentStatusMap: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: 'bg-yellow-500 text-white' },
+    verifying: { label: 'En verificación', color: 'bg-amber-500 text-white' },
     paid: { label: 'Pagado', color: 'bg-green-500 text-white' },
     failed: { label: 'Fallido', color: 'bg-red-500 text-white' },
     refunded: { label: 'Reembolsado', color: 'bg-gray-500 text-white' },
@@ -193,8 +194,14 @@ export default function Index({ orders, filters }: Props) {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={paymentStatusMap[order.payment_status]?.color || 'bg-gray-500'}>
-                                                    {paymentStatusMap[order.payment_status]?.label || order.payment_status}
+                                                <Badge className={
+                                                    (order.payment_method?.toLowerCase() === 'transfer' && order.payment_status === 'pending')
+                                                        ? paymentStatusMap.verifying.color
+                                                        : (paymentStatusMap[order.payment_status]?.color || 'bg-gray-500')
+                                                }>
+                                                    {(order.payment_method?.toLowerCase() === 'transfer' && order.payment_status === 'pending')
+                                                        ? paymentStatusMap.verifying.label
+                                                        : (paymentStatusMap[order.payment_status]?.label || order.payment_status)}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>{formatPrice(order.total)}</TableCell>

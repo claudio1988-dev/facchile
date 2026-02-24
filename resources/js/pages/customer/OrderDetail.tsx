@@ -62,6 +62,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
         paid:       'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
         failed:     'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
         refunded:   'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+        verifying:  'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
     };
      const defaultLabel = statusMap[status]?.label || status;
     return (
@@ -85,6 +86,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 
 const paymentStatusMap: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: 'text-yellow-600 bg-yellow-50' },
+    verifying: { label: 'En verificación', color: 'text-amber-700 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-300' },
     paid: { label: 'Pagado', color: 'text-green-600 bg-green-50' },
     failed: { label: 'Fallido', color: 'text-red-600 bg-red-50' },
     refunded: { label: 'Reembolsado', color: 'text-gray-600 bg-gray-50' },
@@ -93,6 +95,10 @@ const paymentStatusMap: Record<string, { label: string; color: string }> = {
 export default function OrderDetail({ order }: Props) {
     const currentStepIndex = STATUS_ORDER.indexOf(order.status);
     const isCancelled = order.status === 'cancelled';
+
+    // If payment is transfer + pending → show as "En verificación"
+    const isTransferPending = order.metadata?.payment_method === 'transfer' && order.payment_status === 'pending';
+    const effectivePaymentStatus = isTransferPending ? 'verifying' : order.payment_status;
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('es-CL', {
@@ -109,7 +115,7 @@ export default function OrderDetail({ order }: Props) {
 
             <div className="pt-[142px] md:pt-[152px] lg:pt-[162px] flex-1 bg-slate-50/50 dark:bg-[#0a0a0a]">
                 <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
                         <Link 
                             href="/customer/orders" 
                             className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400 hover:text-brand-primary transition-colors mb-2 block"
@@ -133,7 +139,7 @@ export default function OrderDetail({ order }: Props) {
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <CreditCard className="w-3 h-3" />
-                                        <StatusBadge status={order.payment_status} label={paymentStatusMap[order.payment_status]?.label} />
+                                        <StatusBadge status={effectivePaymentStatus} label={paymentStatusMap[effectivePaymentStatus]?.label} />
                                     </div>
                                 </div>
                             </div>
@@ -154,7 +160,22 @@ export default function OrderDetail({ order }: Props) {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+                <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+
+                    {/* Transfer pending banner — full width, very visible */}
+                    {isTransferPending && (
+                        <div className="mb-6 flex items-start gap-4 p-4 sm:p-5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 shadow-sm">
+                            <Clock className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-bold text-amber-900 dark:text-amber-200 text-sm mb-0.5">
+                                    Transferencia en verificación
+                                </p>
+                                <p className="text-sm text-amber-800 dark:text-amber-300">
+                                    Tu pago está siendo verificado por nuestro equipo. Te notificaremos cuando se confirme y tu pedido sea procesado.
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Order Items */}
@@ -314,15 +335,23 @@ export default function OrderDetail({ order }: Props) {
                                     </CardHeader>
                                     <CardContent className="text-sm space-y-2">
                                         <div className="flex items-center gap-2">
-                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${paymentStatusMap[order.payment_status]?.color}`}>
-                                                {paymentStatusMap[order.payment_status]?.label}
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${paymentStatusMap[effectivePaymentStatus]?.color ?? paymentStatusMap.pending.color}`}>
+                                                {paymentStatusMap[effectivePaymentStatus]?.label ?? 'Pendiente'}
                                             </span>
                                         </div>
                                         <p className="text-slate-500">
-                                            {order.metadata?.payment_method === 'transfer' 
-                                                ? 'Transacción vía Transferencia Bancaria' 
+                                            {order.metadata?.payment_method === 'transfer'
+                                                ? 'Transacción vía Transferencia Bancaria'
                                                 : 'Transacción procesada vía Webpay Plus'}
                                         </p>
+                                        {isTransferPending && (
+                                            <div className="mt-3 flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                                                <Clock className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                                                <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                                                    Tu transferencia está siendo verificada por nuestro equipo. Te notificaremos cuando se confirme.
+                                                </p>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
 

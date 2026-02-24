@@ -25,6 +25,7 @@ Route::prefix('adminfacchile')
 
         // Orders
         Route::get('orders/{id}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+        Route::post('orders/{id}/confirm-transfer', [OrderController::class, 'confirmTransfer'])->name('orders.confirm-transfer');
         Route::resource('orders', OrderController::class);
 
         // Customers
