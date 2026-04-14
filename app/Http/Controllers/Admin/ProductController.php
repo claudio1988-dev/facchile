@@ -64,6 +64,7 @@ class ProductController extends Controller
             'categories' => Category::select('id', 'name', 'parent_id')->orderBy('parent_id')->orderBy('name')->get(),
             'brands' => Brand::select('id', 'name')->get(),
             'restrictionTypes' => RestrictionType::select('id', 'name')->get(),
+            'shippingClasses' => ShippingClass::select('id', 'name', 'code')->get(),
         ]);
     }
 
@@ -115,6 +116,8 @@ class ProductController extends Controller
 
     public function edit(Product $product): Response
     {
+        $product->load(['restrictions', 'variants']);
+
         return Inertia::render('admin/products/Edit', [
             'product' => [
                 'id' => $product->id,
@@ -132,11 +135,12 @@ class ProductController extends Controller
                 'main_image_url' => $product->main_image_url,
                 'gallery' => $product->gallery ?? [],
                 'restriction_type_ids' => $product->restrictions->pluck('id'),
-                'variants' => $product->variants, // Eager loading should tackle this if 'with' was used, else implicit lazy load
+                'variants' => $product->variants,
             ],
             'categories' => Category::select('id', 'name', 'parent_id')->orderBy('parent_id')->orderBy('name')->get(),
             'brands' => Brand::select('id', 'name')->get(),
             'restrictionTypes' => RestrictionType::select('id', 'name')->get(),
+            'shippingClasses' => ShippingClass::select('id', 'name', 'code')->get(),
         ]);
     }
 
@@ -159,10 +163,12 @@ class ProductController extends Controller
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'existing_gallery' => 'nullable|array',
+            'existing_gallery.*' => 'string',
             'restriction_type_ids' => 'nullable|array',
             'restriction_type_ids.*' => 'exists:restriction_types,id',
         ]);
 
+        // Handle main image — only update if a new file was uploaded
         if ($request->hasFile('main_image')) {
             // Delete old image if it was a local file
             if ($product->main_image_url && str_contains($product->main_image_url, '/storage/products/')) {
@@ -172,11 +178,28 @@ class ProductController extends Controller
 
             $path = $request->file('main_image')->store('products', 'public');
             $validated['main_image_url'] = Storage::url($path);
+        } else {
+            // No new file uploaded: preserve existing URL unless explicitly changed via URL field
+            $submittedUrl = $request->input('main_image_url', '');
+            if (empty($submittedUrl) && $product->main_image_url) {
+                // URL came empty but product had an image — check if user intentionally cleared it
+                // If the submitted URL is truly empty string AND different from original, user cleared it
+                // Otherwise preserve the original
+                if ($request->has('_image_cleared') && $request->input('_image_cleared') === '1') {
+                    $validated['main_image_url'] = null;
+                } else {
+                    $validated['main_image_url'] = $product->main_image_url;
+                }
+            }
         }
 
-        // Handle Gallery
+        // Handle Gallery — reconstruct from existing + new uploads
         $currentGallery = $product->gallery ?? [];
-        $newGallery = $request->input('existing_gallery', []);
+        $existingGallery = $request->input('existing_gallery');
+        
+        // If existing_gallery is null/not sent, preserve current gallery
+        // (this handles cases where FormData doesn't properly serialize empty arrays)
+        $newGallery = is_array($existingGallery) ? $existingGallery : $currentGallery;
         
         // Delete removed images from storage
         foreach ($currentGallery as $img) {
@@ -194,10 +217,21 @@ class ProductController extends Controller
         }
         $validated['gallery'] = $newGallery;
 
+        // Remove fields that shouldn't go into the model update
+        unset($validated['main_image'], $validated['gallery_images'], $validated['existing_gallery']);
+
         $product->update($validated);
 
-        if ($request->has('restriction_type_ids')) {
-            $product->restrictions()->sync($request->restriction_type_ids);
+        // Sync restrictions
+        $product->restrictions()->sync($request->input('restriction_type_ids', []));
+
+        // Auto-sync base_price from minimum variant price if variants exist
+        $product->load('variants');
+        if ($product->variants->isNotEmpty()) {
+            $minVariantPrice = $product->variants->min('price');
+            if ($minVariantPrice !== null && (float) $minVariantPrice !== (float) $product->base_price) {
+                $product->update(['base_price' => $minVariantPrice]);
+            }
         }
 
         return redirect()->route('admin.products.index')

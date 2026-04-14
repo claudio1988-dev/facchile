@@ -26,6 +26,12 @@ class ProductVariantController extends Controller
 
         $variant = $product->variants()->create($validated);
 
+        // Auto-sync base_price to minimum variant price
+        $minPrice = $product->variants()->min('price');
+        if ($minPrice !== null) {
+            $product->update(['base_price' => $minPrice]);
+        }
+
         return back()->with('success', 'Variante creada exitosamente.');
     }
 
@@ -45,6 +51,12 @@ class ProductVariantController extends Controller
 
         $variant->update($validated);
 
+        // Auto-sync base_price to minimum variant price
+        $minPrice = $product->variants()->min('price');
+        if ($minPrice !== null) {
+            $product->update(['base_price' => $minPrice]);
+        }
+
         return back()->with('success', 'Variante actualizada exitosamente.');
     }
 
@@ -54,6 +66,12 @@ class ProductVariantController extends Controller
     public function destroy(Product $product, ProductVariant $variant)
     {
         $variant->delete();
+
+        // Auto-sync base_price to minimum variant price (or keep current if no variants remain)
+        $minPrice = $product->variants()->min('price');
+        if ($minPrice !== null) {
+            $product->update(['base_price' => $minPrice]);
+        }
 
         return back()->with('success', 'Variante eliminada exitosamente.');
     }

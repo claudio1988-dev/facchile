@@ -37,12 +37,19 @@ interface RestrictionType {
     name: string;
 }
 
+interface ShippingClass {
+    id: number;
+    name: string;
+    code: string;
+}
+
 interface Product {
     id: number;
     name: string;
     slug: string;
     category_id: number;
     brand_id: number | null;
+    shipping_class_id: number;
     description: string | null;
     short_description: string | null;
     base_price: string;
@@ -69,6 +76,7 @@ interface Props {
     categories: Category[];
     brands: Brand[];
     restrictionTypes: RestrictionType[];
+    shippingClasses: ShippingClass[];
 }
 
 // Hierarchical Category Selector Component
@@ -171,13 +179,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Edit({ product, categories, brands, restrictionTypes }: Props) {
+export default function Edit({ product, categories, brands, restrictionTypes, shippingClasses }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         _method: 'PUT',
         name: product.name,
         slug: product.slug,
         category_id: product.category_id,
         brand_id: product.brand_id,
+        shipping_class_id: product.shipping_class_id,
         description: product.description || '',
         short_description: product.short_description || '',
         base_price: product.base_price,
@@ -189,6 +198,7 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
         existing_gallery: product.gallery || [],
         gallery_images: [] as File[],
         restriction_type_ids: product.restriction_type_ids || [],
+        _image_cleared: '0',
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(product.main_image_url);
@@ -235,6 +245,7 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
             ...prevData,
             main_image: null,
             main_image_url: '',
+            _image_cleared: '1',
         }));
         setImagePreview(null);
         if (fileInputRef.current) {
@@ -303,7 +314,6 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
         router.post(`/adminfacchile/products/${product.id}/variants`, newVariant, {
             onSuccess: () => resetVariantForm(),
             preserveScroll: true,
-            preserveState: true,
         });
     };
 
@@ -324,14 +334,13 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
         router.put(`/adminfacchile/products/${product.id}/variants/${editingVariantId}`, newVariant, {
             onSuccess: () => resetVariantForm(),
             preserveScroll: true,
-            preserveState: true,
         });
     };
 
     const handleDeleteVariant = (variantId: number) => {
         if (confirm('¿Estás seguro de eliminar esta variante?')) {
             router.delete(`/adminfacchile/products/${product.id}/variants/${variantId}`, {
-                preserveScroll: true
+                preserveScroll: true,
             });
         }
     };
@@ -718,11 +727,11 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Precio Base</CardTitle>
+                                    <CardTitle>Precio y Envío</CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="base_price">Precio Base *</Label>
+                                        <Label htmlFor="base_price">Precio Base (Display) *</Label>
                                         <Input
                                             id="base_price"
                                             type="number"
@@ -731,6 +740,31 @@ export default function Edit({ product, categories, brands, restrictionTypes }: 
                                             onChange={(e) => setData('base_price', e.target.value)}
                                         />
                                         {errors.base_price && <p className="text-sm text-destructive">{errors.base_price}</p>}
+                                        {product.variants.length > 0 && (
+                                            <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md">
+                                                💡 Este precio se sincroniza automáticamente con el precio más bajo de tus variantes. Si necesitas cambiar precios, edita las variantes.
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2 pt-3 border-t">
+                                        <Label htmlFor="shipping_class_id">Clase de Envío *</Label>
+                                        <Select
+                                            value={data.shipping_class_id?.toString() || ''}
+                                            onValueChange={(value) => setData('shipping_class_id', parseInt(value))}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona clase de envío" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {shippingClasses.map((sc) => (
+                                                    <SelectItem key={sc.id} value={sc.id.toString()}>
+                                                        {sc.name} ({sc.code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.shipping_class_id && <p className="text-sm text-destructive">{errors.shipping_class_id}</p>}
                                     </div>
                                 </CardContent>
                             </Card>

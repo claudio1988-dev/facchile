@@ -35,10 +35,17 @@ interface RestrictionType {
     name: string;
 }
 
+interface ShippingClass {
+    id: number;
+    name: string;
+    code: string;
+}
+
 interface Props {
     categories: Category[];
     brands: Brand[];
     restrictionTypes: RestrictionType[];
+    shippingClasses: ShippingClass[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -56,12 +63,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Create({ categories, brands, restrictionTypes }: Props) {
+export default function Create({ categories, brands, restrictionTypes, shippingClasses }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         slug: '',
         category_id: '',
         brand_id: '',
+        shipping_class_id: '',
         description: '',
         short_description: '',
         base_price: '',
@@ -426,9 +434,9 @@ export default function Create({ categories, brands, restrictionTypes }: Props) 
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Precio</CardTitle>
+                                    <CardTitle>Precio y Envío</CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="base_price">Precio Base *</Label>
                                         <Input
@@ -442,6 +450,30 @@ export default function Create({ categories, brands, restrictionTypes }: Props) 
                                         {errors.base_price && (
                                             <p className="text-sm text-destructive">
                                                 {errors.base_price}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2 pt-3 border-t">
+                                        <Label htmlFor="shipping_class_id">Clase de Envío *</Label>
+                                        <Select
+                                            value={data.shipping_class_id}
+                                            onValueChange={(value) => setData('shipping_class_id', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona clase de envío" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {shippingClasses.map((sc) => (
+                                                    <SelectItem key={sc.id} value={sc.id.toString()}>
+                                                        {sc.name} ({sc.code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.shipping_class_id && (
+                                            <p className="text-sm text-destructive">
+                                                {errors.shipping_class_id}
                                             </p>
                                         )}
                                     </div>

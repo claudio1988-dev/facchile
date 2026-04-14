@@ -51,14 +51,15 @@ class ProductController extends Controller
                     'name' => $product->shippingClass->name,
                     'code' => $product->shippingClass->code,
                 ] : null,
-                'variants' => $product->variants->map(function ($variant) {
+                'variants' => $product->variants->where('is_active', true)->values()->map(function ($variant) {
                     return [
                         'id' => $variant->id,
+                        'name' => $variant->name,
                         'sku' => $variant->sku,
                         'price' => $variant->price,
                         'stock_quantity' => $variant->stock_quantity,
                         'is_active' => $variant->is_active,
-                        'attributes' => $variant->variant_attributes,
+                        'attributes' => $variant->attributes,
                     ];
                 }),
             ],

@@ -27,6 +27,16 @@ import { useCartStore } from '@/store/useCartStore';
 import { toast } from 'sonner';
 import type { SharedData } from '@/types';
 
+interface Variant {
+    id: number;
+    name: string;
+    sku: string;
+    price: number;
+    stock_quantity: number;
+    is_active: boolean;
+    attributes: Record<string, string> | null;
+}
+
 interface Product {
     id: number;
     name: string;
@@ -55,6 +65,7 @@ interface Product {
         name: string;
         code: string;
     } | null;
+    variants: Variant[];
 }
 
 interface Props {
@@ -75,6 +86,13 @@ export default function ProductDetail({ product }: Props) {
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isZoomOpen, setIsZoomOpen] = useState(false);
+    const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+        product.variants.length > 0 ? product.variants[0].id : null
+    );
+
+    const selectedVariant = product.variants.find(v => v.id === selectedVariantId) ?? null;
+    const displayPrice = selectedVariant ? selectedVariant.price : product.base_price;
+    const displayStock = selectedVariant ? selectedVariant.stock_quantity : product.stock;
 
     const nextImage = () => {
         setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
@@ -260,13 +278,13 @@ export default function ProductDetail({ product }: Props) {
                                         <div className="flex items-baseline gap-4 mb-2">
                                             <div className="flex items-baseline gap-2">
                                                 <span className="text-3xl font-black text-brand-primary">
-                                                    {formatPrice(product.base_price)}
+                                                    {formatPrice(displayPrice)}
                                                 </span>
                                                 <span className="text-sm text-slate-400 font-medium">IVA incluido</span>
                                             </div>
                                             
                                             {/* Stock Status */}
-                                            {product.stock > 0 ? (
+                                            {displayStock > 0 ? (
                                                 <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">
                                                     En Stock
                                                 </Badge>
@@ -276,6 +294,35 @@ export default function ProductDetail({ product }: Props) {
                                                 </Badge>
                                             )}
                                         </div>
+
+                                        {/* Variant Selector */}
+                                        {product.variants.length > 0 && (
+                                            <div className="mt-4 space-y-2">
+                                                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Selecciona una opción:</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {product.variants.map((variant) => (
+                                                        <button
+                                                            key={variant.id}
+                                                            type="button"
+                                                            disabled={variant.stock_quantity <= 0}
+                                                            onClick={() => setSelectedVariantId(variant.id)}
+                                                            className={cn(
+                                                                'relative px-4 py-2.5 rounded-lg border-2 text-sm font-bold transition-all',
+                                                                selectedVariantId === variant.id
+                                                                    ? 'border-brand-primary bg-brand-primary/5 text-brand-primary ring-2 ring-brand-primary/20 shadow-md'
+                                                                    : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500',
+                                                                variant.stock_quantity <= 0 && 'opacity-40 cursor-not-allowed line-through'
+                                                            )}
+                                                        >
+                                                            {variant.name}
+                                                            {selectedVariantId === variant.id && (
+                                                                <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-brand-primary ring-2 ring-white dark:ring-slate-900" />
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                         
                                         {/* Restricted Banner */}
                                         {product.age_verification_required && (
@@ -292,9 +339,16 @@ export default function ProductDetail({ product }: Props) {
                                             <Button 
                                                 size="lg" 
                                                 className="w-full bg-action-buy hover:bg-action-hover h-12 text-base font-bold shadow-xl shadow-brand-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98]"
-                                                disabled={!product.is_active || product.stock <= 0}
+                                                disabled={!product.is_active || displayStock <= 0}
                                                 onClick={() => {
-                                                    useCartStore.getState().addToCart(product);
+                                                    useCartStore.getState().addToCart({
+                                                        ...product,
+                                                        ...(selectedVariant ? {
+                                                            variant_id: selectedVariant.id,
+                                                            variant_name: selectedVariant.name,
+                                                            base_price: selectedVariant.price,
+                                                        } : {}),
+                                                    });
                                                     import('@inertiajs/react').then(({ router }) => {
                                                         router.visit('/checkout');
                                                     });
@@ -381,17 +435,27 @@ export default function ProductDetail({ product }: Props) {
                 <WhatsAppFloating />
 
                 {/* Sticky Mobile Purchase Bar */}
-                <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-4 animate-in slide-in-from-bottom duration-300">
+                    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-4 animate-in slide-in-from-bottom duration-300">
                     <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto">
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold uppercase text-slate-400">Total</span>
-                            <span className="text-lg font-black text-brand-primary leading-none">{formatPrice(product.base_price)}</span>
+                            <span className="text-lg font-black text-brand-primary leading-none">{formatPrice(displayPrice)}</span>
+                            {selectedVariant && (
+                                <span className="text-[10px] text-slate-400 mt-0.5">{selectedVariant.name}</span>
+                            )}
                         </div>
                         <Button 
                             className="flex-1 bg-action-buy hover:bg-action-hover h-12 text-sm font-bold shadow-lg shadow-brand-primary/10"
-                            disabled={!product.is_active || product.stock <= 0}
+                            disabled={!product.is_active || displayStock <= 0}
                             onClick={() => {
-                                useCartStore.getState().addToCart(product);
+                                useCartStore.getState().addToCart({
+                                    ...product,
+                                    ...(selectedVariant ? {
+                                        variant_id: selectedVariant.id,
+                                        variant_name: selectedVariant.name,
+                                        base_price: selectedVariant.price,
+                                    } : {}),
+                                });
                                 import('@inertiajs/react').then(({ router }) => {
                                     router.visit('/checkout');
                                 });
